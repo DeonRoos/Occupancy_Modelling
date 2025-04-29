@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Deon Roos">
+<meta name="dcterms.date" content="2025-04-29">
+
+<title>Occupancy Modelling - Including Covariates in Occupancy Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Occupancy Modelling</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./Occupancy_Models.html" rel="" target="">
+ <span class="menu-text">Occupancy Models: The basics</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./OccMods_WithCovariates.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Occupancy Models: Covariates</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Bayesian_Statistics.html" rel="" target="">
+ <span class="menu-text">Bayesian models: The concept</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Bayesian_Occupancy_Models.html" rel="" target="">
+ <span class="menu-text">Fitting Bayesian models</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#the-r-packages" id="toc-the-r-packages" class="nav-link active" data-scroll-target="#the-r-packages">The <code>R</code> packages</a></li>
+  <li><a href="#the-theory" id="toc-the-theory" class="nav-link" data-scroll-target="#the-theory">The theory</a></li>
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation">Data preparation</a></li>
+  <li><a href="#fitting-the-model" id="toc-fitting-the-model" class="nav-link" data-scroll-target="#fitting-the-model">Fitting the model</a></li>
+  <li><a href="#interpreting" id="toc-interpreting" class="nav-link" data-scroll-target="#interpreting">Interpreting</a></li>
+  <li><a href="#plot-predicted-relationships" id="toc-plot-predicted-relationships" class="nav-link" data-scroll-target="#plot-predicted-relationships">Plot predicted relationships</a></li>
+  <li><a href="#uncertainty" id="toc-uncertainty" class="nav-link" data-scroll-target="#uncertainty">Uncertainty</a></li>
+  <li><a href="#multiple-covariates" id="toc-multiple-covariates" class="nav-link" data-scroll-target="#multiple-covariates">Multiple covariates</a></li>
+  <li><a href="#data-preparation-1" id="toc-data-preparation-1" class="nav-link" data-scroll-target="#data-preparation-1">Data preparation</a></li>
+  <li><a href="#fitting-the-model-1" id="toc-fitting-the-model-1" class="nav-link" data-scroll-target="#fitting-the-model-1">Fitting the model</a></li>
+  <li><a href="#resolving-issues" id="toc-resolving-issues" class="nav-link" data-scroll-target="#resolving-issues">Resolving issues</a></li>
+  <li><a href="#plot-predicted-relationships-1" id="toc-plot-predicted-relationships-1" class="nav-link" data-scroll-target="#plot-predicted-relationships-1">Plot predicted relationships</a></li>
+  <li><a href="#how-should-i-store-my-data" id="toc-how-should-i-store-my-data" class="nav-link" data-scroll-target="#how-should-i-store-my-data">How should I store my data?</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Including Covariates in Occupancy Models</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Deon Roos </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 29, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="the-r-packages" class="level1">
+<h1>The <code>R</code> packages</h1>
+<p>As before, this code uses <code>spOccupancy</code>, <code>ggplot2</code> and <code>patchwork</code> for the analysis and visualisations.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spOccupancy)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="the-theory" class="level1">
+<h1>The theory</h1>
+<p>In the previous document we went through a simple example to get a sense of how occupancy models work. We’re now going to begin the process of slowly increasing the complexity. To start, we’re going to need to include covariates (often called explanatory variables or independent variables or a wide variety of other names - it’s a mess).</p>
+<p>Let’s revisit our simple occupancy model:</p>
+<p><span class="math display">\[
+z_i \sim Bernoulli(\psi_i)\\
+\]</span></p>
+<p><span class="math display">\[
+logit(\psi_i) = \beta_0\\
+\]</span></p>
+<p><span class="math display">\[
+y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
+\]</span></p>
+<p><span class="math display">\[
+logit(p_{i,j}) = \alpha_0
+\]</span></p>
+<p>where the first two formula represent the state model (i.e.&nbsp;are our species present or absent from site <span class="math inline">\(i\)</span>), and the last two form the detection model.</p>
+<p>What we’re going to do in this section is to add in covariates to these equations, starting with the detection model.</p>
+<p>The first thing to note is that <span class="math inline">\(y\)</span> is indexed by both <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, where <span class="math inline">\(i\)</span> was the site and <span class="math inline">\(j\)</span> was the survey. That <span class="math inline">\(j\)</span> is important because it allows us to specify covariates that vary not just by site (e.g.&nbsp;site 1 has 20 trees while site 2 has 10 trees) but by survey as well (e.g.&nbsp;on survey 1 in site 1, the temperature was 20 degrees, 15 degrees in survey 2 and 5 degrees in survey 3). This means that anything that was different in one survey to the next can be accounted for and included in the model (so long as we can measure it).</p>
+<p>Specifically, these “survey varying covariates” are features that we think may have made us (or whoever or whatever collected the data) to be more or less effective. Using cameras? Well maybe the presence of fog has a big impact on how likely we are to detect elephants. Doing surveys yourself? Well maybe the hour of day that you did the survey had a big impact. The point is, we can include these variables that deal with differences in detection probability.</p>
+<p>I’ll simulate a new dataset (with a bit more data for us to work with - 64 sites surveyed 3 times each) to show this off. We can say that the detection covariate in this case is rainfall, but note that the values for rainfall will be centred on zero (don’t worry about this).</p>
+<p>Here’s what the data looks like:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">simOcc</span>(<span class="at">J.x =</span> <span class="dv">8</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">J.y =</span> <span class="dv">8</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">n.rep =</span> <span class="fu">rep</span>(<span class="dv">3</span>, <span class="at">times =</span> <span class="dv">8</span> <span class="sc">*</span> <span class="dv">8</span>), </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">1</span>), </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="fl">0.5</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> dat<span class="sc">$</span>y</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>det_cov <span class="ot">&lt;-</span> dat<span class="sc">$</span>X.p[,,<span class="dv">2</span>]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">survey =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">each =</span> <span class="dv">64</span>),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">cov =</span> <span class="fu">c</span>(det_cov[,<span class="dv">1</span>], det_cov[,<span class="dv">2</span>], det_cov[,<span class="dv">3</span>]),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> <span class="fu">c</span>(obs[,<span class="dv">1</span>], obs[,<span class="dv">2</span>], obs[,<span class="dv">3</span>])</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> cov)) <span class="sc">+</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> cov),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>              <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">height =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Survey"</span>, <span class="at">y =</span> <span class="st">"Rainfall"</span>) <span class="sc">+</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">factor</span>(y), <span class="at">x =</span> cov),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">width =</span> <span class="dv">0</span>, <span class="at">height =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Rainfall"</span>, <span class="at">y =</span> <span class="st">"Elephant detection"</span>) <span class="sc">+</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="st">"A"</span>, <span class="at">tag_suffix =</span> <span class="st">")"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Notice anything? In <strong>A)</strong> we can see that in each survey, there’s a lot of variation across the 64 sites in how much rainfall there was; maybe peaking in survey 2. In <strong>B)</strong>, it looks like it might be more likely that we detect elephants more often when there’s more rainfall.</p>
+<p>Are you sure there’s an influence? If so, how strong is it? <em>Exactly</em> how strong is it?</p>
+<p>There’s no way you can answer those questions. That’s where we need stats. So let’s add in rainfall to our model. I’ll recycle the code from the previous document and include rainfall. Here’s how we do that.</p>
+</section>
+<section id="data-preparation" class="level1">
+<h1>Data preparation</h1>
+<p>Just like in the previous document, we need to include our different datasets into a <code>list</code>. If you’re still not sure what a <code>list</code> is in <code>R</code>, think of it like a folder on your computer. You can add lots of different files to a folder, but they’re all “tied” together by being within the same folder. That’s the same as a <code>list</code> in <code>R</code>.</p>
+<p>Here, I’m going to do something seemingly strange. I’m going to create a <code>list</code> and include this into our <code>etosha</code> <code>list</code>. The reason is that we might have more than one detection covariate, so having a list, though redundant here, will make adding additional variables easier in the future.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note you wouldn't need to do the dat$X.p[,,2] bit</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># That's just because the data is simulated.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>det.covs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">rain =</span> dat<span class="sc">$</span>X.p[,,<span class="dv">2</span>])</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>etosha <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> dat<span class="sc">$</span>y,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.covs =</span> det.covs</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>And we’re good to go on to the modelling.</p>
+</section>
+<section id="fitting-the-model" class="level1">
+<h1>Fitting the model</h1>
+<p>A few things to note in the <code>R</code> code;</p>
+<ul>
+<li><p><code>occ.formula = ~ 1</code> is the equivalent to <span class="math inline">\(logit(\psi_{i,j}) = \beta_0\)</span></p>
+<ul>
+<li>I.e. an intercept only occupancy model, meaning we are not including any covariates for the probability that a site is occupied.</li>
+</ul></li>
+<li><p><code>det.formula = ~ rain</code> is the equivalent to <span class="math inline">\(logit(p_i) = \alpha_0 + \alpha_1 \times Rain_i\)</span></p>
+<ul>
+<li>I.e. we have both an intercept and slope given we have included rain in the model.</li>
+</ul></li>
+<li><p>We specify that all data is contained in the list (i.e.&nbsp;“folder”) called <code>etosha</code>.</p></li>
+<li><p>The remainder of the arguments (e.g.&nbsp;<code>n.chains</code>) can be ignored for now.</p></li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The state model (i.e. what % that elephants are present?)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ~ 1 means we want an intercept only model (no covariates)</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> <span class="dv">1</span>, </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The observation model (i.e. what % that we see elephants if present?)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain, </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Our carefully formatted dataset</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha, </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Details to get the machinery to run that we'll ignore for now</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="interpreting" class="level1">
+<h1>Interpreting</h1>
+<p>Having now fit the model to the data, we can see what we’ve learnt:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+PGOcc(occ.formula = ~1, det.formula = ~rain, data = etosha, n.samples = 2000, 
+    verbose = FALSE, n.burn = 200, n.chains = 4)
+
+Samples per Chain: 2000
+Burn-in: 200
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 7200
+Run Time (min): 0.0163
+
+Occurrence (logit scale): 
+              Mean     SD   2.5%   50%  97.5%   Rhat ESS
+(Intercept) 1.8753 0.9465 0.3078 1.772 4.0465 1.0516 349
+
+Detection (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat  ESS
+(Intercept) -1.8872 0.2946 -2.4610 -1.8939 -1.2939 1.0165 1038
+rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
+</div>
+</div>
+<p>Compared to the model in the previous document we now have additional information for <code>Detection (logit scale)</code>; we have both an <code>(Intercept)</code> and <code>rain</code>. These are <span class="math inline">\(\alpha_0\)</span> and <span class="math inline">\(\alpha_1\)</span> from our detection model <span class="math inline">\(logit(p_i) = \alpha_0 + \alpha_1 \times Rain_i\)</span>. If we really wanted to, we could now replace the parameter labels (e.g.&nbsp;the <span class="math inline">\(\alpha\)</span>s and <span class="math inline">\(\beta\)</span>s) with their now estimated values which would look like (rounding the estimates to two decimal points arbitrarily):</p>
+<p><span class="math display">\[
+z_i \sim Bernoulli(\psi_i)\\\]</span> $$</p>
+<p><span class="math display">\[
+logit(\psi_i) = 1.88\\
+\]</span></p>
+<p><span class="math display">\[
+y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
+\]</span></p>
+<p><span class="math display">\[
+logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i
+\]</span></p>
+<p>With this, we can swap out <span class="math inline">\(Rain\)</span> for any value that we might be interested in, to see how our detection probability changes. For example, let’s see what happens when <span class="math inline">\(Rain = 1\)</span>.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span><span class="fl">1.89</span> <span class="sc">+</span> <span class="fl">0.69</span> <span class="sc">*</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -1.2</code></pre>
+</div>
+</div>
+<p>Our logit value is -1.2. How do we get that into probabilities that we can actually understand? Backtransform out of logit using <code>plogis()</code>:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">1.89</span> <span class="sc">+</span> <span class="fl">0.69</span> <span class="sc">*</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.2314752</code></pre>
+</div>
+</div>
+<p>And we get a ca. 23% chance to detect an elephant when <span class="math inline">\(Rain = 1\)</span>. What about when <span class="math inline">\(Rain = 0\)</span>? Well, we can do that easily enough now that we know thew general steps:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">1.89</span> <span class="sc">+</span> <span class="fl">0.69</span> <span class="sc">*</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1312445</code></pre>
+</div>
+</div>
+<p>When <span class="math inline">\(Rain = 0\)</span>, we predict a ca. 13% chance to detect elephants.</p>
+<p>This approach, whereby we make a prediction for a specific value of <span class="math inline">\(Rain\)</span> can be extended into making multiple predictions at once, such that we can then draw a line through them. Here’s how we’d do that.</p>
+</section>
+<section id="plot-predicted-relationships" class="level1">
+<h1>Plot predicted relationships</h1>
+<p>We start by creating a sequence of <span class="math inline">\(Rain\)</span> values, rather than doing one a time. Here we use the <code>seq()</code> function to create a sequence, which will range from the minimum <span class="math inline">\(Rain\)</span> value to the maximum within our dataset. The number of values that we want in this sequence is specified as 20 but we can choose any value here - we just need enough that the line is drawn “accurately”.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>rain <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(det.covs<span class="sc">$</span>rain),</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">to =</span> <span class="fu">max</span>(det.covs<span class="sc">$</span>rain),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">length.out =</span> <span class="dv">20</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>rain</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] -2.71815687 -2.44127881 -2.16440076 -1.88752271 -1.61064465 -1.33376660
+ [7] -1.05688855 -0.78001049 -0.50313244 -0.22625439  0.05062367  0.32750172
+[13]  0.60437977  0.88125783  1.15813588  1.43501393  1.71189199  1.98877004
+[19]  2.26564809  2.54252615</code></pre>
+</div>
+</div>
+<p>Now we have our values, we don’t want to manually enter each value into our equation. Instead we can use the fact that <code>R</code> works with vectors (i.e.&nbsp;columns of data) to do this quickly and easily:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">1.89</span> <span class="sc">+</span> <span class="fl">0.69</span> <span class="sc">*</span> rain)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>pred</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 0.02263134 0.02726568 0.03281714 0.03945308 0.04736516 0.05677017
+ [7] 0.06790956 0.08104689 0.09646267 0.11444547 0.13527876 0.15922259
+[13] 0.18649040 0.21722152 0.25145143 0.28908330 0.32986526 0.37337882
+[19] 0.41904309 0.46613767</code></pre>
+</div>
+</div>
+<p>Now for each value of rain, we have the predicted probability of detecting an elephant. Useful but you wouldn’t want to throw these two columns at your audience/reader and expect them to make sense of it. It’d be better if we include these in a figure.</p>
+<p>To do so, we’ll combine both columns into a single dataset and plot using <code>ggplot2</code>:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  pred,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  rain</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> rain, <span class="at">y =</span> pred))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>From this figure it now appears much more intuitive that increasing rain makes elephants easier to detect. We can do a little “tidying” of the figure to make it more visually pleasing:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> rain, <span class="at">y =</span> pred)) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Mean rainfall"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Predicted detection</span><span class="sc">\n</span><span class="st">probability of elephants"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="uncertainty" class="level1">
+<h1>Uncertainty</h1>
+<p>The above figure is a good start but we’re missing any measure of uncertainty. If we were doing frequentist statistics, we would use 95% confidence intervals but these are exclusively frequentist. There are no 95% confidence intervals when we use the Bayesian statistical framework. Instead we have <em>credible intervals</em>. I’ll explain the Bayesian framework in a subsequent workflow but for now here is the formal definition of a credible interval:</p>
+<blockquote class="blockquote">
+<p>There is a 95% probability that the <strong>True</strong> parameter value lies within the interval range, given the data and model.</p>
+</blockquote>
+<p>This is in contrast with the frequentist confidence interval whose formal definition is so bizarre and unintuitive that it’s barely useful. 95% <em>credible intervals</em> are useful and work exactly the way people <em>think</em> frequentist intervals work.</p>
+<p>But how do we include these in the figure? Well, the model summary makes it easy to find the values:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+PGOcc(occ.formula = ~1, det.formula = ~rain, data = etosha, n.samples = 2000, 
+    verbose = FALSE, n.burn = 200, n.chains = 4)
+
+Samples per Chain: 2000
+Burn-in: 200
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 7200
+Run Time (min): 0.0163
+
+Occurrence (logit scale): 
+              Mean     SD   2.5%   50%  97.5%   Rhat ESS
+(Intercept) 1.8753 0.9465 0.3078 1.772 4.0465 1.0516 349
+
+Detection (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat  ESS
+(Intercept) -1.8872 0.2946 -2.4610 -1.8939 -1.2939 1.0165 1038
+rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
+</div>
+</div>
+<p>They’re the <code>2.5%</code> and <code>97.5%</code> values in our summary table. So all we need to do is repeat our predicions using these values to get out measure of uncertainty to include in the figure. Importantly, if you remember back to BI3010 where you had to multiple standard error by 1.96, we <em>do not</em> need to do that here. That’s frequentist nonsense - we’re Bayesian now.</p>
+<p>Let’s do just that:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>low <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">2.4610</span> <span class="sc">+</span> <span class="fl">0.2328</span> <span class="sc">*</span> df<span class="sc">$</span>rain)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>upp <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">1.2939</span> <span class="sc">+</span> <span class="fl">1.1801</span> <span class="sc">*</span> df<span class="sc">$</span>rain)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>         pred        rain        low        upp
+1  0.02263134 -2.71815687 0.04336427 0.01096960
+2  0.02726568 -2.44127881 0.04611831 0.01514457
+3  0.03281714 -2.16440076 0.04903828 0.02087495
+4  0.03945308 -1.88752271 0.05213304 0.02871039
+5  0.04736516 -1.61064465 0.05541172 0.03936862
+6  0.05677017 -1.33376660 0.05888379 0.05376451
+7  0.06790956 -1.05688855 0.06255900 0.07302436
+8  0.08104689 -0.78001049 0.06644741 0.09846565
+9  0.09646267 -0.50313244 0.07055932 0.13151304
+10 0.11444547 -0.22625439 0.07490526 0.17351714
+11 0.13527876  0.05062367 0.07949599 0.22545433
+12 0.15922259  0.32750172 0.08434241 0.28752905
+13 0.18649040  0.60437977 0.08945559 0.35877811
+14 0.21722152  0.88125783 0.09484663 0.43685701
+15 0.25145143  1.15813588 0.10052670 0.51819600
+16 0.28908330  1.43501393 0.10650691 0.59858193
+17 0.32986526  1.71189199 0.11279825 0.67399363
+18 0.37337882  1.98877004 0.11941156 0.74135968
+19 0.41904309  2.26564809 0.12635738 0.79895748
+20 0.46613767  2.54252615 0.13364590 0.84638633</code></pre>
+</div>
+</div>
+<p>And we can add in our uncertainty using <code>geom_ribbon()</code>:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> rain, <span class="at">y =</span> pred)) <span class="sc">+</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> rain, <span class="at">ymin =</span> low, <span class="at">ymax =</span> upp),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Mean rainfall"</span>,</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Predicted detection</span><span class="sc">\n</span><span class="st">probability of elephants"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>With that, we have a publication ready figure.</p>
+</section>
+<section id="multiple-covariates" class="level1">
+<h1>Multiple covariates</h1>
+<p>Let’s increase the complexity a bit and have the simulation include multiple covariates. We’ll say that tree height and average temperature affect whether or not a site is occupied (elephants will like tall trees and cooler locations). We’ll still have rain affect our detection probability, as above.</p>
+<p>To create the figures below we need to do some tweaks to the data. The <code>df</code> object I create has one row per survey, with three surveys per site. Our occupancy covariates, <code>tree</code> and <code>temp</code> have just one value; these do not change from one survey to the next. If a tree is 3 m tall in survey one, then it’ll still be 3 m tall in surveys two and three.</p>
+<p>A note here is that the covariates are still centered on zero. That’s just the way the data is simulated but the data you collect does not need to be the same (so ignore the fact that we will have trees that are -1 m tall - the general idea doesn’t change).</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">simOcc</span>(<span class="at">J.x =</span> <span class="dv">8</span>, </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">J.y =</span> <span class="dv">8</span>, </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">n.rep =</span> <span class="fu">rep</span>(<span class="dv">3</span>, <span class="at">times =</span> <span class="dv">8</span> <span class="sc">*</span> <span class="dv">8</span>), </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="fl">0.2</span>, <span class="fl">0.3</span>), </span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="fl">0.5</span>))</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> dat<span class="sc">$</span>y</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> dat<span class="sc">$</span>X[,<span class="dv">2</span>]</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>tree <span class="ot">&lt;-</span> dat<span class="sc">$</span>X[,<span class="dv">3</span>]</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>det_cov <span class="ot">&lt;-</span> dat<span class="sc">$</span>X.p[,,<span class="dv">2</span>]</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">survey =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">each =</span> <span class="dv">64</span>),</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">cov =</span> <span class="fu">c</span>(det_cov[,<span class="dv">1</span>], det_cov[,<span class="dv">2</span>], det_cov[,<span class="dv">3</span>]),</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">tree =</span> <span class="fu">rep</span>(tree, <span class="at">times =</span> <span class="dv">3</span>),</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">temp =</span> <span class="fu">rep</span>(temp, <span class="at">times =</span> <span class="dv">3</span>),</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> <span class="fu">c</span>(obs[,<span class="dv">1</span>], obs[,<span class="dv">2</span>], obs[,<span class="dv">3</span>])</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> temp)) <span class="sc">+</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> temp),</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>              <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">height =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Survey"</span>, <span class="at">y =</span> <span class="st">"Temperature"</span>) <span class="sc">+</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">factor</span>(y), <span class="at">x =</span> temp),</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">width =</span> <span class="dv">0</span>, <span class="at">height =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Temperature"</span>, <span class="at">y =</span> <span class="st">"Elephant detection"</span>) <span class="sc">+</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> tree)) <span class="sc">+</span></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> tree),</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>              <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">height =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Survey"</span>, <span class="at">y =</span> <span class="st">"Tree"</span>) <span class="sc">+</span></span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">factor</span>(y), <span class="at">x =</span> tree),</span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">width =</span> <span class="dv">0</span>, <span class="at">height =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Tree"</span>, <span class="at">y =</span> <span class="st">"Elephant detection"</span>) <span class="sc">+</span></span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a>(p1 <span class="sc">+</span> p2) <span class="sc">/</span> (p3 <span class="sc">+</span> p4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There are two things worth highlighting from the above figures. Firstly, the boxplots on the right are identical for each of the three surveys (the points are jittered so are randomly placed but trust me that these are identical). Secondly, it becomes quite hard to see any clear pattern in the two right hand figures. Keep in mind that the zeros here are actively misleading us. Some of the zeros are genuine in that there were no elephants there and <code>tree</code> and <code>temp</code> likely caused that (which we only know because the data is simulated) but the other zeros are false negatives; The elephants were there, we just didn’t see them.</p>
+<p>This is why we need a model to figure out what the relationships are. We can no longer trust our eyes to see the pattern.</p>
+<p>So let’s get our data organised such that we can fit our model.</p>
+</section>
+<section id="data-preparation-1" class="level1">
+<h1>Data preparation</h1>
+<p>As before, we provide our detection covariates as a list but XXX</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>det.covs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">rain =</span> dat<span class="sc">$</span>X.p[,,<span class="dv">2</span>])</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>occ.covs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">tree =</span> tree, <span class="at">temp =</span> temp)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>etosha <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> dat<span class="sc">$</span>y,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.covs =</span> det.covs,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.covs =</span> occ.covs</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="fitting-the-model-1" class="level1">
+<h1>Fitting the model</h1>
+<p>The core model we’re going to fit is:</p>
+<p><span class="math display">\[
+z_i \sim Bernoulli(\psi_i)\\
+logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\\
+y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
+logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}
+\]</span></p>
+<p>The main thing that I want to highlight here, other than having included <span class="math inline">\(Tree\)</span> and <span class="math inline">\(Temp\)</span> as effecting occupancy probability (<span class="math inline">\(\psi\)</span>), is that the subscripts are different.</p>
+<p>In the occupancy model (<span class="math inline">\(logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\)</span>) the variables are subscript by <span class="math inline">\(i\)</span>, indicating that we have one value of <span class="math inline">\(Tree\)</span> or <span class="math inline">\(Rain\)</span> for each site <span class="math inline">\(i\)</span>.</p>
+<p>But in the detection model (<span class="math inline">\(logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\)</span>) <span class="math inline">\(Rain\)</span> is subscript by both <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>. That’s because we have a different <span class="math inline">\(Rain\)</span> value for each survey. This would be something we record every time we visit the site (or extract from some online source for each day).</p>
+<p>Keep this in mind when you’re collecting your own data. Variables that you think affect occupancy will have one value per site. Variables that you think affect detection will (generally) have one value per survey.</p>
+<p>To fit this is relatively straight forward. For the occupancy model, we write <code>occ.formula = ~ tree + temp</code>, and for the detection model we write <code>det.formula = ~ rain</code>, and let the machinery do it’s thing.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp, </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain, </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha, </span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Details to get the machinery to run that we'll ignore for now</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Once it’s run, we can check the <code>summary()</code> to see what the parameters were estimated as:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+PGOcc(occ.formula = ~tree + temp, det.formula = ~rain, data = etosha, 
+    n.samples = 2000, verbose = FALSE, n.burn = 200, n.chains = 4)
+
+Samples per Chain: 2000
+Burn-in: 200
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 7200
+Run Time (min): 0.0182
+
+Occurrence (logit scale): 
+               Mean     SD    2.5%     50%  97.5%   Rhat ESS
+(Intercept)  1.9424 1.0250  0.1512  1.8670 4.0917 1.0187 347
+tree         0.3904 1.3242 -2.0614  0.3232 3.0704 1.0196 267
+temp        -1.2186 1.0959 -3.2786 -1.2776 1.1046 1.0246 267
+
+Detection (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat  ESS
+(Intercept) -1.8408 0.2706 -2.3623 -1.8447 -1.2875 1.0066 1117
+rain         0.1666 0.2196 -0.2592  0.1611  0.6073 1.0038 3054</code></pre>
+</div>
+</div>
+<p>We see that <code>tree</code> has a positive effect on occupancy and <code>temp</code> has a negative effect. This is how the simulation was carried out, but the values do not match up particularly well. Specifically, in the simulation <code>tree</code> was set to <code>0.3</code> but has been estimated as <code>0.2</code>, while <code>temp</code> was set to <code>-0.2</code> but has been estimated as <code>-1.2</code>.</p>
+<p>So we’ve got the general relationships reasonably well estimated but it’s not particularly accurate. This is where having <em>credible intervals</em> is useful. Keep in mind that credible intervals are, correctly, interpreted as having a 95% chance of containing the “True” value (the True value here is what each parameter was set to in the simulation). For both <code>tree</code> and <code>temp</code> the True parameter value is indeed within the 95% credible intervals! Both 95% CI are wide, but that’s good here! The model isn’t entirely sure what the values are (partly because of sample size and the effects being subtle) and that is being conveyed to us! We’re not deluding ourselves into thinking we have a perfect understanding when we don’t!</p>
+<p>There are some other warning signs that the model might not be performing especially well. The first is that the <code>Rhat</code> values are getting uncomfortably large for the <code>Occurence</code> parameters. My personal rule of thumb is <code>Rhat</code> values close to 1.05 is where I get worried. None of our parameters are at 1.05 but they’re close enough that I’m paying attention to them and want to see if I can fix the problem.</p>
+<p>The other warning sign is the <code>ESS</code> for the <code>Occurence</code> model are all “low”. At least noticeably lower than the <code>Detection</code> model parameters. Again, the rule of thumb here is that we want hundreds or thousands of “Effective Sample Size”, so we’re technically OK but I’m still concerned.</p>
+<p>Now, to be clear, we ignored these issues with the first model we ran in this document, we here we’re going to see if we can’t resolve this problem.</p>
+</section>
+<section id="resolving-issues" class="level1">
+<h1>Resolving issues</h1>
+<p>To fully appreciate the solution we’ll attempt requires a deeper understanding of Bayesian statistics. But for now, we’re not going to cover this. Instead, I’ll simply say that the “machinery” of Bayesian statistics revolves around giving a number of algorithms (called “chains”) a number of guesses (called “iterations”) to try and figure out the most likely values for our parameters.</p>
+<p>The two metrics we used above, <code>Rhat</code> and <code>ESS</code>, both monitor these chains and iterations and let us know if they are <em>not in agreement</em>. When <code>Rhat</code> values get high, and <code>ESS</code> values get low, it can suggests we simply need to give the algorithms more iterations to figure out the best values.</p>
+<p>Inevitably, the details are more complex than I can convey in two paragraphs but the general idea is there. If either number looks a bit worrying, it’s relatively cheap and easy to just rerun the model with more iterations and see if that solves the problem.</p>
+<p>Let’s do just that by increasing the number of iterations to 3000 per chain:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp, </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain, </span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha, </span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># We're using four chains/algorithms</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># We allow 3000 guesses (increased from 2000)</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">3000</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># We ignore the first 300 (increased from 200)</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># We ignore them because we assume the algorithms are not particularly reliable</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># in the first ca. 10% of guesses</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">300</span>,</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Once run, we can check how well they ran:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+PGOcc(occ.formula = ~tree + temp, det.formula = ~rain, data = etosha, 
+    n.samples = 3000, verbose = FALSE, n.burn = 300, n.chains = 4)
+
+Samples per Chain: 3000
+Burn-in: 300
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 10800
+Run Time (min): 0.0262
+
+Occurrence (logit scale): 
+               Mean     SD    2.5%     50%  97.5%   Rhat ESS
+(Intercept)  2.0655 1.0246  0.1977  2.0138 4.2114 1.0010 529
+tree         0.3721 1.3145 -2.0763  0.3028 3.0319 1.0662 375
+temp        -1.2063 1.1214 -3.3214 -1.2363 1.1050 1.0220 422
+
+Detection (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat  ESS
+(Intercept) -1.8530 0.2644 -2.3777 -1.8521 -1.3301 1.0020 1914
+rain         0.1715 0.2210 -0.2506  0.1682  0.6072 1.0004 4390</code></pre>
+</div>
+</div>
+<p>Now when we look at the <code>Rhat</code> and <code>ESS</code> values, we doing better. Still not perfect but enough for me to be happy that <em>by these two metrics alone</em> there’s nothing to suggest the machinery is struggling and that the parameters are being estimated as robustly as possible.</p>
+<blockquote class="blockquote">
+<p>Importantly, these are not the only metrics or tools available to us. We’ll check out the other options in a later document.</p>
+</blockquote>
+<p>As far as we can tell, for now, we can trust this model and move on to plotting the predicted relationships.</p>
+</section>
+<section id="plot-predicted-relationships-1" class="level1">
+<h1>Plot predicted relationships</h1>
+<p>Previously, we made the predictions ourselves by “hand”. This time, we’re going to use the <code>predict()</code> function to do this for us to make life easier on ourselves. Importantly, the process is exactly the same;</p>
+<ol type="1">
+<li><p>Create a “fake” dataset with the covariate values we want to predict for.</p></li>
+<li><p>Apply this fake data to our equation, with the now estimated parameter values, to generate the predictions.</p></li>
+<li><p>Convert from logit values to probabilities.</p></li>
+<li><p>Plot the predicted probabilities against the fake covariate values to show the estimated relationship.</p></li>
+</ol>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>X<span class="fl">.0</span> <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">temp =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(occ.covs<span class="sc">$</span>temp), </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">to =</span> <span class="fu">max</span>(occ.covs<span class="sc">$</span>temp),</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">length.out =</span> <span class="dv">50</span>),</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">tree =</span> <span class="dv">0</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co">#predict(fit, X.0)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="how-should-i-store-my-data" class="level1">
+<h1>How should I store my data?</h1>
+<p>In order to be able to run the model, we need the data to be in a particular order</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
