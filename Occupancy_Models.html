@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Deon Roos">
+<meta name="dcterms.date" content="2025-04-29">
+
+<title>Occupancy Modelling - Introduction to Occupancy Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Occupancy Modelling</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./Occupancy_Models.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Occupancy Models: The basics</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./OccMods_WithCovariates.html" rel="" target="">
+ <span class="menu-text">Occupancy Models: Covariates</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Bayesian_Statistics.html" rel="" target="">
+ <span class="menu-text">Bayesian models: The concept</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Bayesian_Occupancy_Models.html" rel="" target="">
+ <span class="menu-text">Fitting Bayesian models</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#where-are-species-present-and-why-are-they-present" id="toc-where-are-species-present-and-why-are-they-present" class="nav-link active" data-scroll-target="#where-are-species-present-and-why-are-they-present">Where are species present and why are they present?</a></li>
+  <li><a href="#imperfect-detection" id="toc-imperfect-detection" class="nav-link" data-scroll-target="#imperfect-detection">Imperfect detection</a></li>
+  <li><a href="#occupancy-models" id="toc-occupancy-models" class="nav-link" data-scroll-target="#occupancy-models">Occupancy models</a></li>
+  <li><a href="#the-robust-design-and-closure" id="toc-the-robust-design-and-closure" class="nav-link" data-scroll-target="#the-robust-design-and-closure">The robust design and closure</a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The data</a></li>
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation">Data preparation</a></li>
+  <li><a href="#fitting-the-model" id="toc-fitting-the-model" class="nav-link" data-scroll-target="#fitting-the-model">Fitting the model</a></li>
+  <li><a href="#interpreting-the-results" id="toc-interpreting-the-results" class="nav-link" data-scroll-target="#interpreting-the-results">Interpreting the results</a></li>
+  <li><a href="#what-next" id="toc-what-next" class="nav-link" data-scroll-target="#what-next">What next?</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Introduction to Occupancy Models</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Deon Roos </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 29, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="where-are-species-present-and-why-are-they-present" class="level1">
+<h1>Where are species present and why are they present?</h1>
+<p>A fundamental question in ecology is: where are species present, and why? For example, why are elephants present in the north of Etosha nature reserve in Namibia, but not in the south of the reserve? Is it due to water availability? Food? Could predators play a role?</p>
+<p>The best tool available for answering these types of questions is occupancy modeling, originally developed by Daryl MacKenzie et al in <a href="https://doi.org/10.1890/0012-9658(2002)083%5B2248:ESORWD%5D2.0.CO;2">2002</a>. This modelling framework built on concepts already developed for estimating survival of <em>individual</em> animals, called the Cormack-Jolly-Seber model (note that Cormack and Jolly independently developed this model <em>while they worked in Aberdeen University</em> - a vital and internationally renowned model was developed right here in bloody Aberdeen!)</p>
+<p>The problem that occupancy models solve is subtle but insanely crucial.</p>
+<p>Assume I want to determine where elephants are present in Etosha nature reserve in Namibia. I do a bunch of surveys where I go to various sites throughout the park. Whenever I spot an elephant I note down that elephants are present at that location. When I don’t see any elephants I also record that. My dataset might look something like:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1988</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>etosha <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">site =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">elephants =</span> <span class="fu">rbinom</span>(<span class="at">n =</span> <span class="dv">10</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.4</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>etosha</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   site elephants
+1     1         0
+2     2         0
+3     3         0
+4     4         0
+5     5         0
+6     6         0
+7     7         0
+8     8         1
+9     9         1
+10   10         0</code></pre>
+</div>
+</div>
+<p>When <code>elephants</code> is <code>1</code>, then I saw them at that site, and when <code>elephants</code> is <code>0</code>, then I didn’t see them.</p>
+<p>To figure out the probability that a site is occupied, I can run a Bernoulli Generalised Linear Model. The Bernoulli distribution (named after <a href="https://en.wikipedia.org/wiki/Jacob_Bernoulli">Jacob Bernoulli</a>) is a type of distribution that will generate (or expect) values of <code>1</code> or <code>0</code>; perfect here because our data can only be <code>1</code> or <code>0</code>.</p>
+<p>The model would be:</p>
+<p><span class="math display">\[
+y_i \sim Bernoulli(p_i) \\
+\]</span></p>
+<p><span class="math display">\[
+logit(p_i) = \beta_0
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><p><span class="math inline">\(y\)</span> is our observation (<code>elephants</code> in the <code>etosha</code> dataset)</p></li>
+<li><p><span class="math inline">\(i\)</span> is the index, here being which <code>site</code> the data was collected from</p></li>
+<li><p><span class="math inline">\(\sim\)</span> means “generated according to” (or “our data is the same as would be generated by the following distribution”)</p></li>
+<li><p><span class="math inline">\(Bernoulli\)</span> is a type of distribution that will generate either 0 or 1</p></li>
+<li><p><span class="math inline">\(p\)</span> is the probability of success (i.e.&nbsp;there is <span class="math inline">\(p\)</span> probability that we see an elephant). We can’t possibly know what <span class="math inline">\(p\)</span> is when we collect the data, so we need to figure it out with statistics. (The <span class="math inline">\(i\)</span> means each site <em>could</em> have a different probability - but we’re not doing that yet)</p></li>
+<li><p><span class="math inline">\(logit\)</span> is the link function to ensure that <span class="math inline">\(p\)</span> remains between 0% and 100%. Specifically, it’s a little bit of maths: <span class="math inline">\(log(\frac{p}{1-p})\)</span>, which is the natural log of the probability to succeed (<span class="math inline">\(p\)</span>) divided by the probability to fail (<span class="math inline">\(1-p\)</span>).</p></li>
+<li><p><span class="math inline">\(\beta_0\)</span> is the intercept which here, given we have nothing else in this part of the model, means the average probability to see an elephant.</p></li>
+</ul>
+<p>Here’s how we’d run that model in <code>R</code> (click the <code>Show</code> button to see the code):</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">glm</span>(elephants <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> etosha,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Which returns the estimate of <span class="math inline">\(\beta_0\)</span> (or average probability to detect elephants <em>on the link function scale</em>, i.e.&nbsp;it’s a logit value):</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = elephants ~ 1, family = binomial, data = etosha)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)  
+(Intercept)  -1.3863     0.7906  -1.754   0.0795 .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 10.008  on 9  degrees of freedom
+Residual deviance: 10.008  on 9  degrees of freedom
+AIC: 12.008
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p>The estimate for <code>(Intercept)</code> (or <span class="math inline">\(\beta_0\)</span>) is <code>-1.3863</code>, which we can convert into a probability by doing the inverse logit (<code>R</code> has a nice way to do this using the function <code>plogis()</code>):</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">1.3863</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1999991</code></pre>
+</div>
+</div>
+<p>We now have our estimate as a proportion (which we can multiply by 100 to get to percentage), so we can say there’s a roughly 20% chance that an elephant occupies a site in Etosha.</p>
+<p>Or can we?</p>
+</section>
+<section id="imperfect-detection" class="level1">
+<h1>Imperfect detection</h1>
+<p>This 20% estimate is actually the product of two probabilities. For us to detect an elephant two things need to happen.</p>
+<ol type="1">
+<li><p>The elephant must obviously be there, with some probability. We can call this probability <span class="math inline">\(\psi\)</span> (called “psi”, pronounced like “sigh”).</p></li>
+<li><p>I have to <em>see</em> the elephant. This will never have a 100% chance no matter how good I am at spotting elephants. We can call this probability <span class="math inline">\(p\)</span>.</p></li>
+</ol>
+<p>So all of the <code>1</code>’s in our <code>etosha</code> dataset are the result of succeeding in both of these probabilities. However, all of the <code>0</code>s are the result of failing either probability; either there were no elephants (<span class="math inline">\(1-\psi\)</span>), or there were you just didn’t see them (<span class="math inline">\(\psi \times 1-p\)</span>). Fundamentally, the problem is that <code>elephants</code> represents <span class="math inline">\(\psi \times p\)</span>, and not just <span class="math inline">\(\psi\)</span> like we want.</p>
+<p>There’s no shortage of reasons why you might not see an elephant despite it being there. It can be as simple and dumb as the elephant was behind a bush when I checked that site. This reflects something called “imperfect detection”, i.e.&nbsp;just cause it’s there doesn’t mean we’re going to see it.</p>
+<p>Imperfect detection is not an issue for the <code>1</code>’s in our data - when we see an elephant. If you see an elephant, you know it’s there. That’s easy and obvious. The complication created by imperfect detections happens when we <strong><em>don’t</em></strong> detect an elephant; when <code>elephants</code> is <code>0</code>. What does that mean? Are elephants actually absent from that site or are they present but I didn’t see them?</p>
+<p>That’s the problem! The <code>0</code>’s have multiple meanings. It’s not as simple as “if I don’t see an elephant, there are not elephants there”.</p>
+<p>Generally, when people say they ran an SDM (a “Species Distribution Model”), what they <em>mean</em> is, they ran something akin to the GLM above. Specifically, they would treat the <code>elephants</code> column in our <code>etosha</code> dataset as being a faithful measure of elephants being either present or absent, and not elephants are present <strong><em>and detected</em></strong> or just absent.</p>
+<p>They ignore imperfect detection; they ignore the fact that <code>0</code>’s have multiple meanings.</p>
+<p>Occupancy models do not ignore this, and that’s why they’re such a powerful tool. Here’s how they do it.</p>
+</section>
+<section id="occupancy-models" class="level1">
+<h1>Occupancy models</h1>
+<p>The first part of the occupancy model (which I’ll call the “state model” because it’s trying to determine the “state” of a site - either occupied or not) looks remarkably similar to the GLM above:</p>
+<p><span class="math display">\[
+z_i \sim Bernoulli(\psi_i)\\
+logit(\psi_i) = \beta_0
+\]</span></p>
+<p>They look similar, because they’re both <span class="math inline">\(Bernoulli\)</span> GLMs! But they differ in two important ways,</p>
+<ul>
+<li><p><span class="math inline">\(z\)</span> is the <strong>true</strong> presence or absence of elephants in site <span class="math inline">\(i\)</span></p></li>
+<li><p><span class="math inline">\(\psi\)</span> is the probability to be present</p></li>
+</ul>
+<p>Ok, so the labels have changed, but how does that magically solve the problem of imperfect detection? Well, if we left it there it wouldn’t be solved. We need something that will deal with impefect detection; a second GLM.</p>
+<p>The second GLM (which I’ll call the “observation model”) also looks remarkably similar:</p>
+<p><span class="math display">\[
+y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
+logit(p_{i,j}) = \alpha_0
+\]</span></p>
+<p>It’s yet another <span class="math inline">\(Bernoulli\)</span> GLM but with some really important changes.</p>
+<ul>
+<li><p><span class="math inline">\(y\)</span> is now the <strong>detection</strong> or not of an elephant</p></li>
+<li><p><span class="math inline">\(j\)</span> is <em>survey</em>, which means we have <em>multiple surveys</em>, not just one like in our first GLM example above</p></li>
+<li><p><span class="math inline">\(p\)</span> is the probability to detect an elephant at site <span class="math inline">\(i\)</span> in survey <span class="math inline">\(j\)</span> (e.g.&nbsp;what is the probability to detect an elephant in site 1 in the third survey?)</p></li>
+</ul>
+<p>Importantly, the probability to detect elephants (<span class="math inline">\(p\)</span>) is <em>multiplied</em> by <span class="math inline">\(z\)</span>. What’s <span class="math inline">\(z\)</span>? Well that’s the true occupancy state of that site from the first GLM. It’s this multiplication that allows the two models to “speak” to each other.</p>
+<p>If there are elephants in a site (<span class="math inline">\(z = 1\)</span>), then <span class="math inline">\(p \times 1 = p\)</span>. If elephants are absent from a site (<span class="math inline">\(z = 0\)</span>), then <span class="math inline">\(p \times 0 = 0\)</span>. This means you cannot detect elephants if they aren’t there. That’s blindingly obvious… But this stupidly simple logic is missing from our starting GLM!</p>
+<p>Keep in mind that we don’t know <span class="math inline">\(z\)</span> - that’s the “true” occupancy state of a site. It’s something called a “latent variable”, meaning we never actually measure or record this in the field. Instead, much like with parameters, we use the data we have collected to estimate this variable for each site that we have data from.</p>
+<p>That’s how occupancy model knows that you can only detect elephants if they’re present, and if they aren’t present then you can’t see them! That’s the beauty of occupancy models and why they are far, far superior to traditional SDMs!</p>
+</section>
+<section id="the-robust-design-and-closure" class="level1">
+<h1>The robust design and closure</h1>
+<p>Ok, great, we’ve got a clever modelling framework but how does the above help us resolve if we go to a site and don’t see an elephant? How do we distinguish between a “true negative” (i.e.&nbsp;we don’t see elephants because there aren’t any elephants) versus a “false negative” (i.e.&nbsp;we don’t see elephants but they were there)?</p>
+<p>This is where the subscript <span class="math inline">\(j\)</span> in the observation model becomes important. Imagine we visit a site once and we see no elephants. With no additional information you have absolutely no way to determine if it was occupied or not. You just know you didn’t see any elephants.</p>
+<p>But imagine I went back to that same site the next day. This time I do see elephants. We learn a few things from this. First, we know elephants are present at the site. Secondly, we learn that the first survey must have been a false negative - we just didn’t see elephants despite them being there.</p>
+<p>This introduces a key assumption in occupancy models. For my above statement to be “true” and make sense, then I have to assume elephants were <em>always</em> present, and they didn’t just happen to move into the site on the second day.</p>
+<p>This assumption is called the “assumption of closure”. This is often poorly understood, where people interpret it as meaning the site is physically “closed” - as in there is some kind of “fence” that prevents animals from moving. This is not correct. “Closure” here, means “demographically closed”, i.e.&nbsp;if the species was present in survey one, then it is present in survey two and survey three, survey four, and so on, until you stop surveying.</p>
+<blockquote class="blockquote">
+<p>This imposes two important considerations for field work. We need to survey sites on multiple occasions. Meaning, we can’t have a “one-and-done” approach to surveying; we need to leave cameras in situ for more than one sampling period (though it’s for us to define what our sampling period is - it could be an hour, a day, a week - so long as we can assume that if the species is present at the first survey, then it will be present at the last survey). Secondly, these sampling occasions cannot extend over such a long period of time that it becomes increasingly hard, or unreasonable, to assume the species could not have gone locally extinct or (re)colonised the area.</p>
+</blockquote>
+<p>In practice, a minimum of three survey occasions is required (e.g., three days, three hours, or three defined sampling periods). But additionally, you don’t want to monitor the same site for so long the species could go locally extinct (obviously dependent on the species you’re working with). If such local extinctions and recolonisations are likely at a site, then you can extend from the single season occupancy models (the type of occupancy model that we’re talking about here) into multi-season occupancy models.</p>
+<p>This form of sampling (repeatedly sampling the same site a minimum of three times) is called “the robust design” and is very often used in more “robust” (i.e.&nbsp;responsible or trustworthy) research.</p>
+</section>
+<section id="the-data" class="level1">
+<h1>The data</h1>
+<p>I’m going to simulate data for an occupancy model to give you an idea of how you data should be organised. To do so, I’ll use the <code>R</code> package that you’ll eventually use in your own analysis, <code>spOccupancy</code> (short for spatial occupancy - we’ll get to the spatial part later).</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spOccupancy)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">simOcc</span>(<span class="at">J.x =</span> <span class="dv">5</span>, <span class="at">J.y =</span> <span class="dv">2</span>, <span class="at">n.rep =</span> <span class="fu">rep</span>(<span class="dv">3</span>, <span class="at">times =</span> <span class="dv">10</span>), <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">1</span>), <span class="at">alpha =</span> <span class="fu">c</span>(<span class="dv">0</span>))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> dat<span class="sc">$</span>y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Our dataset will look slightly different. Since the robust design requires monitoring each site multiple times (typically three or more), we cannot use a single column for detections as we did in the <code>etosha</code> example. Instead, here would data will look like:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>obs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>      [,1] [,2] [,3]
+ [1,]    0    1    0
+ [2,]    0    0    1
+ [3,]    0    0    0
+ [4,]    0    0    0
+ [5,]    0    1    1
+ [6,]    1    1    0
+ [7,]    1    0    1
+ [8,]    0    0    0
+ [9,]    0    1    0
+[10,]    0    1    1</code></pre>
+</div>
+</div>
+<p>Each row is one of our ten sites, and each column is one of our three sampling periods. Notice anything? In site 3, or <code>[3,]</code>, and sites 4 and 8, we never see elephants. Without any further information, we don’t know if this is because elephants weren’t in those sites, or they were present but we didn’t see. Same problem as before.</p>
+<p>However, we clearly have sites where elephants are present. In sites 1, 2, 5, 6, 7, 9, and 10, we see elephants at least once, so we know for sure that they are present there. But! We can also use these detections to help us figure out what’s likely going on in those sites where we never saw elephants.</p>
+<p>To see how that works, let’s focus on just site 5, or <code>[5,]</code>. Over the three days that we surveyed, we didn’t see any elephants on day 1, we then saw them on day 2, then again on day 3. Are elephants present at this site? Yes, clearly. We see them at least once but there’s additional information we learn from having used a robust design (surveying the same site multiple times).</p>
+<p>Ignore occupancy models for a moment. For the detection history of site 5 (not detected, detected, detected, or <code>011</code>), we might guess that our detection probability is about 66% given we have two detections out of three surveys. If so, then we can think of this as being the equivalent to us having a 66% chance of detecting elephants on any survey (importantly, if they’re present).</p>
+<p>Armed with this 66%, we can figure out how likely it is that elephants were actually absent from site 3 and 4. Let’s assume elephants were present at site 3. What’s the probability that we would <em><strong>fail</strong></em> to detect them? Well, if there’s a 66% chance to detect elephants, then failure to detect is <span class="math inline">\(100\% -66\% = 34\%\)</span> (or <span class="math inline">\(1-0.66=0.34\)</span>). So a 34% chance not to detect an elephant even if it’s there. What about two days in a row? <span class="math inline">\(0.34 \times 0.34 = 0.12\)</span>, or <span class="math inline">\(0.34^2 = 0.12\)</span>, - about 12% chance to not detect an elephant two days in a row if it was there. Three days? <span class="math inline">\(0.34^3 = 0.04\)</span>, or 4% chance that, if there was an elephant in site 5 that we’d fail to detect it, three days in a row.</p>
+<p>Given a measly 4% chance to completely miss elephants on all three days, it seems more likely that we didn’t fail to detect, but that there was no elephant there. Since this is a simulation, we can verify our estimate by checking the true occupancy status of site 3.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>z[<span class="dv">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<p>We see that elephants were actually not present in site 5 (above should read <code>[1] 0</code> which is absent). Our guess was correct - it was more likely that they weren’t there and we <em><strong>literally could not</strong></em> see them, rather than they were there and we just got very unlucky.</p>
+<p>That’s kind of how occupancy models work, except that rather than using a single site to estimate detection probability, we use all data. Here’s how we do the analysis more formally.</p>
+</section>
+<section id="data-preparation" class="level1">
+<h1>Data preparation</h1>
+<p>Before getting to running a fancy * <em>Bayesian</em> * model, we need to get our dataset organised in a way that works for <code>spOccupancy</code>. Contrary to linear models and GLMs, we don’t provide a simple <code>data.frame</code> object. Instead, we provide a <code>list</code>, which itself can, and eventually will, contain <em>multiple</em> data sets.</p>
+<p>For the starting model we’ll fit below, we only need our detection history “matrix” to be added to this list (which I’ll call <code>etosha</code>). That detection history matrix is the data we saw above (shown again below). So for now, we’re basically taking our data set and adding it to a list. A bit of a pain, given it’s a seemingly unnecessary step, but it’s needed for the more complex versions of the model.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>      [,1] [,2] [,3]
+ [1,]    0    1    0
+ [2,]    0    0    1
+ [3,]    0    0    0
+ [4,]    0    0    0
+ [5,]    0    1    1
+ [6,]    1    1    0
+ [7,]    1    0    1
+ [8,]    0    0    0
+ [9,]    0    1    0
+[10,]    0    1    1</code></pre>
+</div>
+</div>
+<p>The code to create the <code>etosha</code> list is actually relatively straightforward. The function <code>list()</code> will create the list, and we can just add our detection history (currently stored as <code>dat$y</code>) and have it be called <code>y</code> (for the reason that we call it <span class="math inline">\(y\)</span> in our equations above). If you want to see the code, press the <code>Show</code> button to the right.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>etosha <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> dat<span class="sc">$</span>y</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="fitting-the-model" class="level1">
+<h1>Fitting the model</h1>
+<p>Below we’re going to fit the simplest version of an occupancy model that we can, specifically:</p>
+<p><span class="math display">\[
+z_i \sim Bernoulli(\psi_i)\\
+logit(\psi_i) = \beta_0\\
+y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
+logit(p_{i,j}) = \alpha_0
+\]</span></p>
+<p>This version of the model only has two average probabilities. One for the probability that elephants occupy a site (<span class="math inline">\(\beta_0\)</span> which is fit on the <span class="math inline">\(logit\)</span> link function), and another to detect elephants if they are present (<span class="math inline">\(\alpha_0\)</span>, also fit on the <span class="math inline">\(logit\)</span> link function).</p>
+<p>The model is not fit using the so-called “frequentist framework”. Instead, it uses the Bayesian framework. I’ll gloss over what these are and what the differences are, other than to say that maybe 95% (for all the NHST lovers) of science uses the frequentist framework. Not by coincidence, it’s also the framework that is generally taught to students (hence why most people use it).</p>
+<p>The code below uses the <code>PGOcc()</code> function to fit a simple single species, single season occupancy model with no explanatory variables. Click the <code>Show</code> button to see the code.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The state model (i.e. what % that elephants are present?)</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ~ 1 means we want an intercept only model (no covariates)</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> <span class="dv">1</span>, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The observation model (i.e. what % that we see elephants if present?)</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ~ 1 means the same as above - intercept only</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span><span class="dv">1</span>, </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Our carefully formatted dataset</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha, </span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Details to get the machinery to run that we'll ignore for now</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>,</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Having fit the model, we can inspect the parameter estimates:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+PGOcc(occ.formula = ~1, det.formula = ~1, data = etosha, n.samples = 2000, 
+    verbose = FALSE, n.burn = 200, n.chains = 4)
+
+Samples per Chain: 2000
+Burn-in: 200
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 7200
+Run Time (min): 0.0027
+
+Occurrence (logit scale): 
+              Mean     SD    2.5%    50%  97.5%   Rhat  ESS
+(Intercept) 1.4601 0.9914 -0.1904 1.3426 3.7274 1.0065 1576
+
+Detection (logit scale): 
+               Mean     SD    2.5%     50%  97.5%   Rhat  ESS
+(Intercept) -0.1952 0.4643 -1.0869 -0.2025 0.7266 1.0039 3274</code></pre>
+</div>
+</div>
+<p>There’s a lot of information in this summary but we only really care about a few things.</p>
+<p><code>Occurrence (logit scale)</code></p>
+<ul>
+<li><p>This is the state model (i.e.&nbsp;what’s the probability that an elephant is present in any site?)</p></li>
+<li><p>The <code>(Intercept)</code> row contains all of the information on the… intercept. Because we only have an intercept, we only have an intercept row.</p></li>
+<li><p><code>Mean</code> is the mean of the “posterior”. Crudely, this is Bayesian terminology for the “parameter” (it’s a bit more complicated than that, but we’re leaving the Bayesian stuff for later).</p></li>
+<li><p><code>SD</code> is the standard deviation of the posterior.</p></li>
+<li><p><code>2.5%</code> is the lower 95% <strong>credible</strong> interval (this is not a confidence interval but you can think of them as being the same for now).</p></li>
+<li><p><code>50%</code> is the median of the posterior.</p></li>
+<li><p><code>97.5%</code> is the upper 95% <strong>credible</strong> interval.</p></li>
+<li><p><code>Rhat</code> will be entirely new to you. This is a measure of whether or not there were any problems in figuring out the posterior. If the Rhat value is close to 1, then it suggests that it could not find any problems (note this does not mean there are no problems, just that it couldn’t find any). If the value goes above, say 1.1, then it suggests the model is not “convinced” that it’s found the best posterior estimate. In that case, you would need to make some tweaks to the model.</p></li>
+<li><p><code>ESS</code> stands for “Effective Sample Size”. This is another new Bayesian <em>thing</em> that I’ll gloss over the details of but for now, we want this value to be in the multiple hundreds or thousands. Having “too low” an ESS suggests problems that may require tweaks to the model.</p></li>
+</ul>
+<p>In our case, all looks good. The Rhats are generally very close to 1 and the ESS are all in the thousands.</p>
+</section>
+<section id="interpreting-the-results" class="level1">
+<h1>Interpreting the results</h1>
+<p>So what do our results mean? For the state model (that <code>spOccupancy</code> calls <code>Occurence</code>), our mean is estimated as 1.4601 but we would surely expect this to be a probability, right? Keep in mind, we’re fitting fancy Bernoulli GLMs, and with our Bernoulli GLMs we’ve used the logit link. So the 1.4601 value is <em>on the logit</em> link scale.</p>
+<p>We need to convert this logit value to probabilities ourselves using the same <code>plogis()</code> function that we used before:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="fl">1.4601</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.811548</code></pre>
+</div>
+</div>
+<p>So we have a roughly 80% chance to have elephants in any of our sites. If you have a look at our actual data set, you’ll see we don’t have detections in 80% of the sites. We have detections in 70% of the sites. That’s where the detection part of the model is helping us out - we don’t have 100% detection probability, so we should find that we have more sites occupied than we would expect by default.</p>
+<p>What was our detection probability? The mean of the intercept is estimated (as a logit value) at -0.1952. We know how to back transform this into probabilities:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.1952</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.4513544</code></pre>
+</div>
+</div>
+<p>The model has estimated that we have roughly 45% chance of seeing an elephant if it’s actually there. If we do have a 45% detection probability, then the chance of not seeing an elephant in sites 3, 4 or 8 is <span class="math inline">\(0.45^3 = 0.09 = 9\%\)</span>. Not huge, but not trivial either.</p>
+<p>Most importantly, we learn that detection probability is not 100%. That alone is important. The consequence of that is to show, quite clearly, why the Bernoulli GLM approach we used at the start is not appropriate. Because it ignored imperfect detections, it’s unreliable. Our occupancy model is not.</p>
+</section>
+<section id="what-next" class="level1">
+<h1>What next?</h1>
+<p>There are three big elements this document has not covered.</p>
+<p>The first is Bayesian statistics. Summarised crudely, Bayesian statistics allows statisticians to include their (or others) understanding of the world into the model. What does this mean specifically? Well, we might have had some idea of what a sensible range of probabilities that elephants were present in any of our sites. Maybe we think 20% to 90% is sensible, i.e.&nbsp;we don’t think it’s possible that there aren’t <em>any</em> elephants present or <em>all</em> sites are occupied by elephants. These “guesses” are formally called “priors”, and these are the hallmarks of Bayesian statistics.</p>
+<p>The second is including covariates. Just like in the modelling you did in BI3010, we can add anything that we think is playing a role in <em><strong>either</strong></em> detection of elephants or why elephants are there. Do you think rainfall influences how likely people are to detect elephants? Well, include rainfall in the detection model. Like I say, in exactly the same way as you did in BI3010!</p>
+<p>The last one is spatial autocorrelation. Imagine one site is elephant utopia. It has everything an elephant could ever want. This site is almost certainly occupied. What about a site right next to it? This next door site is no utopia, so in isolation we would expect a lower occupancy probability, but because it’s right next to utopia, it’s probably more likely to be occupied than the local features of the site would suggest. This is spatial autocorrelation. The occupancy (or whatever it is we’re measuring in space) of one site influences the occupancy of sites depending on how close they are to each other in space. If we don’t account for spatial autocorrelation, then we might think there’s some feature of the non-utopian elephant site that is more attractive to elephants than it actually is; leading to flawed inference.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

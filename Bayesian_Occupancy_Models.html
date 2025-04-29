@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Deon Roos">
+<meta name="dcterms.date" content="2025-04-29">
+
+<title>Occupancy Modelling - Bayesian Algorithms</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Occupancy Modelling</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./Occupancy_Models.html" rel="" target="">
+ <span class="menu-text">Occupancy Models: The basics</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./OccMods_WithCovariates.html" rel="" target="">
+ <span class="menu-text">Occupancy Models: Covariates</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Bayesian_Statistics.html" rel="" target="">
+ <span class="menu-text">Bayesian models: The concept</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./Bayesian_Occupancy_Models.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Fitting Bayesian models</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#how-do-we-estimate-a-posterior" id="toc-how-do-we-estimate-a-posterior" class="nav-link active" data-scroll-target="#how-do-we-estimate-a-posterior">How do we estimate a posterior?</a></li>
+  <li><a href="#what-does-mcmc-look-like" id="toc-what-does-mcmc-look-like" class="nav-link" data-scroll-target="#what-does-mcmc-look-like">What does MCMC look like?</a></li>
+  <li><a href="#improving-our-mcmc" id="toc-improving-our-mcmc" class="nav-link" data-scroll-target="#improving-our-mcmc">Improving our MCMC</a></li>
+  <li><a href="#fitting-the-occupancy-model-using-mcmc" id="toc-fitting-the-occupancy-model-using-mcmc" class="nav-link" data-scroll-target="#fitting-the-occupancy-model-using-mcmc">Fitting the occupancy model using MCMC</a></li>
+  <li><a href="#credible-intervals" id="toc-credible-intervals" class="nav-link" data-scroll-target="#credible-intervals">Credible intervals</a></li>
+  <li><a href="#specifying-priors" id="toc-specifying-priors" class="nav-link" data-scroll-target="#specifying-priors">Specifying priors</a></li>
+  <li><a href="#fin" id="toc-fin" class="nav-link" data-scroll-target="#fin">Fin</a></li>
+  <li><a href="#a-subtle-point-priors-and-the-link-function" id="toc-a-subtle-point-priors-and-the-link-function" class="nav-link" data-scroll-target="#a-subtle-point-priors-and-the-link-function">A subtle point: Priors and the link function</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Bayesian Algorithms</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Deon Roos </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 29, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p>In the previous page, we went through the underlying theory of Bayesian statistics; how our prior knowledge is updated using real data through Bayes’ Theorem. Now, we’re going to move into the practical application of these ideas using the <code>spOccupancy</code> package. My goal here is to help you understand how Bayesian occupancy models are fit, how to monitor convergence, and how to interpret uncertainty through credible intervals.</p>
+<p>We’ll again work with the Etosha elephant dataset. Importantly, we are not yet including spatial autocorrelation. We’ll add that in the next section.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spOccupancy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="how-do-we-estimate-a-posterior" class="level1">
+<h1>How do we estimate a posterior?</h1>
+<p>In the previous page we spoke about posteriors and how these are a combination of our prior belief and our data. But how does that <em>actually</em> happen? Well, the answer is pretty simple but took hundreds of years for statisticians to figure out. Markov Chain Monte Carlo is an algorithm that was developed by scientists at Los Alamos in the 1950s working on the Manhattan Project (yes <em>that</em> Manhattan Project). The algorithm is called Markov Chain Monte Carlo (or MCMC) for two reasons. A Markov Chain describes a sequence of states, where the probability to move from one state to the next state depends only on what the current state is.</p>
+<p>For example, imagine you are walking through a series of rooms. Where you go next depends only on the room you’re currently in. You can’t instantly teleport to the other side of the building! Nor does it depend on the path you have taken to get to your current room.</p>
+</section>
+<section id="what-does-mcmc-look-like" class="level1">
+<h1>What does MCMC look like?</h1>
+<p>Below is an animation of a simple MCMC algorithm to help give an intuition for what’s happening behind the scenes.</p>
+<p>For this, we have the following simple linear model:</p>
+<p><span class="math display">\[y_i \sim Normal(\mu_i, \sigma^2)\]</span></p>
+<p><span class="math display">\[\mu_i = \beta_0 + \beta_1 \times x_i \]</span></p>
+<p>So our objective here is to figure out <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span>. To do so, we’ll set up an MCMC using one “chain”. A chain is a Markov Chain - it’s the black dot and orange line you can see in the animation below. This chain is trying to find the “True value” location marked with a teal X. At each step the black dot asks “if I take a step in a random direction, will I be closer to X or further away?”. If it’s closer, then it takes the step. If it’s further away, then it’s <em>less</em> likely to take the step but it’s not impossible. This seems like a bad choice. Why move somewhere if it’s further away from X? The answer is a bit nuanced, but the concise explanation is that sometimes there might be areas of the “parameter space” (the parameter space is all possible values of <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span>) which “work” quite well despite not being the true value. If we didn’t have the behaviour, where the chain might take a step even though it’s worse, then we might get stuck in one of these “bad” areas (technically, these “bad” areas are called “local minima”).</p>
+<p>Here’s our MCMC in action:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>true_param <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>target_density <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> ((x <span class="sc">-</span> true_param[<span class="dv">1</span>])<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">1</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (y <span class="sc">-</span> true_param[<span class="dv">2</span>])<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fl">0.5</span><span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>n_iter <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> y <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">iteration =</span> <span class="dv">1</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_iter) {</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  x_prop <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, x, <span class="fl">0.4</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  y_prop <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, y, <span class="fl">0.4</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  accept_ratio <span class="ot">&lt;-</span> <span class="fu">target_density</span>(x_prop, y_prop) <span class="sc">/</span> <span class="fu">target_density</span>(x, y)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">runif</span>(<span class="dv">1</span>) <span class="sc">&lt;</span> accept_ratio) {</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> x_prop</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> y_prop</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  samples <span class="ot">&lt;-</span> samples <span class="sc">|&gt;</span> <span class="fu">add_row</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">iteration =</span> i)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(samples, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)) <span class="sc">+</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_path</span>(<span class="at">color =</span> <span class="st">"#FF5733"</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y), <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> true_param[<span class="dv">1</span>], <span class="at">y =</span> true_param[<span class="dv">2</span>]), </span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">4</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> true_param[<span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.1</span>, <span class="at">y =</span> true_param[<span class="dv">2</span>],</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"True value"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_reveal</span>(iteration) <span class="sc">+</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"MCMC Chain Step: {frame_along}"</span>,</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">bquote</span>(beta[<span class="dv">0</span>]),</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">bquote</span>(beta[<span class="dv">1</span>])</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-3-1.gif" class="img-fluid"></p>
+</div>
+</div>
+<p>Here’s where the really clever bit comes in. At each iteration, if we record the parameter value it tried, and store it, when we build it up the end result is our <em>posterior</em>! This is what made Bayesian statistics possible! We don’t need to use any crazy (and often impossible) maths to figure out the posterior, we just have MCMC walk around and the end result is an insanely good reflection of the posterior!</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>samples_long <span class="ot">&lt;-</span> samples <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(x, y), <span class="at">names_to =</span> <span class="st">"parameter"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>samples_long <span class="ot">&lt;-</span> samples_long <span class="sc">|&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">true_value =</span> <span class="fu">if_else</span>(parameter <span class="sc">==</span> <span class="st">"x"</span>, true_param[<span class="dv">1</span>], true_param[<span class="dv">2</span>]))</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>samples_long_cumulative <span class="ot">&lt;-</span> samples_long <span class="sc">|&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(parameter) <span class="sc">|&gt;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_split</span>() <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_dfr</span>(<span class="cf">function</span>(df) {</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    param <span class="ot">&lt;-</span> <span class="fu">unique</span>(df<span class="sc">$</span>parameter)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">max</span>(df<span class="sc">$</span>iteration), <span class="cf">function</span>(i) {</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>      df <span class="sc">|&gt;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">filter</span>(iteration <span class="sc">&lt;=</span> i) <span class="sc">|&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">frame =</span> i, <span class="at">parameter =</span> param)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>samples_long_cumulative <span class="ot">&lt;-</span> samples_long_cumulative <span class="sc">%&gt;%</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">parameter_label =</span> <span class="fu">case_when</span>(</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    parameter <span class="sc">==</span> <span class="st">"x"</span> <span class="sc">~</span> <span class="st">"beta[0]"</span>,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    parameter <span class="sc">==</span> <span class="st">"y"</span> <span class="sc">~</span> <span class="st">"beta[1]"</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> value)) <span class="sc">+</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.4</span>, <span class="at">fill =</span> <span class="st">"#FF5733"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">boundary =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">labeller =</span> label_parsed) <span class="sc">+</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Cumulative Posterior up to Iteration {current_frame}"</span>,</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Parameter Value"</span>, <span class="at">y =</span> <span class="st">"Frequency"</span>) <span class="sc">+</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-4-1.gif" class="img-fluid"></p>
+</div>
+</div>
+<p>Another way to show what the MCMC was up to is using something called “traceplots”. These are relatively simple but actually quite powerful for determining if we <em>trust</em> the model output. We’ll come back to this in a bit, but for now, we can show the MCMC exploring the parameter space using these traceplots.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>samples_long_cumulative_trace <span class="ot">&lt;-</span> samples_long <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(parameter) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_split</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_dfr</span>(<span class="cf">function</span>(df) {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    param <span class="ot">&lt;-</span> <span class="fu">unique</span>(df<span class="sc">$</span>parameter)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">max</span>(df<span class="sc">$</span>iteration), <span class="cf">function</span>(i) {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      df <span class="sc">|&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">filter</span>(iteration <span class="sc">&lt;=</span> i) <span class="sc">|&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">frame =</span> i, <span class="at">parameter =</span> param)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>samples_long_cumulative_trace <span class="ot">&lt;-</span> samples_long_cumulative_trace <span class="sc">%&gt;%</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">parameter_label =</span> <span class="fu">case_when</span>(</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    parameter <span class="sc">==</span> <span class="st">"x"</span> <span class="sc">~</span> <span class="st">"beta[0]"</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    parameter <span class="sc">==</span> <span class="st">"y"</span> <span class="sc">~</span> <span class="st">"beta[1]"</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(samples_long_cumulative_trace, <span class="fu">aes</span>(<span class="at">x =</span> iteration, <span class="at">y =</span> value)) <span class="sc">+</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#FF5733"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">labeller =</span> label_parsed) <span class="sc">+</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Traceplot up to Iteration {current_frame}"</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Iteration"</span>, <span class="at">y =</span> <span class="st">"Parameter Value"</span>) <span class="sc">+</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-5-1.gif" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="improving-our-mcmc" class="level1">
+<h1>Improving our MCMC</h1>
+<p>We’ve made a good start but we can improve this quite a bit. Firstly, limiting the algorithm to 100 iterations doesn’t give it many opportunities to find the true value. In general, you often give MCMC thousands of iterations, rather than a paltry 100. So first improvement is to increase the number of iterations (you may remember we did this when we were going through the occupancy theory pages - now you know why!).</p>
+<p>Secondly, we’re using one MCMC chain. Why not more? Afterall, if we have say four chains, then if all four agree that they’re close to the true value that would give us more comfort. If they find different “True values”, well, then it seems likely that we haven’t actually found it.</p>
+<p>Let’s implement our improvement and see what our plots now look like:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>true_param <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>target_density <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> ((x <span class="sc">-</span> true_param[<span class="dv">1</span>])<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">1</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (y <span class="sc">-</span> true_param[<span class="dv">2</span>])<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fl">0.5</span><span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>n_iter <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>n_chains <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>chains_list <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span>n_chains, <span class="cf">function</span>(chain_id) {</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> y <span class="ot">&lt;-</span> <span class="dv">0</span>  <span class="co"># Start at (0, 0)</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  samples <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">iteration =</span> <span class="dv">1</span>, <span class="at">chain =</span> chain_id)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_iter) {</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    x_prop <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, x, <span class="fl">0.4</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    y_prop <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, y, <span class="fl">0.4</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    accept_ratio <span class="ot">&lt;-</span> <span class="fu">target_density</span>(x_prop, y_prop) <span class="sc">/</span> <span class="fu">target_density</span>(x, y)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">runif</span>(<span class="dv">1</span>) <span class="sc">&lt;</span> accept_ratio) {</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>      x <span class="ot">&lt;-</span> x_prop</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>      y <span class="ot">&lt;-</span> y_prop</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    samples <span class="ot">&lt;-</span> samples <span class="sc">%&gt;%</span> <span class="fu">add_row</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">iteration =</span> i, <span class="at">chain =</span> chain_id)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  samples</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(chains_list, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">group =</span> chain, <span class="at">color =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_path</span>(<span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y), <span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> true_param[<span class="dv">1</span>], <span class="at">y =</span> true_param[<span class="dv">2</span>]), </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">shape =</span> <span class="dv">4</span>, <span class="at">stroke =</span> <span class="dv">2</span>, <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> true_param[<span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.1</span>, <span class="at">y =</span> true_param[<span class="dv">2</span>],</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"True value"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_reveal</span>(<span class="at">along =</span> iteration) <span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>, <span class="at">name =</span> <span class="st">"Chain"</span>) <span class="sc">+</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"MCMC Chains Step: {round(frame_along, digits = 0)}"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">bquote</span>(beta[<span class="dv">0</span>]),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">bquote</span>(beta[<span class="dv">1</span>])) <span class="sc">+</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-7-1.gif" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>samples_long <span class="ot">&lt;-</span> chains_list <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(x, y), <span class="at">names_to =</span> <span class="st">"parameter"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">true_value =</span> <span class="fu">if_else</span>(parameter <span class="sc">==</span> <span class="st">"x"</span>, true_param[<span class="dv">1</span>], true_param[<span class="dv">2</span>]),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">parameter_label =</span> <span class="fu">case_when</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>           parameter <span class="sc">==</span> <span class="st">"x"</span> <span class="sc">~</span> <span class="st">"beta[0]"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>           parameter <span class="sc">==</span> <span class="st">"y"</span> <span class="sc">~</span> <span class="st">"beta[1]"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>         ))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Build cumulative data</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>samples_long_cumulative <span class="ot">&lt;-</span> samples_long <span class="sc">%&gt;%</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(parameter, chain) <span class="sc">%&gt;%</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_split</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_dfr</span>(<span class="cf">function</span>(df) {</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    param <span class="ot">&lt;-</span> <span class="fu">unique</span>(df<span class="sc">$</span>parameter)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    chain_id <span class="ot">&lt;-</span> <span class="fu">unique</span>(df<span class="sc">$</span>chain)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">max</span>(df<span class="sc">$</span>iteration), <span class="cf">function</span>(i) {</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>      df <span class="sc">%&gt;%</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">filter</span>(iteration <span class="sc">&lt;=</span> i) <span class="sc">%&gt;%</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">frame =</span> i, <span class="at">parameter =</span> param, <span class="at">chain =</span> chain_id)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">fill =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.4</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">boundary =</span> <span class="dv">0</span>, </span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>                 <span class="at">position =</span> <span class="fu">position_dodge</span>(), <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">labeller =</span> label_parsed, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>, <span class="at">name =</span> <span class="st">"Chain"</span>) <span class="sc">+</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Cumulative Posterior up to Iteration {current_frame}"</span>,</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Parameter Value"</span>, <span class="at">y =</span> <span class="st">"Frequency"</span>) <span class="sc">+</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-8-1.gif" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> iteration, <span class="at">y =</span> value, <span class="at">color =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">labeller =</span> label_parsed, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>, <span class="at">name =</span> <span class="st">"Chain"</span>) <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Traceplot up to Iteration {current_frame}"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Iteration"</span>, <span class="at">y =</span> <span class="st">"Parameter Value"</span>) <span class="sc">+</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-9-1.gif" class="img-fluid"></p>
+</div>
+</div>
+<p>I have a bit more confidence in our posteriors now:</p>
+<ul>
+<li><p>All chains seem to agree on the same value (they have “converged” to the same answer)</p></li>
+<li><p>The posteriors look reasonably well estimated (they’ll close to the true value - but keep in mind that with real analysis we don’t know what the truth is)</p></li>
+<li><p>The traceplots resemble “hairy caterpillars”, which matches the Markov Chain idea that the next value depends only on the current value (it doesn’t “remember” older values).</p></li>
+</ul>
+<p>The final thing I want to bring your attention to are the first hundred or so iterations. Generally, these iterations can be pretty wild, fluctuating massively. If you think about it, that’s kind of fair enough. We’re starting each MCMC chain at random locations, so it’s fair if things are a bit <strong>wobbly</strong> at the start. So what we do with these early iterations is to simply ignore them. These are called “burn in” iterations, as in, we’re letting the engine warm up, so these are just used to get up to speed. Mostly arbitrarily, we typically ignore the first 10% of iterations, so where we’ve used 1000 iterations, we’d generally ignore the first 100.</p>
+</section>
+<section id="fitting-the-occupancy-model-using-mcmc" class="level1">
+<h1>Fitting the occupancy model using MCMC</h1>
+<p>Let’s now revisit our Bayesian model. As a reminder, here’s what it looked like:</p>
+<p><span class="math display">\[z_i \sim Bernoulli(\psi_i)\\\]</span></p>
+<p><span class="math display">\[logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\\\]</span></p>
+<p><span class="math display">\[y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\\]</span></p>
+<p><span class="math display">\[logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\]</span></p>
+<p>Which we can translate into the following code. But pay attention to the <code>n.chains</code>, <code>n.samples</code> and <code>n.burn</code> arguments. This is where we specify how many chains we want (<code>n.chains</code>), how many iterations we want (<code>n.samples</code>, note an iteration can also be called a sample), and how many of the first iterations we want to ignore (<code>n.burn</code>).</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain, </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,     <span class="co"># 4 chains just like in our simple example</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>, <span class="co"># 2000 iterations for each chain</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,     <span class="co"># We ignore the first 200 iterations to give MCMC a chance to get it's feet</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>   <span class="co"># This just says don't spit out details while fitting </span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (normally I would leave verbose = TRUE so I can keep track of the model while it's fitting)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>We can now check how our model worked. The code is pretty simple. The only tricky thing is to specify if you want <code>beta</code> or <code>alpha</code>. Importantly, <code>beta</code> here refers to the occupancy parameters, and <code>alpha</code> refers to the detection parameters.</p>
+<p>So here are the traceplots and posteriors for <span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> in:</p>
+<p><span class="math display">\[logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\\\]</span></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>And here are the traceplots and posteriors for <span class="math inline">\(\alpha_0\)</span> and <span class="math inline">\(\alpha_1\)</span> in:</p>
+<p><span class="math display">\[logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\]</span></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>And we can also get a more numeric summary of the model using <code>summary()</code>. Importantly, the information you see below is the same as the data in the figures above. It’s just summarised! So the <code>Mean</code> is just the mean of the posteriors above!</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+PGOcc(occ.formula = ~tree + temp, det.formula = ~rain, data = etosha, 
+    n.samples = 2000, verbose = FALSE, n.burn = 200, n.chains = 4)
+
+Samples per Chain: 2000
+Burn-in: 200
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 7200
+Run Time (min): 0.0167
+
+Occurrence (logit scale): 
+               Mean     SD    2.5%     50%  97.5%   Rhat ESS
+(Intercept)  1.9736 1.0064  0.1764  1.9250 4.0917 1.0266 377
+tree         0.1899 1.2360 -2.0978  0.1474 2.7112 1.0607 300
+temp        -1.3085 1.1019 -3.4854 -1.3165 1.0243 1.0533 306
+
+Detection (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat  ESS
+(Intercept) -1.8464 0.2671 -2.3793 -1.8460 -1.3073 1.0099  928
+rain         0.1727 0.2203 -0.2540  0.1705  0.6106 1.0018 3102</code></pre>
+</div>
+</div>
+</section>
+<section id="credible-intervals" class="level1">
+<h1>Credible intervals</h1>
+<p>Notice the 2.5% and 97.5% in the tables above? These are the credible intervals that I briefly mentioned in the Occupancy Models: Covariates page. Technically, these are just the quantiles of the posterior. Or, phrased alternatively, 95% of all iterations are within this interval. And keep in mind, that a Bayesian credible interval is not the same as a frequentist confidence interval. For our purposes, these intervals represent a 95% probability to contain the true value (based on the data we collected and the model we fit)!</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>beta_0_samples <span class="ot">&lt;-</span> fit<span class="sc">$</span>beta.samples[,<span class="dv">1</span>]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>beta_0_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">beta_0 =</span> beta_0_samples)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>summary_stats <span class="ot">&lt;-</span> beta_0_df <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">mean</span>(beta_0),</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">median =</span> <span class="fu">median</span>(beta_0),</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower =</span> <span class="fu">quantile</span>(beta_0, <span class="fl">0.025</span>),</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">upper =</span> <span class="fu">quantile</span>(beta_0, <span class="fl">0.975</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(beta_0_df, <span class="fu">aes</span>(<span class="at">x =</span> beta_0)) <span class="sc">+</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"#00A68A"</span>, <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Vertical lines</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>mean, <span class="at">linetype =</span> <span class="st">"solid"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>median, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>lower, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>upper, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># curved arrows</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>mean <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">400</span>, </span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>mean, <span class="at">yend =</span> <span class="dv">350</span>), </span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>median <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">300</span>, </span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>median, <span class="at">yend =</span> <span class="dv">250</span>), </span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>lower <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, </span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>lower, <span class="at">yend =</span> <span class="dv">75</span>), </span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>upper <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, </span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>upper, <span class="at">yend =</span> <span class="dv">75</span>), </span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>mean <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">400</span>, <span class="at">label =</span> <span class="st">"Mean"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>median <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">300</span>, <span class="at">label =</span> <span class="st">"Median"</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>lower <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, <span class="at">label =</span> <span class="st">"2.5% CI"</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>upper <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, <span class="at">label =</span> <span class="st">"97.5% CI"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(beta[<span class="dv">0</span>], <span class="st">" or '(Intercept)'"</span>)),</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Frequency"</span></span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>From our summary table, the mean for the <span class="math inline">\(\beta_0\)</span> or <code>(Intercept)</code> posterior was estimated as 2.0536, the median (called <code>50%</code> in the summary table) was 1.9727, and the 95% credible intervals were 0.1991 and 4.2706, just like we see in the figure.</p>
+<p>This might seem trivial but having credible intervals be so simple, and the interpretation having a useful meaning is one of the big selling points of Bayesian analysis in my mind. It’s not something to trivialise.</p>
+</section>
+<section id="specifying-priors" class="level1">
+<h1>Specifying priors</h1>
+<p>So far, we’ve let the <code>spOccupancy</code> package handle setting the priors for us behind the scenes. But we can actually specify our own priors if we want to.</p>
+<p>In the background, <code>spOccupancy</code> uses something called Pólya-Gamma data augmentation, and under the hood, this method assumes <span class="math inline">\(Normal\)</span> priors for both the occupancy and detection parameters (including their intercepts).</p>
+<p>If you don’t specify anything, spOccupancy will set:</p>
+<ul>
+<li><p>The “hypermean” (mean of <span class="math inline">\(Normal\)</span> distribution for all priors) = 0</p></li>
+<li><p>The “hypervariance” (variance <span class="math inline">\(Normal\)</span> distribution for all priors) = 2.72</p></li>
+</ul>
+<p>This corresponds to a relatively flat prior on the probability scale (the 0–1 scale for occupancy or detection probabilities). In other words, by default, the prior doesn’t strongly pull your estimates toward any particular value; it lets the data mostly speak for itself.</p>
+<p>But we can set these explicitly if we want to! Here’s what that looks like:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify priors for detection (alpha) and occupancy (beta)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha.normal =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">var =</span> <span class="fl">2.72</span>),  <span class="co"># Detection priors</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta.normal =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">var =</span> <span class="fl">2.72</span>)    <span class="co"># Occupancy priors</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The above code is basically doing what <code>spOccupancy</code> does by default. All priors will get <span class="math inline">\(Normal(0,2.72)\)</span> in both the detection and occupancy sub models. We can either give a single number (like 0 and 2.72 above), and it will apply to all parameters, or you can give a vector if you want different priors for different parameters.</p>
+<p>Here’s how we’d give different priors for each parameter:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Different priors for each occupancy parameter</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>occurrence_priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="sc">-</span><span class="fl">0.5</span>),    <span class="co"># One mean for each occupancy parameter</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="fu">c</span>(<span class="fl">2.72</span>, <span class="dv">1</span>, <span class="dv">2</span>)        <span class="co"># One variance for each occupancy parameter</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Different priors for each detection parameter</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>detection_priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>),          <span class="co"># One mean for each detection parameter</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>)           <span class="co"># One variance for each detection parameter</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine into the priors list</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta.normal =</span> occurrence_priors,</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha.normal =</span> detection_priors</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>This would translate into this model:</p>
+<p><span class="math display">\[z_i \sim Bernoulli(\psi_i)\\\]</span></p>
+<p><span class="math display">\[logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\\\]</span></p>
+<p><span class="math display">\[\beta_0 \sim Normal(0, 2.72)\]</span></p>
+<p><span class="math display">\[\beta_1 \sim Normal(0.5, 1)\]</span></p>
+<p><span class="math display">\[\beta_2 \sim Normal(-0.5, 2)\]</span></p>
+<p><span class="math display">\[y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\\]</span></p>
+<p><span class="math display">\[logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\]</span></p>
+<p><span class="math display">\[\alpha_0 \sim Normal(0, 0.5)\]</span></p>
+<p><span class="math display">\[\alpha_1 \sim Normal(0.2, 1)\]</span></p>
+<p>Now, to be very, very clear; I am choosing these priors completely at random just for demonstration. I have no reason, in this case, to think that a reasonable prior for <span class="math inline">\(\beta_1\)</span> is <span class="math inline">\(Normal(0.5, 1)\)</span>.</p>
+<p>But we can always fit this model to see what happens:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fit_priors <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">priors =</span> priors,     <span class="co"># We add our priors here</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Having fit, we can see what the posteriors look like:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-18-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>And pull up the summary:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_priors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+PGOcc(occ.formula = ~tree + temp, det.formula = ~rain, data = etosha, 
+    priors = priors, n.samples = 2000, verbose = FALSE, n.burn = 200, 
+    n.chains = 4)
+
+Samples per Chain: 2000
+Burn-in: 200
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 7200
+Run Time (min): 0.0165
+
+Occurrence (logit scale): 
+               Mean     SD    2.5%     50%  97.5%   Rhat ESS
+(Intercept)  1.6527 1.0280 -0.1017  1.5596 3.9141 1.0188 334
+tree         0.5251 0.9035 -1.1143  0.4740 2.4169 1.0156 522
+temp        -1.2285 1.0570 -3.2056 -1.2640 1.0148 1.0442 279
+
+Detection (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat  ESS
+(Intercept) -1.6639 0.2586 -2.1490 -1.6685 -1.1309 1.0040  884
+rain         0.1537 0.2091 -0.2502  0.1488  0.5704 1.0028 3265</code></pre>
+</div>
+</div>
+<p>If we compare this with the original model, where we left the priors at their defaults we can see that different priors can lead to different posteriors. Keep in mind how Bayesian statistics work - the posterior is a combination of our data and prior beliefs. We’ve changed our prior belief and our posteriors have changed as a result.</p>
+<p>Now in this case, the difference in posteriors are pretty minimal. It might not always be. And in truth, we would want to think a bit more carefully about the priors. Don’t be fooled here. Just because my randomly chosen priors are different from the default ones doesn’t mean the default model is necessarily better. The best option is to choose priors you think are reasonable. If you have different prior beliefs (e.g.&nbsp;I have some informative priors but also some uninformative priors) I can run the model with both, and see how much of a difference it makes. This is something called “prior sensitivity analysis” and is a fairly useful tool to have in your back pocket when you’re not sure about your priors.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+PGOcc(occ.formula = ~tree + temp, det.formula = ~rain, data = etosha, 
+    n.samples = 2000, verbose = FALSE, n.burn = 200, n.chains = 4)
+
+Samples per Chain: 2000
+Burn-in: 200
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 7200
+Run Time (min): 0.0167
+
+Occurrence (logit scale): 
+               Mean     SD    2.5%     50%  97.5%   Rhat ESS
+(Intercept)  1.9736 1.0064  0.1764  1.9250 4.0917 1.0266 377
+tree         0.1899 1.2360 -2.0978  0.1474 2.7112 1.0607 300
+temp        -1.3085 1.1019 -3.4854 -1.3165 1.0243 1.0533 306
+
+Detection (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat  ESS
+(Intercept) -1.8464 0.2671 -2.3793 -1.8460 -1.3073 1.0099  928
+rain         0.1727 0.2203 -0.2540  0.1705  0.6106 1.0018 3102</code></pre>
+</div>
+</div>
+</section>
+<section id="fin" class="level1">
+<h1>Fin</h1>
+<p>With that, you should be good to run a Bayesian occupancy model. Something you can add to your CV and have employers fawn over you. Even better if you understand it, so that when they ask you about it you can have a conversation!</p>
+<p>The only part left in the analysis is including “spatial autocorrelation”. We’ll cover that in the next page.</p>
+</section>
+<section id="a-subtle-point-priors-and-the-link-function" class="level1">
+<h1>A subtle point: Priors and the link function</h1>
+<p>When we choose priors in a Bayesian model, it’s really important to remember what scale those priors live on.</p>
+<p>In our occupancy model, we specify priors for the parameters on the logit scale, not directly on the probability (0–1) scale.</p>
+<p>For example, if we write:</p>
+<p><span class="math display">\[logit(p_i) = \beta_0 + \beta_1 \times x_i\]</span></p>
+<p>then <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> are in logit space.</p>
+<p>Remember, the logit function stretches the 0–1 probability scale onto the whole real line:</p>
+<ul>
+<li><p>Probabilities near 0.5 correspond to logits near 0.</p></li>
+<li><p>Probabilities near 0 or 1 correspond to logits of -<span class="math inline">\(\inf\)</span> and +∞.</p></li>
+</ul>
+<p>This means that a <span class="math inline">\(Normal\)</span> prior with mean 0 and large variance on the logit scale is not flat on the probability scale! Even “uninformative” <span class="math inline">\(Normal\)</span> priors on the logit scale can actually imply very strong beliefs on the probability scale.</p>
+<p>To build some intuition, we’ll do a little prior predictive simulation:</p>
+<ul>
+<li><p>We’ll randomly draw values for <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> from a <span class="math inline">\(Normal(0, 2.72)\)</span> prior.</p></li>
+<li><p>We’ll simulate the relationship between <span class="math inline">\(x\)</span> and <span class="math inline">\(p(x)\)</span> by plugging those <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> values into the logit equation.</p></li>
+<li><p>We’ll repeat this 100 times to show many possible relationships.</p></li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>n_draws <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>x_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>beta_0_draws <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_draws, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fu">sqrt</span>(<span class="fl">2.72</span>))</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>beta_1_draws <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_draws, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fu">sqrt</span>(<span class="fl">2.72</span>))</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>prior_simulations <span class="ot">&lt;-</span> <span class="fu">map2_dfr</span>(</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  beta_0_draws, beta_1_draws,</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">.f =</span> <span class="cf">function</span>(b0, b1) {</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> x_seq,</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">logit_p =</span> b0 <span class="sc">+</span> b1 <span class="sc">*</span> x,</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">p =</span> <span class="fu">plogis</span>(logit_p)</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">.id =</span> <span class="st">"draw"</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(prior_simulations, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> p, <span class="at">group =</span> draw)) <span class="sc">+</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#FF5733"</span>) <span class="sc">+</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Prior Predictive Simulation"</span>,</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Covariate (x)"</span>,</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Probability (p)"</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Each orange line is a possible relationship between <span class="math inline">\(x\)</span> and <span class="math inline">\(p(x)\)</span> given the priors we chose. Notice that some lines are almost flat at 0 or 1? While others are very steep, flipping from 0 to 1 over a narrow range of <span class="math inline">\(x\)</span>? Even though the prior on <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> was centered at 0 with large variance, the resulting priors on <span class="math inline">\(p\)</span> are not uniform or “neutral.”</p>
+<p>If I were being hyper cautious, I might be worried these priors are pushing the model towards the extreme flipping behaviour. In some cases that might be good, in others it might be bad.</p>
+<p>The broader points I am making here are:</p>
+<ul>
+<li><p>Don’t stress too much about priors. If you have a lot of data your prior will often not be terribly important.</p></li>
+<li><p>But give a little thought as to what a sensible prior would be, especially when working with link functions.</p></li>
+</ul>
+<p>If you’re in doubt speak with me! I think having a discussion about your priors would be an excellent use of one of our meetings (hint, hint).</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
