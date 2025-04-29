@@ -1,0 +1,25 @@
+---
+title: "Welcome to Occupancy Modelling"
+format: html
+---
+
+# Hey Zitong and Joe!
+
+This site is for you both and introduces the fundamentals and advanced topics in occupancy modelling that you'll need to do your honours project. I've written the material to be accessible for you both, in terms of your honours projects, but also to help boost your skillset for when you finish you undergraduate.
+
+As always, if there is anything in the site that is either wrong or confusing, just let me know. If it helps, I would be amazed if you understood everything that's covered, so it's my *prior* belief that parts will need to be explained in person.
+
+## Suggested Order
+
+To get the most out of this material, I recommend the following order:
+
+1.  **Occupancy Models: The basics**\
+    Learn the basics of occupancy models and how they help us infer species presence/absence from imperfect detection.
+
+2.  **Occupancy Models: Covariates**\
+    Explore how environmental or survey covariates can be incorporated to improve model accuracy and interpretation.
+
+3.  **Bayesian models: The concept**\
+    Dive into Bayesian methods for occupancy modelling, allowing more flexibility and robust uncertainty estimation.
+
+Enjoy! (Maybe?)
