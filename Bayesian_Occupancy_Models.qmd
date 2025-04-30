@@ -311,7 +311,7 @@ $$logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}$$
 
 Which we can translate into the following code. But pay attention to the `n.chains`, `n.samples` and `n.burn` arguments. This is where we specify how many chains we want (`n.chains`), how many iterations we want (`n.samples`, note an iteration can also be called a sample), and how many of the first iterations we want to ignore (`n.burn`).
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, cache = TRUE}
 fit <- PGOcc(
   occ.formula = ~ tree + temp, 
   det.formula = ~ rain, 
@@ -479,7 +479,7 @@ Now, to be very, very clear; I am choosing these priors completely at random jus
 
 But we can always fit this model to see what happens:
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, cache = TRUE}
 fit_priors <- PGOcc(
   occ.formula = ~ tree + temp,
   det.formula = ~ rain,
