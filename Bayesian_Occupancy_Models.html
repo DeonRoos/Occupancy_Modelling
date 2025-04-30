@@ -453,7 +453,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><span class="math display">\[y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\\]</span></p>
 <p><span class="math display">\[logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\]</span></p>
 <p>Which we can translate into the following code. But pay attention to the <code>n.chains</code>, <code>n.samples</code> and <code>n.burn</code> arguments. This is where we specify how many chains we want (<code>n.chains</code>), how many iterations we want (<code>n.samples</code>, note an iteration can also be called a sample), and how many of the first iterations we want to ignore (<code>n.burn</code>).</p>
-<div class="cell">
+<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-8_50bb74cbd7a92a7fc0284a7e8e09ee2d">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
@@ -510,7 +510,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0185
+Run Time (min): 0.0183
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
@@ -641,7 +641,7 @@ rain         0.1730 0.2207 -0.2558  0.1719  0.6087 1.0015 2994</code></pre>
 <p><span class="math display">\[\alpha_1 \sim Normal(0.2, 1)\]</span></p>
 <p>Now, to be very, very clear; I am choosing these priors completely at random just for demonstration. I have no reason, in this case, to think that a reasonable prior for <span class="math inline">\(\beta_1\)</span> is <span class="math inline">\(Normal(0.5, 1)\)</span>.</p>
 <p>But we can always fit this model to see what happens:</p>
-<div class="cell">
+<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-15_3b44ec601e6682549af06d711f6299d8">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fit_priors <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
@@ -691,7 +691,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0162
+Run Time (min): 0.0158
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
@@ -723,7 +723,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0185
+Run Time (min): 0.0183
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
