@@ -16,8 +16,13 @@ In the previous page, we went through the underlying theory of Bayesian statisti
 
 We'll again work with the Etosha elephant dataset. Importantly, we are not yet including spatial autocorrelation. We'll add that in the next section.
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 library(spOccupancy)
+
+# These are needed to produce the website
+library(tidyverse)
+library(gganimate)
+library(ggthemes)
 ```
 
 ```{r, include=FALSE}
@@ -61,11 +66,7 @@ So our objective here is to figure out $\beta_0$ and $\beta_1$. To do so, we'll 
 
 Here's our MCMC in action:
 
-```{r, message = FALSE, warning = FALSE}
-library(tidyverse)
-library(gganimate)
-library(ggthemes)
-
+```{r, message = FALSE, warning = FALSE, eval = F}
 true_param <- c(2, -1)
 target_density <- function(x, y) {
   exp(-0.5 * ((x - true_param[1])^2 / 1^2 + (y - true_param[2])^2 / 0.5^2))
@@ -105,11 +106,11 @@ ggplot(samples, aes(x = x, y = y)) +
   theme_bw()
 ```
 
+![](images/single_chain_mcmc_animation.gif)
+
 Here's where the really clever bit comes in. At each iteration, if we record the parameter value it tried, and store it, when we build it up the end result is our *posterior*! This is what made Bayesian statistics possible! We don't need to use any crazy (and often impossible) maths to figure out the posterior, we just have MCMC walk around and the end result is an insanely good reflection of the posterior!
 
-```{r, message = FALSE, warning = FALSE}
-library(tidyverse)
-
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 samples_long <- samples |>
   pivot_longer(cols = c(x, y), names_to = "parameter", values_to = "value")
 
@@ -144,9 +145,11 @@ ggplot(samples_long_cumulative, aes(x = value)) +
   theme_bw()
 ```
 
+![](images/posterior_mcmc_animation.gif)
+
 Another way to show what the MCMC was up to is using something called "traceplots". These are relatively simple but actually quite powerful for determining if we *trust* the model output. We'll come back to this in a bit, but for now, we can show the MCMC exploring the parameter space using these traceplots.
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 samples_long_cumulative_trace <- samples_long |>
   group_by(parameter) |>
   group_split() |>
@@ -176,6 +179,8 @@ ggplot(samples_long_cumulative_trace, aes(x = iteration, y = value)) +
 
 ```
 
+![](images/trace_mcmc_animation.gif)
+
 # Improving our MCMC
 
 We've made a good start but we can improve this quite a bit. Firstly, limiting the algorithm to 100 iterations doesn't give it many opportunities to find the true value. In general, you often give MCMC thousands of iterations, rather than a paltry 100. So first improvement is to increase the number of iterations (you may remember we did this when we were going through the occupancy theory pages - now you know why!).
@@ -184,10 +189,7 @@ Secondly, we're using one MCMC chain. Why not more? Afterall, if we have say fou
 
 Let's implement our improvement and see what our plots now look like:
 
-```{r, message = FALSE, warning = FALSE}
-library(tidyverse)
-library(gganimate)
-
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 true_param <- c(2, -1)
 
 target_density <- function(x, y) {
@@ -216,9 +218,7 @@ chains_list <- map_dfr(1:n_chains, function(chain_id) {
   }
   samples
 })
-```
 
-```{r, message = FALSE, warning = FALSE}
 ggplot(chains_list, aes(x = x, y = y, group = chain, color = as.factor(chain))) +
   geom_path(linewidth = 0.7) +
   geom_point(aes(x = x, y = y), size = 1.5) +
@@ -235,7 +235,10 @@ ggplot(chains_list, aes(x = x, y = y, group = chain, color = as.factor(chain))) 
   theme_bw()
 ```
 
-```{r, message = FALSE, warning = FALSE}
+![](images/multichain_mcmc_animation.gif)
+
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
 samples_long <- chains_list %>%
   pivot_longer(cols = c(x, y), names_to = "parameter", values_to = "value") %>%
   mutate(true_value = if_else(parameter == "x", true_param[1], true_param[2]),
@@ -268,9 +271,7 @@ ggplot(samples_long_cumulative, aes(x = value, fill = as.factor(chain))) +
   labs(title = "Cumulative Posterior up to Iteration {current_frame}",
        x = "Parameter Value", y = "Frequency") +
   theme_minimal()
-```
 
-```{r, message = FALSE, warning = FALSE}
 ggplot(samples_long_cumulative, aes(x = iteration, y = value, color = as.factor(chain))) +
   geom_line(linewidth = 0.7) +
   geom_hline(aes(yintercept = true_value), linetype = "dashed", color = "#00A68A", linewidth = 1) +
@@ -281,6 +282,10 @@ ggplot(samples_long_cumulative, aes(x = iteration, y = value, color = as.factor(
        x = "Iteration", y = "Parameter Value") +
   theme_minimal()
 ```
+
+![](images/multichain_posterior_mcmc_animation.gif)
+
+![](images/multichain_trace_mcmc_animation.gif)
 
 I have a bit more confidence in our posteriors now:
 
