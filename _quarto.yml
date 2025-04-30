@@ -3,7 +3,7 @@ project:
 
 website:
   title: "Occupancy Modelling"
-  site-url: index.qmd
+  site-url: https://deonroos.github.io/Occupancy_Modelling/
   navbar:
     left:
       - text: "Occupancy Models: The basics"
