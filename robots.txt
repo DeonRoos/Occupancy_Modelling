@@ -1,1 +1,1 @@
-Sitemap: index.qmd/sitemap.xml
+Sitemap: https://deonroos.github.io/Occupancy_Modelling/sitemap.xml
