@@ -14,12 +14,23 @@ As always, if there is anything in the site that is either wrong or confusing, j
 To get the most out of this material, I recommend the following order:
 
 1.  **Occupancy Models: The basics**\
-    Learn the basics of occupancy models and how they help us infer species presence/absence from imperfect detection.
+    Learn the basic theory of occupancy models and how they help us infer species presence/absence from imperfect detection.
 
 2.  **Occupancy Models: Covariates**\
-    Explore how environmental or survey covariates can be incorporated to improve model accuracy and interpretation.
+    Learn how site and survey covariates can be incorporated to improve our biological understanding but also improve the accuracy of our inference.
 
 3.  **Bayesian models: The concept**\
-    Dive into Bayesian methods for occupancy modelling, allowing more flexibility and robust uncertainty estimation.
+    Learn the basic theory of the Bayesian statistical framework; what's a prior versus a posterior?
+    
+4.  **Fitting Bayesian Models**\
+    Combine occupancy models with the Bayesian framework to fit Bayesian occupancy models.
+    
+5. **To be added - Spatial autocorrelation**\
+    Learn the basic theory of spatial autocorrelation
+    
+6. **To be added - Occupancy models with Spatial autocorrelation**\
+    Combine occupancy models, the Bayesian framework, and spatial autocorrelation to fit Bayesian occupancy models with spatial autocorrelation.
+
+Be aware that this site is very much an on going work in progress. Some text may be unfinished, some code may be a bit janky. Let me know if you spot anything that needs some work.
 
 Enjoy! (Maybe?)
