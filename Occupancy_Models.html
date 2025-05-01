@@ -627,12 +627,10 @@ logit(p_{i,j}) = \alpha_0
 <section id="fitting-the-model" class="level1">
 <h1>Fitting the model</h1>
 <p>Below we’re going to fit the simplest version of an occupancy model that we can, specifically:</p>
-<p><span class="math display">\[
-z_i \sim Bernoulli(\psi_i)\\
-logit(\psi_i) = \beta_0\\
-y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
-logit(p_{i,j}) = \alpha_0
-\]</span></p>
+<p><span class="math display">\[z_i \sim Bernoulli(\psi_i)\\\]</span></p>
+<p><span class="math display">\[logit(\psi_i) = \beta_0\\\]</span></p>
+<p><span class="math display">\[y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\\]</span></p>
+<p><span class="math display">\[logit(p_{i,j}) = \alpha_0\]</span></p>
 <p>This version of the model only has two average probabilities. One for the average probability that elephants occupy a site (<span class="math inline">\(\beta_0\)</span> which is fit on the <span class="math inline">\(logit\)</span> link function), and another for the average detection elephants <em>if</em> they are present (<span class="math inline">\(\alpha_0\)</span>, also fit on the <span class="math inline">\(logit\)</span> link function).</p>
 <p>The model is not fit using the so-called “frequentist framework”. Instead, it uses the <em>Bayesian</em> framework. I’ll gloss over what frequentist and Bayesian are and what the differences are for now, other than to say that maybe 95% ($\leftarrow$ lousy stats joke) of scientists use the frequentist framework. Not by coincidence, it’s also the framework that is generally taught to students (hence why most people use it). For your future, employers often think (rightly or wrongly) that Bayesian statistics is fancier and more sophisticated.</p>
 <p>The code below uses the <code>PGOcc()</code> function from the <code>spOccupancy</code> package to fit a single species, single season occupancy model with no explanatory variables.</p>
@@ -673,7 +671,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0025
+Run Time (min): 0.0028
 
 Occurrence (logit scale): 
               Mean     SD    2.5%    50%  97.5%   Rhat  ESS
