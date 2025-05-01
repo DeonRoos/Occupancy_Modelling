@@ -535,7 +535,7 @@ Remember, the logit function stretches the 0–1 probability scale onto the whol
 
 - Probabilities near 0.5 correspond to logits near 0.
 
-- Probabilities near 0 or 1 correspond to logits of -$\inf$ and +∞.
+- Probabilities near 0 or 1 correspond to logits of $-\infty$ and $+\infty$.
 
 This means that a $Normal$ prior with mean 0 and large variance on the logit scale is not flat on the probability scale! Even "uninformative" $Normal$ priors on the logit scale can actually imply very strong beliefs on the probability scale.
 

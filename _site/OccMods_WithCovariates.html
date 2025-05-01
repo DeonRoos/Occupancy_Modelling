@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Deon Roos">
-<meta name="dcterms.date" content="2025-04-30">
+<meta name="dcterms.date" content="2025-05-01">
 
 <title>Occupancy Modelling - Including Covariates in Occupancy Models</title>
 <style>
@@ -131,7 +131,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./Bayesian_Occupancy_Models.html" rel="" target="">
- <span class="menu-text">Fitting Bayesian models</span></a>
+ <span class="menu-text">Fitting Bayesian Models</span></a>
   </li>  
 </ul>
             <div class="quarto-navbar-tools ms-auto">
@@ -149,19 +149,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#the-r-packages" id="toc-the-r-packages" class="nav-link active" data-scroll-target="#the-r-packages">The <code>R</code> packages</a></li>
-  <li><a href="#the-theory" id="toc-the-theory" class="nav-link" data-scroll-target="#the-theory">The theory</a></li>
+  <li><a href="#the-theory" id="toc-the-theory" class="nav-link active" data-scroll-target="#the-theory">The theory</a>
+  <ul class="collapse">
   <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation">Data preparation</a></li>
   <li><a href="#fitting-the-model" id="toc-fitting-the-model" class="nav-link" data-scroll-target="#fitting-the-model">Fitting the model</a></li>
   <li><a href="#interpreting" id="toc-interpreting" class="nav-link" data-scroll-target="#interpreting">Interpreting</a></li>
   <li><a href="#plot-predicted-relationships" id="toc-plot-predicted-relationships" class="nav-link" data-scroll-target="#plot-predicted-relationships">Plot predicted relationships</a></li>
   <li><a href="#uncertainty" id="toc-uncertainty" class="nav-link" data-scroll-target="#uncertainty">Uncertainty</a></li>
-  <li><a href="#multiple-covariates" id="toc-multiple-covariates" class="nav-link" data-scroll-target="#multiple-covariates">Multiple covariates</a></li>
+  </ul></li>
+  <li><a href="#multiple-covariates" id="toc-multiple-covariates" class="nav-link" data-scroll-target="#multiple-covariates">Multiple covariates</a>
+  <ul class="collapse">
   <li><a href="#data-preparation-1" id="toc-data-preparation-1" class="nav-link" data-scroll-target="#data-preparation-1">Data preparation</a></li>
   <li><a href="#fitting-the-model-1" id="toc-fitting-the-model-1" class="nav-link" data-scroll-target="#fitting-the-model-1">Fitting the model</a></li>
   <li><a href="#resolving-issues" id="toc-resolving-issues" class="nav-link" data-scroll-target="#resolving-issues">Resolving issues</a></li>
   <li><a href="#plot-predicted-relationships-1" id="toc-plot-predicted-relationships-1" class="nav-link" data-scroll-target="#plot-predicted-relationships-1">Plot predicted relationships</a></li>
-  <li><a href="#how-should-i-store-my-data" id="toc-how-should-i-store-my-data" class="nav-link" data-scroll-target="#how-should-i-store-my-data">How should I store my data?</a></li>
+  </ul></li>
+  <li><a href="#how-should-i-store-my-data" id="toc-how-should-i-store-my-data" class="nav-link" data-scroll-target="#how-should-i-store-my-data">How should I store my data?</a>
+  <ul class="collapse">
+  <li><a href="#dataset-one" id="toc-dataset-one" class="nav-link" data-scroll-target="#dataset-one">Dataset one</a></li>
+  <li><a href="#dataset-two" id="toc-dataset-two" class="nav-link" data-scroll-target="#dataset-two">Dataset two</a></li>
+  <li><a href="#dataset-three" id="toc-dataset-three" class="nav-link" data-scroll-target="#dataset-three">Dataset three (+)</a></li>
+  </ul></li>
+  <li><a href="#what-next" id="toc-what-next" class="nav-link" data-scroll-target="#what-next">What next?</a></li>
   </ul>
 </nav>
     </div>
@@ -187,7 +196,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 30, 2025</p>
+      <p class="date">May 1, 2025</p>
     </div>
   </div>
   
@@ -197,9 +206,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="the-r-packages" class="level1">
-<h1>The <code>R</code> packages</h1>
-<p>As before, this code uses <code>spOccupancy</code>, <code>ggplot2</code> and <code>patchwork</code> for the analysis and visualisations.</p>
+<p>On this page, we’ll begin expanding on the intercept-only occupancy model we fit in <em>Occupancy Models: The basics</em> and begin the process of injecting some biology into the <code>etosha</code> elephant occupancy model.</p>
+<p>As before, we’ll be using <code>spOccupancy</code> to fit the occupancy model. In addition, I’m also using <code>ggplot2</code> and <code>patchwork</code> (which allows you to stich ggplots togeher) for visualisations.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -208,28 +216,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-</section>
 <section id="the-theory" class="level1">
 <h1>The theory</h1>
-<p>In the previous document we went through a simple example to get a sense of how occupancy models work. We’re now going to begin the process of slowly increasing the complexity. To start, we’re going to need to include covariates (often called explanatory variables or independent variables or a wide variety of other names - it’s a mess).</p>
+<p>On the previous page we went through a simple example to get a sense of how occupancy models work. We’re now going to begin the process of slowly increasing the complexity. To start, we’re going to need to include covariates (also called <em>explanatory variables</em> or <em>independent variables</em> or a wide variety of other names - terminology in statistics is a mess).</p>
 <p>Let’s revisit our simple occupancy model:</p>
 <p><span class="math display">\[
-z_i \sim Bernoulli(\psi_i)\\
+z_i \sim \text{Bernoulli}(\psi_i)  \tag{State Stochastic}
 \]</span></p>
 <p><span class="math display">\[
-logit(\psi_i) = \beta_0\\
+logit(\psi_i) = \beta_0\\  \tag{State Deterministic}
 \]</span></p>
 <p><span class="math display">\[
-y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
+y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\  \tag{Observation Stochastic}
 \]</span></p>
 <p><span class="math display">\[
-logit(p_{i,j}) = \alpha_0
+logit(p_{i,j}) = \alpha_0  \tag{Observation Deterministic}
 \]</span></p>
-<p>where the first two formula represent the state model (i.e.&nbsp;are our species present or absent from site <span class="math inline">\(i\)</span>), and the last two form the detection model.</p>
-<p>What we’re going to do in this section is to add in covariates to these equations, starting with the detection model.</p>
-<p>The first thing to note is that <span class="math inline">\(y\)</span> is indexed by both <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, where <span class="math inline">\(i\)</span> was the site and <span class="math inline">\(j\)</span> was the survey. That <span class="math inline">\(j\)</span> is important because it allows us to specify covariates that vary not just by site (e.g.&nbsp;site 1 has 20 trees while site 2 has 10 trees) but by survey as well (e.g.&nbsp;on survey 1 in site 1, the temperature was 20 degrees, 15 degrees in survey 2 and 5 degrees in survey 3). This means that anything that was different in one survey to the next can be accounted for and included in the model (so long as we can measure it).</p>
-<p>Specifically, these “survey varying covariates” are features that we think may have made us (or whoever or whatever collected the data) to be more or less effective. Using cameras? Well maybe the presence of fog has a big impact on how likely we are to detect elephants. Doing surveys yourself? Well maybe the hour of day that you did the survey had a big impact. The point is, we can include these variables that deal with differences in detection probability.</p>
-<p>I’ll simulate a new dataset (with a bit more data for us to work with - 64 sites surveyed 3 times each) to show this off. We can say that the detection covariate in this case is rainfall, but note that the values for rainfall will be centred on zero (don’t worry about this).</p>
+<p>I’ve added some tags to the left to help us keep track of each part. Remember that here <em>stochastic</em> means “the part of the model that deals with randomness”, and <em>deterministic</em> means “the part of the model that deals with why something happens”. In this occupancy model, the State formulae represent why a species is present at a site or not, and the Observation formulae represent if the species is detected or not.</p>
+<p>What we’re going to do in this section is to add in covariates to the deterministic parts (why something happens), starting with the observation model.</p>
+<p>The first thing to I want to remind you of is that <span class="math inline">\(y\)</span> is indexed by both <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, where <span class="math inline">\(i\)</span> was the site and <span class="math inline">\(j\)</span> was the survey. That <span class="math inline">\(j\)</span> is important because it allows us to specify covariates that vary not just by site (e.g.&nbsp;site 1 has 20 trees while site 2 has 10 trees) but by survey as well (e.g.&nbsp;on survey 1 in site 1, the temperature was 20 degrees, 15 degrees in survey 2 and 5 degrees in survey 3). This means that anything that was different in one survey to the next can be accounted for and included in the model (so long as we can measure and record it).</p>
+<p>Specifically, these <em>survey varying covariates</em> are features that we think may have made us (or whoever or whatever collected the data) to be more or less effective. Using cameras? Well maybe the presence of fog has a big impact on how likely we are to detect elephants. Doing surveys yourself? Well maybe the hour of day that you did the survey had a big impact. The point is, we can include these variables that deal with differences in detection probability.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/fog.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">A photo taken after some unseen animal triggered the motion sensor on a foggy day.</figcaption>
+</figure>
+</div>
+<p>I’ll simulate a new dataset (with a bit more data for us to work with - 64 sites surveyed 3 times each) to show this off. I’ll include a the detection covariate in this case, which is rainfall, but note that the values for rainfall will be centred on zero (don’t worry about this - just treat it as the larger <code>rain</code> is, the more rain there was).</p>
 <p>Here’s what the data looks like:</p>
 <div class="cell">
 <details>
@@ -261,20 +274,46 @@ logit(p_{i,j}) = \alpha_0
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Rainfall"</span>, <span class="at">y =</span> <span class="st">"Elephant detection"</span>) <span class="sc">+</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="st">"A"</span>, <span class="at">tag_suffix =</span> <span class="st">")"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>obs_long <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(obs)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(obs_long) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Survey_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(obs_long))</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>obs_long<span class="sc">$</span>Site <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(obs_long)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>obs_long <span class="ot">&lt;-</span> <span class="fu">pivot_longer</span>(obs_long, </span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>                         <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"Survey"</span>), </span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>                         <span class="at">names_to =</span> <span class="st">"Survey"</span>, </span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>                         <span class="at">values_to =</span> <span class="st">"Detection"</span>)</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>obs_long<span class="sc">$</span>Survey <span class="ot">&lt;-</span> <span class="fu">factor</span>(obs_long<span class="sc">$</span>Survey, <span class="at">levels =</span> <span class="fu">paste0</span>(<span class="st">"Survey_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(obs)))</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>obs_long<span class="sc">$</span>Detection <span class="ot">&lt;-</span> <span class="fu">factor</span>(obs_long<span class="sc">$</span>Detection, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Detection"</span>, <span class="st">"No detection"</span>))</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a> p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(obs_long, <span class="fu">aes</span>(<span class="at">x =</span> Site, <span class="at">y =</span> Survey, <span class="at">fill =</span> Detection)) <span class="sc">+</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Detection"</span> <span class="ot">=</span> <span class="st">"darkgreen"</span>, <span class="st">"No detection"</span> <span class="ot">=</span> <span class="st">"lightgrey"</span>)) <span class="sc">+</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Site"</span>, <span class="at">y =</span> <span class="st">"Survey"</span>) <span class="sc">+</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="st">"</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="st">AB</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="st">AB</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="st">CC</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="st">"</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> p3 <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="st">"A"</span>, <span class="at">tag_suffix =</span> <span class="st">")"</span>) <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">design =</span> design)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Notice anything? In <strong>A)</strong> we can see that in each survey, there’s a lot of variation across the 64 sites in how much rainfall there was; maybe peaking in survey 2. In <strong>B)</strong>, it looks like it might be more likely that we detect elephants more often when there’s more rainfall.</p>
-<p>Are you sure there’s an influence? If so, how strong is it? <em>Exactly</em> how strong is it?</p>
+<p><strong>A)</strong> shows the amount of rainfall over each survey. Each point represents a site in a given survey. <strong>B)</strong> shows the amount of rainfall against whether or not an elephant was detected. <strong>C)</strong> shows the detection history, where detections of elephants are coloured green and no detection is coloured grey.</p>
+<p>Notice anything? In <strong>A)</strong> we can see that in each survey, there’s a lot of variation across the 64 sites in how much rainfall there was; maybe peaking in survey 2. In <strong>B)</strong>, it looks like it might be more likely that we detect elephants more often when there’s more rainfall. While <strong>C)</strong> shows that most of the time we only detect elephants in one survey then never again (remember the assumption of closure? we assume that whenever we detect an elephant, then they were present in all other surveys at that site).</p>
+<p>Based on <strong>B)</strong> how confident are you that there’s an influence on rain on the detection probability of elephants? If you’re confident there is, then how strong do you think it is? Can you say <em>exactly</em> how strong is it?</p>
 <p>There’s no way you can answer those questions. That’s where we need stats. So let’s add in rainfall to our model. I’ll recycle the code from the previous document and include rainfall. Here’s how we do that.</p>
-</section>
-<section id="data-preparation" class="level1">
-<h1>Data preparation</h1>
-<p>Just like in the previous document, we need to include our different datasets into a <code>list</code>. If you’re still not sure what a <code>list</code> is in <code>R</code>, think of it like a folder on your computer. You can add lots of different files to a folder, but they’re all “tied” together by being within the same folder. That’s the same as a <code>list</code> in <code>R</code>.</p>
-<p>Here, I’m going to do something seemingly strange. I’m going to create a <code>list</code> and include this into our <code>etosha</code> <code>list</code>. The reason is that we might have more than one detection covariate, so having a list, though redundant here, will make adding additional variables easier in the future.</p>
+<section id="data-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation">Data preparation</h2>
+<p>Just like in the previous page, we need to include our different datasets into a <code>list</code>. If you’re still not sure what a <code>list</code> is in <code>R</code>, think of it like a folder on your computer. You can add lots of different files to a folder (and any type of file), but they’re all “tied” together by being within the same folder. That’s the same as a <code>list</code> in <code>R</code>.</p>
+<p>Here, I’m going to do something seemingly strange. I’m going to create a <code>list</code> and include this into our <code>etosha</code> <code>list</code>. A list within a list. The reason is that we might have more than one detection covariate, so having a list, though redundant here, will make adding additional variables easier in the future.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -290,8 +329,8 @@ logit(p_{i,j}) = \alpha_0
 </div>
 <p>And we’re good to go on to the modelling.</p>
 </section>
-<section id="fitting-the-model" class="level1">
-<h1>Fitting the model</h1>
+<section id="fitting-the-model" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-the-model">Fitting the model</h2>
 <p>A few things to note in the <code>R</code> code;</p>
 <ul>
 <li><p><code>occ.formula = ~ 1</code> is the equivalent to <span class="math inline">\(logit(\psi_{i,j}) = \beta_0\)</span></p>
@@ -325,8 +364,8 @@ logit(p_{i,j}) = \alpha_0
 </details>
 </div>
 </section>
-<section id="interpreting" class="level1">
-<h1>Interpreting</h1>
+<section id="interpreting" class="level2">
+<h2 class="anchored" data-anchor-id="interpreting">Interpreting</h2>
 <p>Having now fit the model to the data, we can see what we’ve learnt:</p>
 <div class="cell">
 <details>
@@ -344,11 +383,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-<<<<<<< HEAD
-Run Time (min): 0.017
-=======
-Run Time (min): 0.0152
->>>>>>> d548521aa3beeabf225108329da82b7c8eb947ac
+Run Time (min): 0.018
 
 Occurrence (logit scale): 
               Mean     SD   2.5%   50%  97.5%   Rhat ESS
@@ -360,19 +395,18 @@ Detection (logit scale):
 rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 </div>
 </div>
-<p>Compared to the model in the previous document we now have additional information for <code>Detection (logit scale)</code>; we have both an <code>(Intercept)</code> and <code>rain</code>. These are <span class="math inline">\(\alpha_0\)</span> and <span class="math inline">\(\alpha_1\)</span> from our detection model <span class="math inline">\(logit(p_i) = \alpha_0 + \alpha_1 \times Rain_i\)</span>. If we really wanted to, we could now replace the parameter labels (e.g.&nbsp;the <span class="math inline">\(\alpha\)</span>s and <span class="math inline">\(\beta\)</span>s) with their now estimated values which would look like (rounding the estimates to two decimal points arbitrarily):</p>
+<p>Compared to the model on the previous page we now have additional information for <code>Detection (logit scale)</code>; we have both an <code>(Intercept)</code> and <code>rain</code>. These are <span class="math inline">\(\alpha_0\)</span> and <span class="math inline">\(\alpha_1\)</span> from our detection model (<span class="math inline">\(logit(p_i) = \alpha_0 + \alpha_1 \times Rain_i\)</span>). If we really wanted to, we could now replace the parameter labels (e.g.&nbsp;the <span class="math inline">\(\alpha\)</span>s and <span class="math inline">\(\beta\)</span>s) with their now estimated values which would look like (rounding the estimates to two decimal points arbitrarily):</p>
+<p><span class="math display">\[z_i \sim Bernoulli(\psi_i)\\  \tag{State Stochastic}\]</span></p>
 <p><span class="math display">\[
-z_i \sim Bernoulli(\psi_i)\\\]</span> $$</p>
-<p><span class="math display">\[
-logit(\psi_i) = 1.88\\
+logit(\psi_i) = 1.88\\  \tag{State Deterministic}
 \]</span></p>
 <p><span class="math display">\[
-y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
+y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\  \tag{Observation Stochastic}
 \]</span></p>
 <p><span class="math display">\[
-logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i
+logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 \]</span></p>
-<p>With this, we can swap out <span class="math inline">\(Rain\)</span> for any value that we might be interested in, to see how our detection probability changes. For example, let’s see what happens when <span class="math inline">\(Rain = 1\)</span>.</p>
+<p>With this, we can swap out <span class="math inline">\(Rain\)</span> in the <em>Observation Deterministic</em> equation for any value of rain that we might be interested in, to see how it changes our estimated detection probability. For example, let’s see what happens when <span class="math inline">\(Rain = 1\)</span> (equivalent to lots of rain based on how I simulated <code>rain</code>).</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -392,7 +426,7 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i
 <pre><code>[1] 0.2314752</code></pre>
 </div>
 </div>
-<p>And we get a ca. 23% chance to detect an elephant when <span class="math inline">\(Rain = 1\)</span>. What about when <span class="math inline">\(Rain = 0\)</span>? Well, we can do that easily enough now that we know thew general steps:</p>
+<p>And we get a ca. 23% chance to detect an elephant when <span class="math inline">\(Rain = 1\)</span>. What about when <span class="math inline">\(Rain = 0\)</span> (equivalent to medium rain)? Well, we can do that easily enough now that we know thew general steps:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -405,9 +439,9 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i
 <p>When <span class="math inline">\(Rain = 0\)</span>, we predict a ca. 13% chance to detect elephants.</p>
 <p>This approach, whereby we make a prediction for a specific value of <span class="math inline">\(Rain\)</span> can be extended into making multiple predictions at once, such that we can then draw a line through them. Here’s how we’d do that.</p>
 </section>
-<section id="plot-predicted-relationships" class="level1">
-<h1>Plot predicted relationships</h1>
-<p>We start by creating a sequence of <span class="math inline">\(Rain\)</span> values, rather than doing one a time. Here we use the <code>seq()</code> function to create a sequence, which will range from the minimum <span class="math inline">\(Rain\)</span> value to the maximum within our dataset. The number of values that we want in this sequence is specified as 20 but we can choose any value here - we just need enough that the line is drawn “accurately”.</p>
+<section id="plot-predicted-relationships" class="level2">
+<h2 class="anchored" data-anchor-id="plot-predicted-relationships">Plot predicted relationships</h2>
+<p>We start by creating a sequence of <span class="math inline">\(Rain\)</span> values, rather than doing one a time like we did above. Here we use the <code>seq()</code> function to create a sequence, which will range from the minimum <span class="math inline">\(Rain\)</span> value to the maximum within our dataset. The number of values that we want in this sequence is specified as 20 but we can choose any value here - we just need enough that the line is drawn “accurately”.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -471,14 +505,15 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i
 <p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Based on our figure, we’d now be able to make some biological inference. From what we see in our figure, we have evidence that elephants are easier to spot when it rains. If we were writing this as a paper, we might discuss why that was the case. However (and this is important) we should have really considered this <em>before</em> we did the analysis. The risk of making sense of this now is that we rationalise something that’s actually stupid. This is something called HARKing, or Hypothesising After the Results are Known and it’s a form of scientific fraud. Keep in mind, this is simulated data where the stakes are low. My goal here is to explain the methods to you. With real analysis, we need to be more thorough and responsible - so make sure you have your hypotheses before you do your analysis!</p>
 </section>
-<section id="uncertainty" class="level1">
-<h1>Uncertainty</h1>
-<p>The above figure is a good start but we’re missing any measure of uncertainty. If we were doing frequentist statistics, we would use 95% confidence intervals but these are exclusively frequentist. There are no 95% confidence intervals when we use the Bayesian statistical framework. Instead we have <em>credible intervals</em>. I’ll explain the Bayesian framework in a subsequent workflow but for now here is the formal definition of a credible interval:</p>
+<section id="uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="uncertainty">Uncertainty</h2>
+<p>The above figure is a good start but we’re missing any measure of uncertainty. If we were doing frequentist statistics, we would use 95% confidence intervals but these are exclusively frequentist. There are no 95% confidence intervals when we use the Bayesian statistical framework. Instead we have <em>credible intervals</em>. I’ll explain the Bayesian framework in a subsequent workflow but for now here is the formal definition of a <strong>credible</strong> interval:</p>
 <blockquote class="blockquote">
 <p>There is a 95% probability that the <strong>True</strong> parameter value lies within the interval range, given the data and model.</p>
 </blockquote>
-<p>This is in contrast with the frequentist confidence interval whose formal definition is so bizarre and unintuitive that it’s barely useful. 95% <em>credible intervals</em> are useful and work exactly the way people <em>think</em> frequentist intervals work.</p>
+<p>This is in contrast with the frequentist confidence interval whose formal definition of a confidence interval is so bizarre and unintuitive that it’s barely useful. 95% <em>credible intervals</em> are actually useful and work exactly the way people <em>think</em> frequentist intervals work. I’ll explain how they work in a later page, so just trust me for now that they’re <em>better</em>.</p>
 <p>But how do we include these in the figure? Well, the model summary makes it easy to find the values:</p>
 <div class="cell">
 <details>
@@ -496,11 +531,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-<<<<<<< HEAD
-Run Time (min): 0.017
-=======
-Run Time (min): 0.0152
->>>>>>> d548521aa3beeabf225108329da82b7c8eb947ac
+Run Time (min): 0.018
 
 Occurrence (logit scale): 
               Mean     SD   2.5%   50%  97.5%   Rhat ESS
@@ -512,7 +543,7 @@ Detection (logit scale):
 rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 </div>
 </div>
-<p>They’re the <code>2.5%</code> and <code>97.5%</code> values in our summary table. So all we need to do is repeat our predicions using these values to get out measure of uncertainty to include in the figure. Importantly, if you remember back to BI3010 where you had to multiple standard error by 1.96, we <em>do not</em> need to do that here. That’s frequentist nonsense - we’re Bayesian now.</p>
+<p>They’re the <code>2.5%</code> and <code>97.5%</code> values in our summary table. So all we need to do is repeat the code we used to make our predictions, except now using these credible interval values to get our measure of uncertainty. Importantly, if you remember back to BI3010 where you had to multiplya parameters standard error by 1.96, we <strong><em>do not</em></strong> need to do that here. That’s frequentist nonsense - we’re fancy Bayesian scientists now.</p>
 <p>Let’s do just that:</p>
 <div class="cell">
 <details>
@@ -565,11 +596,14 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 </div>
 <p>With that, we have a publication ready figure.</p>
 </section>
+</section>
 <section id="multiple-covariates" class="level1">
 <h1>Multiple covariates</h1>
 <p>Let’s increase the complexity a bit and have the simulation include multiple covariates. We’ll say that tree height and average temperature affect whether or not a site is occupied (elephants will like tall trees and cooler locations). We’ll still have rain affect our detection probability, as above.</p>
-<p>To create the figures below we need to do some tweaks to the data. The <code>df</code> object I create has one row per survey, with three surveys per site. Our occupancy covariates, <code>tree</code> and <code>temp</code> have just one value; these do not change from one survey to the next. If a tree is 3 m tall in survey one, then it’ll still be 3 m tall in surveys two and three.</p>
 <p>A note here is that the covariates are still centered on zero. That’s just the way the data is simulated but the data you collect does not need to be the same (so ignore the fact that we will have trees that are -1 m tall - the general idea doesn’t change).</p>
+<blockquote class="blockquote">
+<p>A technical note if you’re interested. To create the figures below I need to do some tweaks to the data. The <code>df</code> object I create in the code below has one row per survey, with three surveys per site. Our occupancy covariates, <code>tree</code> and <code>temp</code> have just one value; these do not change from one survey to the next. If a tree is 3 m tall in survey one, then it’ll still be 3 m tall in surveys two and three. That’s why I “cheat” and replicate <code>tree</code> and <code>temp</code> three times each.</p>
+</blockquote>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -592,70 +626,109 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 <span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> temp)) <span class="sc">+</span></span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> temp),</span>
-<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>              <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">height =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Survey"</span>, <span class="at">y =</span> <span class="st">"Temperature"</span>) <span class="sc">+</span></span>
-<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
-<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
-<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">factor</span>(y), <span class="at">x =</span> temp),</span>
-<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">width =</span> <span class="dv">0</span>, <span class="at">height =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Temperature"</span>, <span class="at">y =</span> <span class="st">"Elephant detection"</span>) <span class="sc">+</span></span>
-<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
-<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
-<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> tree)) <span class="sc">+</span></span>
-<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(survey), <span class="at">y =</span> tree),</span>
-<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>              <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">height =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Survey"</span>, <span class="at">y =</span> <span class="st">"Tree"</span>) <span class="sc">+</span></span>
-<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
-<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
-<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">factor</span>(y), <span class="at">x =</span> tree),</span>
-<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">width =</span> <span class="dv">0</span>, <span class="at">height =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Tree"</span>, <span class="at">y =</span> <span class="st">"Elephant detection"</span>) <span class="sc">+</span></span>
-<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
-<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a>(p1 <span class="sc">+</span> p2) <span class="sc">/</span> (p3 <span class="sc">+</span> p4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> temp)) <span class="sc">+</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">x =</span> <span class="st">"Temperature"</span>) <span class="sc">+</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">factor</span>(y), <span class="at">x =</span> temp),</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">width =</span> <span class="dv">0</span>, <span class="at">height =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Temperature"</span>, <span class="at">y =</span> <span class="st">"Elephant</span><span class="sc">\n</span><span class="st">detection"</span>) <span class="sc">+</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> tree)) <span class="sc">+</span></span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Tree height"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">factor</span>(y), <span class="at">x =</span> tree),</span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">width =</span> <span class="dv">0</span>, <span class="at">height =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Tree"</span>, <span class="at">y =</span> <span class="st">"Elephant</span><span class="sc">\n</span><span class="st">detection"</span>) <span class="sc">+</span></span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>p5 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> cov)) <span class="sc">+</span></span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Rain"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a>p6 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
+<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">factor</span>(y), <span class="at">x =</span> tree),</span>
+<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">width =</span> <span class="dv">0</span>, <span class="at">height =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Rain"</span>, <span class="at">y =</span> <span class="st">"Elephant</span><span class="sc">\n</span><span class="st">detection"</span>) <span class="sc">+</span></span>
+<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a>obs_long <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(obs)</span>
+<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(obs_long) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Survey_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(obs_long))</span>
+<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a>obs_long<span class="sc">$</span>Site <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(obs_long)</span>
+<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a>obs_long <span class="ot">&lt;-</span> <span class="fu">pivot_longer</span>(obs_long, </span>
+<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a>                         <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"Survey"</span>), </span>
+<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a>                         <span class="at">names_to =</span> <span class="st">"Survey"</span>, </span>
+<span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a>                         <span class="at">values_to =</span> <span class="st">"Detection"</span>)</span>
+<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a>obs_long<span class="sc">$</span>Survey <span class="ot">&lt;-</span> <span class="fu">factor</span>(obs_long<span class="sc">$</span>Survey, <span class="at">levels =</span> <span class="fu">paste0</span>(<span class="st">"Survey_"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(obs)))</span>
+<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a>obs_long<span class="sc">$</span>Detection <span class="ot">&lt;-</span> <span class="fu">factor</span>(obs_long<span class="sc">$</span>Detection, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Detection"</span>, <span class="st">"No detection"</span>))</span>
+<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a> p7 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(obs_long, <span class="fu">aes</span>(<span class="at">x =</span> Site, <span class="at">y =</span> Survey, <span class="at">fill =</span> Detection)) <span class="sc">+</span></span>
+<span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Detection"</span> <span class="ot">=</span> <span class="st">"darkgreen"</span>, <span class="st">"No detection"</span> <span class="ot">=</span> <span class="st">"lightgrey"</span>)) <span class="sc">+</span></span>
+<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Site"</span>, <span class="at">y =</span> <span class="st">"Survey"</span>) <span class="sc">+</span></span>
+<span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a> design <span class="ot">&lt;-</span> <span class="st">"</span></span>
+<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a><span class="st"> AB</span></span>
+<span id="cb24-73"><a href="#cb24-73" aria-hidden="true" tabindex="-1"></a><span class="st"> AB</span></span>
+<span id="cb24-74"><a href="#cb24-74" aria-hidden="true" tabindex="-1"></a><span class="st"> CD</span></span>
+<span id="cb24-75"><a href="#cb24-75" aria-hidden="true" tabindex="-1"></a><span class="st"> CD</span></span>
+<span id="cb24-76"><a href="#cb24-76" aria-hidden="true" tabindex="-1"></a><span class="st"> EF</span></span>
+<span id="cb24-77"><a href="#cb24-77" aria-hidden="true" tabindex="-1"></a><span class="st"> EF</span></span>
+<span id="cb24-78"><a href="#cb24-78" aria-hidden="true" tabindex="-1"></a><span class="st"> GG</span></span>
+<span id="cb24-79"><a href="#cb24-79" aria-hidden="true" tabindex="-1"></a><span class="st"> GG</span></span>
+<span id="cb24-80"><a href="#cb24-80" aria-hidden="true" tabindex="-1"></a><span class="st"> "</span></span>
+<span id="cb24-81"><a href="#cb24-81" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb24-82"><a href="#cb24-82" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> p3 <span class="sc">+</span> p4 <span class="sc">+</span> p5 <span class="sc">+</span> p6 <span class="sc">+</span> p7 <span class="sc">+</span></span>
+<span id="cb24-83"><a href="#cb24-83" aria-hidden="true" tabindex="-1"></a>   <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="st">"A"</span>, <span class="at">tag_suffix =</span> <span class="st">")"</span>) <span class="sc">+</span> </span>
+<span id="cb24-84"><a href="#cb24-84" aria-hidden="true" tabindex="-1"></a>   <span class="fu">plot_layout</span>(<span class="at">design =</span> design)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="1152"></p>
 </div>
 </div>
-<p>There are two things worth highlighting from the above figures. Firstly, the boxplots on the right are identical for each of the three surveys (the points are jittered so are randomly placed but trust me that these are identical). Secondly, it becomes quite hard to see any clear pattern in the two right hand figures. Keep in mind that the zeros here are actively misleading us. Some of the zeros are genuine in that there were no elephants there and <code>tree</code> and <code>temp</code> likely caused that (which we only know because the data is simulated) but the other zeros are false negatives; The elephants were there, we just didn’t see them.</p>
+<p>There are two things worth highlighting from the above figures. Firstly, based on how we “measured” and “collected” the data temperature and tree height in <strong>A)</strong>, <strong>B)</strong>, <strong>C)</strong> and <strong>D)</strong> do not change from one survey to the next. These are constant from one day to the next and will be used as <em>site covariates</em> in the model (i.e.&nbsp;variables which only change from one site to the next). <em>A small note here is that you can have site covariates that change in both surveys and sites, but I’m keeping things simple here</em>. Conversely, in <strong>E)</strong> and <strong>F)</strong> does vary from one survey to the next and between sites. We’ll use this as a <em>survey covariate</em> in the model.</p>
+<p>Secondly, it becomes quite hard to see any clear pattern in the two right hand figures, <strong>B)</strong> and <strong>D)</strong>. Keep in mind that the zeros in <em>detections</em> are misleading. Some of the zeros are genuine, in that there were no elephants there, and <code>tree</code> and <code>temp</code> caused that (which I only know because the data is simulated in this case) but the other zeros are false negatives; The elephants were there, we just didn’t see them.</p>
 <p>This is why we need a model to figure out what the relationships are. We can no longer trust our eyes to see the pattern.</p>
 <p>So let’s get our data organised such that we can fit our model.</p>
-</section>
-<section id="data-preparation-1" class="level1">
-<h1>Data preparation</h1>
-<p>As before, we provide our detection covariates as a list but XXX</p>
+<section id="data-preparation-1" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation-1">Data preparation</h2>
+<p>As before, we provide our <em>survey covariates</em> as a <code>list</code> but our site covariates can be supplied as a <code>dataframe</code>. Keep in mind, both of these are included in another <code>list</code>.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>det.covs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">rain =</span> dat<span class="sc">$</span>X.p[,,<span class="dv">2</span>])</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>occ.covs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">tree =</span> tree, <span class="at">temp =</span> temp)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>etosha <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> dat<span class="sc">$</span>y,</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.covs =</span> det.covs,</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.covs =</span> occ.covs</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Survey covariate</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>det.covs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">rain =</span> dat<span class="sc">$</span>X.p[,,<span class="dv">2</span>])</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Site covariates</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>occ.covs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">tree =</span> tree, <span class="at">temp =</span> temp)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>etosha <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> dat<span class="sc">$</span>y, <span class="co"># Detection history</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.covs =</span> det.covs,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.covs =</span> occ.covs</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="fitting-the-model-1" class="level1">
-<h1>Fitting the model</h1>
+<section id="fitting-the-model-1" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-the-model-1">Fitting the model</h2>
 <p>The core model we’re going to fit is:</p>
-<p><span class="math display">\[
-z_i \sim Bernoulli(\psi_i)\\
-logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\\
-y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
-logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}
-\]</span></p>
+<p><span class="math display">\[z_i \sim Bernoulli(\psi_i)\]</span></p>
+<p><span class="math display">\[logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\\\]</span></p>
+<p><span class="math display">\[y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\\]</span></p>
+<p><span class="math display">\[logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\]</span></p>
 <p>The main thing that I want to highlight here, other than having included <span class="math inline">\(Tree\)</span> and <span class="math inline">\(Temp\)</span> as effecting occupancy probability (<span class="math inline">\(\psi\)</span>), is that the subscripts are different.</p>
-<p>In the occupancy model (<span class="math inline">\(logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\)</span>) the variables are subscript by <span class="math inline">\(i\)</span>, indicating that we have one value of <span class="math inline">\(Tree\)</span> or <span class="math inline">\(Rain\)</span> for each site <span class="math inline">\(i\)</span>.</p>
-<p>But in the detection model (<span class="math inline">\(logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\)</span>) <span class="math inline">\(Rain\)</span> is subscript by both <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>. That’s because we have a different <span class="math inline">\(Rain\)</span> value for each survey. This would be something we record every time we visit the site (or extract from some online source for each day).</p>
-<p>Keep this in mind when you’re collecting your own data. Variables that you think affect occupancy will have one value per site. Variables that you think affect detection will (generally) have one value per survey.</p>
+<p>In the deterministic part of the state model (<span class="math inline">\(logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\)</span>) the variables are subscript by <span class="math inline">\(i\)</span>, indicating that we have one value of <span class="math inline">\(Tree\)</span> or <span class="math inline">\(Rain\)</span> for each site <span class="math inline">\(i\)</span>.</p>
+<p>But in the deterministic part of the observation model (<span class="math inline">\(logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\)</span>) <span class="math inline">\(Rain\)</span> is subscript by both <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>. That’s because we have a different <span class="math inline">\(Rain\)</span> value for each survey <span class="math inline">\(j\)</span>. This would be something we record every time we visit the site (or extract from some online source for each sampling period).</p>
+<p>Keep this in mind when you’re collecting your own data. Variables that you think affect occupancy will (normally) have one value per site. Variables that you think affect detection will (generally) have one value per survey. But speak to me if you think you want to try something different.</p>
 <p>To fit this is relatively straight forward. For the occupancy model, we write <code>occ.formula = ~ tree + temp</code>, and for the detection model we write <code>det.formula = ~ rain</code>, and let the machinery do it’s thing.</p>
 <div class="cell">
 <details>
@@ -689,34 +762,30 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-<<<<<<< HEAD
-Run Time (min): 0.019
-=======
-Run Time (min): 0.0168
->>>>>>> d548521aa3beeabf225108329da82b7c8eb947ac
+Run Time (min): 0.0182
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
-(Intercept)  1.9424 1.0250  0.1512  1.8670 4.0917 1.0187 347
-tree         0.3904 1.3242 -2.0614  0.3232 3.0704 1.0196 267
-temp        -1.2186 1.0959 -3.2786 -1.2776 1.1046 1.0246 267
+(Intercept)  1.9515 1.0600  0.1862  1.8333 4.2716 1.0441 347
+tree         0.3649 1.2506 -2.0020  0.3180 2.8503 1.0383 293
+temp        -1.1005 1.1484 -3.2573 -1.1617 1.3032 1.0452 277
 
 Detection (logit scale): 
                Mean     SD    2.5%     50%   97.5%   Rhat  ESS
-(Intercept) -1.8408 0.2706 -2.3623 -1.8447 -1.2875 1.0066 1117
-rain         0.1666 0.2196 -0.2592  0.1611  0.6073 1.0038 3054</code></pre>
+(Intercept) -1.8428 0.2636 -2.3606 -1.8424 -1.3199 1.0023 1404
+rain         0.1730 0.2214 -0.2499  0.1707  0.6115 1.0023 2983</code></pre>
 </div>
 </div>
-<p>We see that <code>tree</code> has a positive effect on occupancy and <code>temp</code> has a negative effect. This is how the simulation was carried out, but the values do not match up particularly well. Specifically, in the simulation <code>tree</code> was set to <code>0.3</code> but has been estimated as <code>0.2</code>, while <code>temp</code> was set to <code>-0.2</code> but has been estimated as <code>-1.2</code>.</p>
-<p>So we’ve got the general relationships reasonably well estimated but it’s not particularly accurate. This is where having <em>credible intervals</em> is useful. Keep in mind that credible intervals are, correctly, interpreted as having a 95% chance of containing the “True” value (the True value here is what each parameter was set to in the simulation). For both <code>tree</code> and <code>temp</code> the True parameter value is indeed within the 95% credible intervals! Both 95% CI are wide, but that’s good here! The model isn’t entirely sure what the values are (partly because of sample size and the effects being subtle) and that is being conveyed to us! We’re not deluding ourselves into thinking we have a perfect understanding when we don’t!</p>
-<p>There are some other warning signs that the model might not be performing especially well. The first is that the <code>Rhat</code> values are getting uncomfortably large for the <code>Occurence</code> parameters. My personal rule of thumb is <code>Rhat</code> values close to 1.05 is where I get worried. None of our parameters are at 1.05 but they’re close enough that I’m paying attention to them and want to see if I can fix the problem.</p>
-<p>The other warning sign is the <code>ESS</code> for the <code>Occurence</code> model are all “low”. At least noticeably lower than the <code>Detection</code> model parameters. Again, the rule of thumb here is that we want hundreds or thousands of “Effective Sample Size”, so we’re technically OK but I’m still concerned.</p>
-<p>Now, to be clear, we ignored these issues with the first model we ran in this document, we here we’re going to see if we can’t resolve this problem.</p>
+<p>We see that <code>tree</code> has a positive effect on occupancy (0.3649) and <code>temp</code> has a negative effect (-1.1005). This is kind of good. These estimates are close to the values I used in the simulation - but they don’t match up particularly well. Specifically, in the simulation <code>tree</code> was set to <code>0.3</code> but has been estimated as <code>0.37</code> (pretty close), while <code>temp</code> was set to <code>-0.2</code> but has been estimated as <code>-1.1</code> (kind of far away).</p>
+<p>So we’ve got the general relationships reasonably well estimated but it’s not perfectly accurate to the <strong>True</strong> value I used in the simulation. This is where having <em>credible intervals</em> is useful. Keep in mind that credible intervals are, correctly, interpreted as having a 95% chance of containing the “True” value (the True value here is what each parameter was set to in the simulation). For both <code>tree</code> and <code>temp</code> the True parameter value is indeed within the 95% credible intervals! Both 95% CI are wide, but that’s good here! The model isn’t entirely sure what the values are (partly because of sample size and the effects being subtle) and that is being conveyed to us! We’re not deluding ourselves into thinking we have a perfect understanding when we don’t!</p>
+<p>There are some warning signs that the model might not be performing especially well. The first is that the <code>Rhat</code> values are getting uncomfortably large for the <code>Occurence</code> parameters. My personal rule of thumb is <code>Rhat</code> values close to 1.05 is where I get worried. None of our parameters are at 1.05 but they’re close enough that I’m paying attention to them and want to see if I can fix the problem. We’ll come back to <code>Rhat</code> values when we talk about <em>Bayesian</em> statistics.</p>
+<p>The other warning sign is the <code>ESS</code> for the <code>Occurence</code> model are all “low”. At least noticeably lower than the <code>Detection</code> model parameters. Again, the rule of thumb here is that we want hundreds or thousands of “Effective Sample Size”, so we’re technically OK but I’m still concerned. We’ll also cover <code>ESS</code> later on.</p>
+<p>Now, to be clear, we ignored these issues with the first model we ran in this document, whereas here we’re going to see if we can resolve this problem.</p>
 </section>
-<section id="resolving-issues" class="level1">
-<h1>Resolving issues</h1>
-<p>To fully appreciate the solution we’ll attempt requires a deeper understanding of Bayesian statistics. But for now, we’re not going to cover this. Instead, I’ll simply say that the “machinery” of Bayesian statistics revolves around giving a number of algorithms (called “chains”) a number of guesses (called “iterations”) to try and figure out the most likely values for our parameters.</p>
-<p>The two metrics we used above, <code>Rhat</code> and <code>ESS</code>, both monitor these chains and iterations and let us know if they are <em>not in agreement</em>. When <code>Rhat</code> values get high, and <code>ESS</code> values get low, it can suggests we simply need to give the algorithms more iterations to figure out the best values.</p>
+<section id="resolving-issues" class="level2">
+<h2 class="anchored" data-anchor-id="resolving-issues">Resolving issues</h2>
+<p>To fully appreciate the solution will require a deeper understanding of Bayesian statistics. But for now, we’re not going to cover this. Instead, I’ll simply say that the “machinery” of Bayesian statistics revolves around giving a number of algorithms (called “chains”) a number of guesses (called “iterations”) to try and figure out the most likely values for our parameters.</p>
+<p>The two metrics we used above, <code>Rhat</code> and <code>ESS</code>, both monitor these chains and iterations and let us know if they are <em>not in agreement</em> (<code>Rhat</code>) or when they haven’t been well estimated (<code>ESS</code>). When <code>Rhat</code> values get high, and <code>ESS</code> values get low, it <em>can</em> suggest we need to give the algorithms more iterations (i.e.&nbsp;chances to intelligently guess).</p>
 <p>Inevitably, the details are more complex than I can convey in two paragraphs but the general idea is there. If either number looks a bit worrying, it’s relatively cheap and easy to just rerun the model with more iterations and see if that solves the problem.</p>
 <p>Let’s do just that by increasing the number of iterations to 3000 per chain:</p>
 <div class="cell">
@@ -755,57 +824,480 @@ Burn-in: 300
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 10800
-<<<<<<< HEAD
-Run Time (min): 0.027
-=======
-Run Time (min): 0.0243
->>>>>>> d548521aa3beeabf225108329da82b7c8eb947ac
+Run Time (min): 0.0263
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
-(Intercept)  2.0655 1.0246  0.1977  2.0138 4.2114 1.0010 529
-tree         0.3721 1.3145 -2.0763  0.3028 3.0319 1.0662 375
-temp        -1.2063 1.1214 -3.3214 -1.2363 1.1050 1.0220 422
+(Intercept)  1.9586 1.0113  0.1496  1.8785 4.0979 1.0061 533
+tree         0.3562 1.2971 -2.0341  0.3101 2.9698 1.0498 415
+temp        -1.2475 1.0628 -3.3183 -1.2672 0.9406 1.0176 470
 
 Detection (logit scale): 
                Mean     SD    2.5%     50%   97.5%   Rhat  ESS
-(Intercept) -1.8530 0.2644 -2.3777 -1.8521 -1.3301 1.0020 1914
-rain         0.1715 0.2210 -0.2506  0.1682  0.6072 1.0004 4390</code></pre>
+(Intercept) -1.8461 0.2664 -2.3631 -1.8497 -1.3123 1.0014 1625
+rain         0.1791 0.2196 -0.2462  0.1772  0.6243 1.0016 4411</code></pre>
 </div>
 </div>
-<p>Now when we look at the <code>Rhat</code> and <code>ESS</code> values, we doing better. Still not perfect but enough for me to be happy that <em>by these two metrics alone</em> there’s nothing to suggest the machinery is struggling and that the parameters are being estimated as robustly as possible.</p>
+<p>Now when we look at the <code>Rhat</code> and <code>ESS</code> values, we are doing better. Still not perfect but good enough for me to be happy that <em>by these two metrics alone</em> there’s nothing to suggest the machinery is struggling and that the parameters are being estimated as robustly as possible.</p>
 <blockquote class="blockquote">
 <p>Importantly, these are not the only metrics or tools available to us. We’ll check out the other options in a later document.</p>
 </blockquote>
 <p>As far as we can tell, for now, we can trust this model and move on to plotting the predicted relationships.</p>
 </section>
-<section id="plot-predicted-relationships-1" class="level1">
-<h1>Plot predicted relationships</h1>
+<section id="plot-predicted-relationships-1" class="level2">
+<h2 class="anchored" data-anchor-id="plot-predicted-relationships-1">Plot predicted relationships</h2>
 <p>Previously, we made the predictions ourselves by “hand”. This time, we’re going to use the <code>predict()</code> function to do this for us to make life easier on ourselves. Importantly, the process is exactly the same;</p>
 <ol type="1">
 <li><p>Create a “fake” dataset with the covariate values we want to predict for.</p></li>
-<li><p>Apply this fake data to our equation, with the now estimated parameter values, to generate the predictions.</p></li>
+<li><p>Apply this fake data to our equation, with the now estimated parameter values, to generate the predictions. We’ll make life easier for ourselves by using <code>predict()</code> rather than doing it by hand.</p></li>
 <li><p>Convert from logit values to probabilities.</p></li>
 <li><p>Plot the predicted probabilities against the fake covariate values to show the estimated relationship.</p></li>
 </ol>
+<p>Remember that occupancy models are really two <span class="math inline">\(Bernoulli\)</span> GLMs that speak to each other. When using <code>predict()</code> we need to specify which “model” we want to predict from.</p>
+<p>Normally, for a GLM I’d start by making a figure for <code>tree</code> height. Just like in BI3010, remember that when we have multiple explanatory variables in a model, to make the figure for one variable, we hold all others constant at some other value - often the median.</p>
+<p>However, for these models there are a few extra (annoying) things we need to do and for me to explain here. As a warning some of these get quite technical. It might be a good time to take a break and come back when you’re fresh.</p>
+<p>Whenever you do tackle this next part, if you get confused, don’t worry. We can talk this through in person.</p>
+<section id="model-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="model-matrix">Model matrix</h3>
+<p>In the code below I create something called a model matrix (<code>model.matrix()</code>). This is a way to turn our covariate data (like <code>tree</code> and <code>temp</code>) into the actual numbers and form used in the model. When we fit a model like <code>~ tree + temp</code>, <code>R</code> internally builds a matrix where each column represents a variable (or intercept), and each row is a combination of values at a site. This matrix is what the model uses to calculate predictions.</p>
+<p>When we use <code>predict()</code> with a fitted occupancy model, we must supply this design matrix (<code>X.0</code>) because it matches the structure the model expects, just like when we built it during fitting.</p>
+</section>
+<section id="qlogis-and-plogis" class="level3">
+<h3 class="anchored" data-anchor-id="qlogis-and-plogis"><code>qlogis</code> and <code>plogis</code></h3>
+<p>When we use <code>predict()</code> for our occupancy model, we get thousands of <em>posterior</em> draws (I’ll explain this later but for now, think of these are different likely values the parameter could be) for each site’s occupancy probability (i.e.&nbsp;these are already backtransformed out of logit values into probabilities for us).</p>
+<p>But here’s the subtle issue (and it is really, <em>really</em>, super subtle).</p>
+<p>If we calculate the mean or credible intervals of these already backtransformed probabilities, it can sometimes end up looking distorted (e.g.&nbsp;it might look like it increases, peaks, then decreases). So to be safe:</p>
+<ol type="1">
+<li>We have to take our probabilities and turn them <em>back</em> into logit values (annoyingly) using <code>qlogis()</code>.</li>
+<li>Then we calculate the mean and credible intervals.</li>
+<li>Then we backtransform out of logit back into probabilities.</li>
+</ol>
+</section>
+<section id="apply" class="level3">
+<h3 class="anchored" data-anchor-id="apply"><code>apply()</code></h3>
+<p>When we summarise the <em>posterior</em>, we have one row per iteration (or guess) and one column per site. So to summarise, we need to take the mean across row (i.e.&nbsp;across all iterations) for each column. That’s what the <code>apply()</code> function is doing in our code.</p>
+<p>Honestly, the code is more complex than I would like. I wish I could think of a simpler way to do it (and I might ask my wife, who’s better at coding than me, to see if she can improve it) but this is the best I can do for now. Speak to me if you need help.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>X<span class="fl">.0</span> <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>,</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">temp =</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(occ.covs<span class="sc">$</span>temp), </span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">to =</span> <span class="fu">max</span>(occ.covs<span class="sc">$</span>temp),</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">length.out =</span> <span class="dv">50</span>),</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">tree =</span> <span class="dv">0</span></span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co">#predict(fit, X.0)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Create a new fake data frame for tree (hold temp at median)</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">tree =</span> <span class="fu">seq</span>(<span class="fu">min</span>(etosha<span class="sc">$</span>occ.covs<span class="sc">$</span>tree), <span class="fu">max</span>(etosha<span class="sc">$</span>occ.covs<span class="sc">$</span>tree), <span class="at">length.out =</span> <span class="dv">100</span>),</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">temp =</span> <span class="fu">median</span>(etosha<span class="sc">$</span>occ.covs<span class="sc">$</span>temp)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Convert this into a model matrix</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>X<span class="fl">.0</span> <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> tree <span class="sc">+</span> temp, <span class="at">data =</span> fake)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: Predict occupancy from model matrix</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>pred_occ <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">X.0 =</span> X<span class="fl">.0</span>, <span class="at">type =</span> <span class="st">"occupancy"</span>)</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4: Transform back into logit values</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>logit_psi_samples <span class="ot">&lt;-</span> <span class="fu">qlogis</span>(pred_occ<span class="sc">$</span>psi.<span class="fl">0.</span>samples)</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 5: Summarize the posteriors</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">tree =</span> fake<span class="sc">$</span>tree,</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean.psi =</span> <span class="fu">apply</span>(logit_psi_samples, <span class="dv">2</span>, mean),</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">apply</span>(logit_psi_samples, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, <span class="fl">0.025</span>)),</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">apply</span>(logit_psi_samples, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, <span class="fl">0.975</span>))</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 6: Backtransform into probabilities</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">tree =</span> fake<span class="sc">$</span>tree,</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean.psi =</span> <span class="fu">plogis</span>(fake<span class="sc">$</span>mean.psi),</span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">plogis</span>(fake<span class="sc">$</span>lower),</span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">plogis</span>(fake<span class="sc">$</span>upper)</span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 7: Plot</span></span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fake, <span class="fu">aes</span>(<span class="at">x =</span> tree, <span class="at">y =</span> mean.psi)) <span class="sc">+</span></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Tree height"</span>, <span class="at">y =</span> <span class="st">"Occupancy probability (ψ)"</span>) <span class="sc">+</span></span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
+<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output-display">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
 </div>
+</div>
+<p>We repeat this for <code>temp</code>:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Create a new data frame for temp (hold tree at median)</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">tree =</span> <span class="fu">median</span>(etosha<span class="sc">$</span>occ.covs<span class="sc">$</span>tree),</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">temp =</span> <span class="fu">seq</span>(<span class="fu">min</span>(etosha<span class="sc">$</span>occ.covs<span class="sc">$</span>temp), <span class="fu">max</span>(etosha<span class="sc">$</span>occ.covs<span class="sc">$</span>temp), <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Convert this into a model matrix</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>X<span class="fl">.0</span> <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> tree <span class="sc">+</span> temp, <span class="at">data =</span> fake)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: Predict occupancy from model matrix</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>pred_occ <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">X.0 =</span> X<span class="fl">.0</span>, <span class="at">type =</span> <span class="st">"occupancy"</span>)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4: Transform back into logit values</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>logit_psi_samples <span class="ot">&lt;-</span> <span class="fu">qlogis</span>(pred_occ<span class="sc">$</span>psi.<span class="fl">0.</span>samples)</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 5: Summarize the posteriors</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">temp =</span> fake<span class="sc">$</span>temp,</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean.psi =</span> <span class="fu">apply</span>(logit_psi_samples, <span class="dv">2</span>, mean),</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">apply</span>(logit_psi_samples, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, <span class="fl">0.025</span>)),</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">apply</span>(logit_psi_samples, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, <span class="fl">0.975</span>))</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 6: Backtransform into probabilities</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">temp =</span> fake<span class="sc">$</span>temp,</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean.psi =</span> <span class="fu">plogis</span>(fake<span class="sc">$</span>mean.psi),</span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">plogis</span>(fake<span class="sc">$</span>lower),</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">plogis</span>(fake<span class="sc">$</span>upper)</span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 5: Plot</span></span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fake, <span class="fu">aes</span>(<span class="at">x =</span> temp, <span class="at">y =</span> mean.psi)) <span class="sc">+</span></span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Temperature"</span>, <span class="at">y =</span> <span class="st">"Occupancy probability (ψ)"</span>) <span class="sc">+</span></span>
+<span id="cb33-37"><a href="#cb33-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
+<span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>And finally for rain affecting our detection probability:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Create a new data frame for temp (hold tree at median)</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">rain =</span> <span class="fu">seq</span>(<span class="fu">min</span>(etosha<span class="sc">$</span>det.covs<span class="sc">$</span>rain), <span class="fu">max</span>(etosha<span class="sc">$</span>det.covs<span class="sc">$</span>rain), <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Convert this into a model matrix</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>X<span class="fl">.0</span> <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> rain, <span class="at">data =</span> fake)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: Predict occupancy from model matrix</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>pred_det <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">X.0 =</span> X<span class="fl">.0</span>, <span class="at">type =</span> <span class="st">"detection"</span>)</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4: Transform back into logit values</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>logit_p_samples <span class="ot">&lt;-</span> <span class="fu">qlogis</span>(pred_det<span class="sc">$</span>p.<span class="fl">0.</span>samples)</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 5: Summarize the posteriors</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">rain =</span> fake<span class="sc">$</span>rain,</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean.p =</span> <span class="fu">apply</span>(logit_p_samples, <span class="dv">2</span>, mean),</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">apply</span>(logit_p_samples, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, <span class="fl">0.025</span>)),</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">apply</span>(logit_p_samples, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, <span class="fl">0.975</span>))</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 6: Backtransform into probabilities</span></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">rain =</span> fake<span class="sc">$</span>rain,</span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean.p =</span> <span class="fu">plogis</span>(fake<span class="sc">$</span>mean.p),</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">plogis</span>(fake<span class="sc">$</span>lower),</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> <span class="fu">plogis</span>(fake<span class="sc">$</span>upper)</span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 5: Plot</span></span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fake, <span class="fu">aes</span>(<span class="at">x =</span> rain, <span class="at">y =</span> mean.p)) <span class="sc">+</span></span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Rainfall"</span>, <span class="at">y =</span> <span class="st">"Detection probability (p)"</span>) <span class="sc">+</span></span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
 </section>
 <section id="how-should-i-store-my-data" class="level1">
 <h1>How should I store my data?</h1>
-<p>In order to be able to run the model, we need the data to be in a particular order</p>
+<p>The data storage for these models can seem a bit complicated at first. I would suggest you start off by having at least three datasets.</p>
+<section id="dataset-one" class="level2">
+<h2 class="anchored" data-anchor-id="dataset-one">Dataset one</h2>
+<p>This is your detection history. Create an excel document, where each site (or camera) is on a row, and each survey period is a column. For the sake of argument, say that your sampling period is a 12 hour period, and you have three surveys at each location. Your excel should look something like:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>dh <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(dat<span class="sc">$</span>y)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dh) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>dh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   1 2 3
+1  0 0 0
+2  0 0 0
+3  0 0 0
+4  0 0 0
+5  0 0 0
+6  1 0 0
+7  0 0 0
+8  0 0 0
+9  0 1 1
+10 0 0 0
+11 0 0 0
+12 0 0 0
+13 0 0 0
+14 0 1 0
+15 0 0 1
+16 0 0 0
+17 0 0 0
+18 0 0 0
+19 0 0 0
+20 0 0 0
+21 0 0 0
+22 0 0 0
+23 0 0 0
+24 0 0 0
+25 0 0 1
+26 0 0 0
+27 0 0 1
+28 0 0 1
+29 0 1 0
+30 0 1 0
+31 0 0 0
+32 0 0 0
+33 1 0 0
+34 0 0 0
+35 1 0 0
+36 0 0 0
+37 0 0 0
+38 0 0 0
+39 1 0 0
+40 0 1 0
+41 0 0 0
+42 0 0 0
+43 1 0 0
+44 0 0 0
+45 0 0 0
+46 0 1 0
+47 0 0 1
+48 0 0 0
+49 0 0 0
+50 0 0 0
+51 0 0 0
+52 0 0 1
+53 0 0 0
+54 0 1 0
+55 0 1 0
+56 0 0 0
+57 0 0 0
+58 0 0 1
+59 0 0 0
+60 1 0 0
+61 0 0 0
+62 0 0 0
+63 0 0 0
+64 0 0 0</code></pre>
+</div>
+</div>
+</section>
+<section id="dataset-two" class="level2">
+<h2 class="anchored" data-anchor-id="dataset-two">Dataset two</h2>
+<p>Create another excel spreadsheet which will contain all of your site level covariates. This should be organised in the same order as your detection history dataset (above), such that if site 1 is top of your detection history spreadsheet, it should be top here as well. <strong>THIS IS CRUCIAL - BE CAREFUL AND MAKE SURE THIS IS DONE CORRECTLY</strong>.</p>
+<p>If you are interested in distance to road, have that be in here. If you are interested in distance to nearest pen, include it here. Each covariate should be a column:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">road =</span> <span class="fu">round</span>(<span class="fu">rgamma</span>(<span class="dv">50</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="at">digits =</span> <span class="dv">3</span>), <span class="at">pen =</span> <span class="fu">round</span>(<span class="fu">rgamma</span>(<span class="dv">50</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">digits =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>    road pen
+1  1.413 0.6
+2  0.365 0.4
+3  0.748 1.3
+4  0.028 1.5
+5  0.206 0.7
+6  0.486 0.8
+7  1.142 1.0
+8  0.316 0.2
+9  0.894 0.8
+10 1.180 0.5
+11 0.108 0.6
+12 0.036 0.1
+13 0.273 1.1
+14 1.003 0.5
+15 0.381 1.2
+16 0.275 0.5
+17 0.130 0.8
+18 1.046 0.2
+19 0.269 1.7
+20 0.914 0.5
+21 0.582 0.7
+22 1.695 0.4
+23 0.016 1.1
+24 0.032 1.8
+25 1.028 0.8
+26 0.039 0.2
+27 0.011 0.5
+28 0.601 0.9
+29 0.417 1.1
+30 0.600 1.8
+31 0.041 1.7
+32 0.013 0.2
+33 0.403 0.6
+34 0.018 0.4
+35 0.607 0.6
+36 0.277 0.2
+37 0.542 1.0
+38 0.123 0.1
+39 2.061 1.0
+40 1.840 0.5
+41 0.844 0.7
+42 0.023 1.3
+43 0.630 0.2
+44 0.212 0.3
+45 1.082 0.5
+46 0.032 0.5
+47 0.600 0.1
+48 0.690 0.5
+49 0.902 0.8
+50 0.491 0.3</code></pre>
+</div>
+</div>
+</section>
+<section id="dataset-three" class="level2">
+<h2 class="anchored" data-anchor-id="dataset-three">Dataset three (+)</h2>
+<p>The final dataset(s) contain your survey covariates, but <strong>importantly</strong>, you will need a new excel document for each survey covariate. So rather than having them all be together like in the site covariate speadsheet, here they’ll look more like the detection history spreadsheet. Each row is a site and each column is a survey.</p>
+<p>So if you were collecting data on light pollution you may have:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="st">"1"</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">1</span>), <span class="st">"2"</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="st">"3"</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>              1           2          3
+1  -2.080361780  3.31486871 -2.8792348
+2   1.193689080 -2.13245041 -0.9858541
+3   0.211096481  2.37159153 -2.5450504
+4  -0.804509302 -3.04365088  0.8123365
+5   1.242683769  1.98512256  0.5347766
+6   1.672370774 -0.86347112 -0.2739347
+7  -0.440110803  3.85228974 -1.2469645
+8   0.976970308  2.38465991  0.4144317
+9  -0.247292942  0.80483629 -2.0085643
+10  1.193662839  3.68860057 -0.7706345
+11  0.582106314  2.30774905 -0.7437351
+12 -0.212421470 -2.58811871  1.2101485
+13 -0.078270865  0.75188625 -0.5215089
+14  1.150840694 -0.18570337 -0.4912487
+15  0.575815240  1.98405202 -2.2456465
+16 -0.803085447  5.26614095 -1.3067553
+17 -0.003867098  0.83398723 -2.7237629
+18 -0.321186684  3.01674217 -1.7598763
+19  0.271986638  1.35000525 -1.1381807
+20 -0.129475777  1.40291064 -1.2840863
+21 -0.730130772  1.24783303 -0.7199777
+22  1.425657691 -0.16389270 -2.3773648
+23  1.165602885 -0.22977912 -1.5775563
+24  2.003211580 -3.12713915 -0.3410146
+25 -0.897058994  0.42866992 -0.6918805
+26  1.623248729  1.10980969  0.1850369
+27  3.082054870  0.59193629  0.3879526
+28  0.373362088  1.74746118 -1.5760394
+29 -0.138822386  0.67546058 -1.8727836
+30  0.888619009  7.36368823  0.1605281
+31  2.703796014  0.22554511 -2.8165337
+32 -0.338148148  0.48416927 -0.0640613
+33  1.038384187 -0.66954237 -1.2304174
+34 -0.344291247  4.28962590 -2.6571024
+35 -0.096846364 -0.05826384 -1.1676174
+36  0.302828810 -0.61888378 -1.3100760
+37  0.401658586  2.23291672 -1.7689837
+38 -0.093476762 -0.58908992  0.5388878
+39  0.026884978  0.87524859 -2.8523438
+40 -0.333933172  2.90140407 -2.1994696
+41  0.690967183  0.37129946 -0.7643009
+42  0.019305684  3.84486943 -0.4132671
+43 -0.357612499 -1.18882425 -0.8042535
+44  2.085887418 -1.13376454 -0.2113516
+45 -0.007865673  1.62715521 -1.8920737
+46 -2.354875012  1.25226610 -0.7344787
+47 -0.622007893  1.88331825 -1.2703962
+48  0.246180327 -0.89037300 -1.6181206
+49 -0.674860159 -0.33612045 -1.4240738
+50 -0.961984764  4.44458858 -1.2228367</code></pre>
+</div>
+</div>
+<p>But if you were also collecting data on if a field was being ploughed or not you may have:<br>
+</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="st">"1"</span> <span class="ot">=</span> <span class="fu">sample</span>(<span class="at">size =</span> <span class="dv">50</span>, <span class="at">x =</span> <span class="fu">c</span>(<span class="st">"Plough"</span>, <span class="st">"No plough"</span>), <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>), <span class="at">replace =</span> <span class="cn">TRUE</span>), </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"2"</span> <span class="ot">=</span> <span class="fu">sample</span>(<span class="at">size =</span> <span class="dv">50</span>, <span class="at">x =</span> <span class="fu">c</span>(<span class="st">"Plough"</span>, <span class="st">"No plough"</span>), <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.9</span>), <span class="at">replace =</span> <span class="cn">TRUE</span>), </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">"3"</span> <span class="ot">=</span> <span class="fu">sample</span>(<span class="at">size =</span> <span class="dv">50</span>, <span class="at">x =</span> <span class="fu">c</span>(<span class="st">"Plough"</span>, <span class="st">"No plough"</span>), <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>), <span class="at">replace =</span> <span class="cn">TRUE</span>), </span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>           1         2         3
+1  No plough No plough No plough
+2  No plough No plough    Plough
+3     Plough No plough    Plough
+4     Plough No plough No plough
+5  No plough No plough    Plough
+6  No plough No plough No plough
+7     Plough No plough No plough
+8  No plough No plough    Plough
+9     Plough No plough    Plough
+10 No plough No plough    Plough
+11    Plough No plough No plough
+12    Plough    Plough    Plough
+13 No plough No plough    Plough
+14 No plough No plough    Plough
+15 No plough No plough    Plough
+16 No plough No plough    Plough
+17 No plough No plough    Plough
+18 No plough No plough No plough
+19    Plough No plough No plough
+20    Plough No plough    Plough
+21    Plough No plough    Plough
+22 No plough No plough    Plough
+23 No plough No plough    Plough
+24 No plough No plough No plough
+25    Plough No plough    Plough
+26    Plough No plough No plough
+27 No plough No plough    Plough
+28 No plough No plough    Plough
+29 No plough No plough    Plough
+30 No plough No plough    Plough
+31 No plough No plough    Plough
+32    Plough No plough    Plough
+33 No plough No plough    Plough
+34 No plough No plough No plough
+35    Plough No plough    Plough
+36 No plough No plough    Plough
+37 No plough No plough No plough
+38    Plough No plough    Plough
+39    Plough No plough    Plough
+40 No plough No plough    Plough
+41 No plough No plough No plough
+42 No plough No plough No plough
+43 No plough No plough No plough
+44 No plough No plough    Plough
+45    Plough No plough    Plough
+46 No plough No plough    Plough
+47 No plough No plough    Plough
+48    Plough No plough No plough
+49 No plough No plough    Plough
+50 No plough No plough    Plough</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="what-next" class="level1">
+<h1>What next?</h1>
+<p>Hopefully this page helped give you an understanding of the theory, how to implement it, and how to collect and store your data.</p>
+<p>On the next page, we’re going to begin thinking about <em>Bayesian</em> statistics. But take a break, go for a walk, do something else for a day or two. Then come back when you’re ready.</p>
 
 
 </section>

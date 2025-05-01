@@ -12,7 +12,7 @@ website:
         href: OccMods_WithCovariates.qmd
       - text: "Bayesian models: The concept"
         href: Bayesian_Statistics.qmd
-      - text: "Fitting Bayesian models"
+      - text: "Fitting Bayesian Models"
         href: Bayesian_Occupancy_Models.qmd
 
 format:
