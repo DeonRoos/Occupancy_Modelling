@@ -344,12 +344,13 @@ etosha <- list(
 
 Below we're going to fit the simplest version of an occupancy model that we can, specifically:
 
-$$
-z_i \sim Bernoulli(\psi_i)\\
-logit(\psi_i) = \beta_0\\
-y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
-logit(p_{i,j}) = \alpha_0
-$$
+$$z_i \sim Bernoulli(\psi_i)\\$$
+
+$$logit(\psi_i) = \beta_0\\$$
+
+$$y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\$$
+
+$$logit(p_{i,j}) = \alpha_0$$
 
 This version of the model only has two average probabilities. One for the average probability that elephants occupy a site ($\beta_0$ which is fit on the $logit$ link function), and another for the average detection elephants *if* they are present ($\alpha_0$, also fit on the $logit$ link function).
 
