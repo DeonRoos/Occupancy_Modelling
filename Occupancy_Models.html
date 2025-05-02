@@ -411,6 +411,8 @@ logit(p_i) = -1.3863
 <p>The first part of an occupancy model is the <em>state model</em>, so called because it estimates the true state of each site: is the species present or absent?</p>
 <p><span class="math display">\[
 z_i \sim Bernoulli(\psi_i)\\
+\]</span></p>
+<p><span class="math display">\[
 logit(\psi_i) = \beta_0
 \]</span></p>
 <p>This model probably looks similar. That’s because like the first model we spoke about further above, it’s also a <span class="math inline">\(Bernoulli\)</span> GLM. But they differ in two important ways:</p>
@@ -425,6 +427,8 @@ logit(\psi_i) = \beta_0
 <p>The second GLM (which I’ll call the <em>observation model</em>) also looks remarkably similar:</p>
 <p><span class="math display">\[
 y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
+\]</span></p>
+<p><span class="math display">\[
 logit(p_{i,j}) = \alpha_0
 \]</span></p>
 <p>It’s another <span class="math inline">\(Bernoulli\)</span> GLM but with some crucial differences.</p>
