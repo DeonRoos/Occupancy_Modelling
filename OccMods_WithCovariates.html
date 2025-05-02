@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.353">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Deon Roos">
-<meta name="dcterms.date" content="2025-05-01">
+<meta name="dcterms.date" content="2025-05-02">
 
-<title>Occupancy Modelling - Including Covariates in Occupancy Models</title>
+<title>Including Covariates in Occupancy Models – Occupancy Modelling</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -24,7 +24,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -35,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -81,7 +81,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -90,13 +96,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -104,39 +139,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Occupancy Modelling</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./Occupancy_Models.html" rel="" target="">
- <span class="menu-text">Occupancy Models: The basics</span></a>
+    <a class="nav-link" href="./Occupancy_Models.html"> 
+<span class="menu-text">Occupancy Models: The basics</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./OccMods_WithCovariates.html" rel="" target="" aria-current="page">
- <span class="menu-text">Occupancy Models: Covariates</span></a>
+    <a class="nav-link active" href="./OccMods_WithCovariates.html" aria-current="page"> 
+<span class="menu-text">Occupancy Models: Covariates</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./Bayesian_Statistics.html" rel="" target="">
- <span class="menu-text">Bayesian models: The concept</span></a>
+    <a class="nav-link" href="./Bayesian_Statistics.html"> 
+<span class="menu-text">Bayesian models: The concept</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./Bayesian_Occupancy_Models.html" rel="" target="">
- <span class="menu-text">Fitting Bayesian Models</span></a>
+    <a class="nav-link" href="./Bayesian_Occupancy_Models.html"> 
+<span class="menu-text">Fitting Bayesian Models</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
-</div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -196,7 +231,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 1, 2025</p>
+      <p class="date">May 2, 2025</p>
     </div>
   </div>
   
@@ -204,12 +239,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
+
 </header>
+
 
 <p>On this page, we’ll begin expanding on the intercept-only occupancy model we fit in <em>Occupancy Models: The basics</em> and begin the process of injecting some biology into the <code>etosha</code> elephant occupancy model.</p>
 <p>As before, we’ll be using <code>spOccupancy</code> to fit the occupancy model. In addition, I’m also using <code>ggplot2</code> and <code>patchwork</code> (which allows you to stich ggplots togeher) for visualisations.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spOccupancy)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -239,13 +276,13 @@ logit(p_{i,j}) = \alpha_0  \tag{Observation Deterministic}
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/fog.jpg" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">A photo taken after some unseen animal triggered the motion sensor on a foggy day.</figcaption>
+<figcaption>A photo taken after some unseen animal triggered the motion sensor on a foggy day.</figcaption>
 </figure>
 </div>
 <p>I’ll simulate a new dataset (with a bit more data for us to work with - 64 sites surveyed 3 times each) to show this off. I’ll include a the detection covariate in this case, which is rainfall, but note that the values for rainfall will be centred on zero (don’t worry about this - just treat it as the larger <code>rain</code> is, the more rain there was).</p>
 <p>Here’s what the data looks like:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">simOcc</span>(<span class="at">J.x =</span> <span class="dv">8</span>, </span>
@@ -303,7 +340,11 @@ logit(p_{i,j}) = \alpha_0  \tag{Observation Deterministic}
 <span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2 <span class="sc">+</span> p3 <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="st">"A"</span>, <span class="at">tag_suffix =</span> <span class="st">")"</span>) <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">design =</span> design)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p><strong>A)</strong> shows the amount of rainfall over each survey. Each point represents a site in a given survey. <strong>B)</strong> shows the amount of rainfall against whether or not an elephant was detected. <strong>C)</strong> shows the detection history, where detections of elephants are coloured green and no detection is coloured grey.</p>
@@ -315,7 +356,7 @@ logit(p_{i,j}) = \alpha_0  \tag{Observation Deterministic}
 <p>Just like in the previous page, we need to include our different datasets into a <code>list</code>. If you’re still not sure what a <code>list</code> is in <code>R</code>, think of it like a folder on your computer. You can add lots of different files to a folder (and any type of file), but they’re all “tied” together by being within the same folder. That’s the same as a <code>list</code> in <code>R</code>.</p>
 <p>Here, I’m going to do something seemingly strange. I’m going to create a <code>list</code> and include this into our <code>etosha</code> <code>list</code>. A list within a list. The reason is that we might have more than one detection covariate, so having a list, though redundant here, will make adding additional variables easier in the future.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note you wouldn't need to do the dat$X.p[,,2] bit</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># That's just because the data is simulated.</span></span>
@@ -345,7 +386,7 @@ logit(p_{i,j}) = \alpha_0  \tag{Observation Deterministic}
 <li><p>The remainder of the arguments (e.g.&nbsp;<code>n.chains</code>) can be ignored for now.</p></li>
 </ul>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The state model (i.e. what % that elephants are present?)</span></span>
@@ -368,7 +409,7 @@ logit(p_{i,j}) = \alpha_0  \tag{Observation Deterministic}
 <h2 class="anchored" data-anchor-id="interpreting">Interpreting</h2>
 <p>Having now fit the model to the data, we can see what we’ve learnt:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -383,7 +424,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0183
+Run Time (min): 0.0167
 
 Occurrence (logit scale): 
               Mean     SD   2.5%   50%  97.5%   Rhat ESS
@@ -408,7 +449,7 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 \]</span></p>
 <p>With this, we can swap out <span class="math inline">\(Rain\)</span> in the <em>Observation Deterministic</em> equation for any value of rain that we might be interested in, to see how it changes our estimated detection probability. For example, let’s see what happens when <span class="math inline">\(Rain = 1\)</span> (equivalent to lots of rain based on how I simulated <code>rain</code>).</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span><span class="fl">1.89</span> <span class="sc">+</span> <span class="fl">0.69</span> <span class="sc">*</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -418,7 +459,7 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 </div>
 <p>Our logit value is -1.2. How do we get that into probabilities that we can actually understand? Backtransform out of logit using <code>plogis()</code>:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">1.89</span> <span class="sc">+</span> <span class="fl">0.69</span> <span class="sc">*</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -428,7 +469,7 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 </div>
 <p>And we get a ca. 23% chance to detect an elephant when <span class="math inline">\(Rain = 1\)</span>. What about when <span class="math inline">\(Rain = 0\)</span> (equivalent to medium rain)? Well, we can do that easily enough now that we know thew general steps:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">1.89</span> <span class="sc">+</span> <span class="fl">0.69</span> <span class="sc">*</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -443,7 +484,7 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 <h2 class="anchored" data-anchor-id="plot-predicted-relationships">Plot predicted relationships</h2>
 <p>We start by creating a sequence of <span class="math inline">\(Rain\)</span> values, rather than doing one a time like we did above. Here we use the <code>seq()</code> function to create a sequence, which will range from the minimum <span class="math inline">\(Rain\)</span> value to the maximum within our dataset. The number of values that we want in this sequence is specified as 20 but we can choose any value here - we just need enough that the line is drawn “accurately”.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>rain <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(det.covs<span class="sc">$</span>rain),</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">to =</span> <span class="fu">max</span>(det.covs<span class="sc">$</span>rain),</span>
@@ -460,7 +501,7 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 </div>
 <p>Now we have our values, we don’t want to manually enter each value into our equation. Instead we can use the fact that <code>R</code> works with vectors (i.e.&nbsp;columns of data) to do this quickly and easily:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">1.89</span> <span class="sc">+</span> <span class="fl">0.69</span> <span class="sc">*</span> rain)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>pred</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -475,7 +516,7 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 <p>Now for each value of rain, we have the predicted probability of detecting an elephant. Useful but you wouldn’t want to throw these two columns at your audience/reader and expect them to make sense of it. It’d be better if we include these in a figure.</p>
 <p>To do so, we’ll combine both columns into a single dataset and plot using <code>ggplot2</code>:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  pred,</span>
@@ -486,12 +527,16 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> rain, <span class="at">y =</span> pred))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>From this figure it now appears much more intuitive that increasing rain makes elephants easier to detect. We can do a little “tidying” of the figure to make it more visually pleasing:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> rain, <span class="at">y =</span> pred)) <span class="sc">+</span></span>
@@ -502,7 +547,11 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Predicted detection</span><span class="sc">\n</span><span class="st">probability of elephants"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Based on our figure, we’d now be able to make some biological inference. From what we see in our figure, we have evidence that elephants are easier to spot when it rains. If we were writing this as a paper, we might discuss why that was the case. However (and this is important) we should have really considered this <em>before</em> we did the analysis. The risk of making sense of this now is that we rationalise something that’s actually stupid. This is something called HARKing, or Hypothesising After the Results are Known and it’s a form of scientific fraud. Keep in mind, this is simulated data where the stakes are low. My goal here is to explain the methods to you. With real analysis, we need to be more thorough and responsible - so make sure you have your hypotheses before you do your analysis!</p>
@@ -516,7 +565,7 @@ logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
 <p>This is in contrast with the frequentist confidence interval whose formal definition of a confidence interval is so bizarre and unintuitive that it’s barely useful. 95% <em>credible intervals</em> are actually useful and work exactly the way people <em>think</em> frequentist intervals work. I’ll explain how they work in a later page, so just trust me for now that they’re <em>better</em>.</p>
 <p>But how do we include these in the figure? Well, the model summary makes it easy to find the values:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -531,7 +580,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0183
+Run Time (min): 0.0167
 
 Occurrence (logit scale): 
               Mean     SD   2.5%   50%  97.5%   Rhat ESS
@@ -546,7 +595,7 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 <p>They’re the <code>2.5%</code> and <code>97.5%</code> values in our summary table. So all we need to do is repeat the code we used to make our predictions, except now using these credible interval values to get our measure of uncertainty. Importantly, if you remember back to BI3010 where you had to multiplya parameters standard error by 1.96, we <strong><em>do not</em></strong> need to do that here. That’s frequentist nonsense - we’re fancy Bayesian scientists now.</p>
 <p>Let’s do just that:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>low <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">2.4610</span> <span class="sc">+</span> <span class="fl">0.2328</span> <span class="sc">*</span> df<span class="sc">$</span>rain)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>upp <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">1.2939</span> <span class="sc">+</span> <span class="fl">1.1801</span> <span class="sc">*</span> df<span class="sc">$</span>rain)</span>
@@ -578,7 +627,7 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 </div>
 <p>And we can add in our uncertainty using <code>geom_ribbon()</code>:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df) <span class="sc">+</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> rain, <span class="at">y =</span> pred)) <span class="sc">+</span></span>
@@ -591,7 +640,11 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 <span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Predicted detection</span><span class="sc">\n</span><span class="st">probability of elephants"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>With that, we have a publication ready figure.</p>
@@ -605,7 +658,7 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 <p>A technical note if you’re interested. To create the figures below I need to do some tweaks to the data. The <code>df</code> object I create in the code below has one row per survey, with three surveys per site. Our occupancy covariates, <code>tree</code> and <code>temp</code> have just one value; these do not change from one survey to the next. If a tree is 3 m tall in survey one, then it’ll still be 3 m tall in surveys two and three. That’s why I “cheat” and replicate <code>tree</code> and <code>temp</code> three times each.</p>
 </blockquote>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">simOcc</span>(<span class="at">J.x =</span> <span class="dv">8</span>, </span>
@@ -693,7 +746,11 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 <span id="cb24-84"><a href="#cb24-84" aria-hidden="true" tabindex="-1"></a>   <span class="fu">plot_layout</span>(<span class="at">design =</span> design)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="1152"></p>
+<div>
+<figure class="figure">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>There are two things worth highlighting from the above figures. Firstly, based on how we “measured” and “collected” the data temperature and tree height in <strong>A)</strong>, <strong>B)</strong>, <strong>C)</strong> and <strong>D)</strong> do not change from one survey to the next. These are constant from one day to the next and will be used as <em>site covariates</em> in the model (i.e.&nbsp;variables which only change from one site to the next). <em>A small note here is that you can have site covariates that change in both surveys and sites, but I’m keeping things simple here</em>. Conversely, in <strong>E)</strong> and <strong>F)</strong> does vary from one survey to the next and between sites. We’ll use this as a <em>survey covariate</em> in the model.</p>
@@ -704,7 +761,7 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 <h2 class="anchored" data-anchor-id="data-preparation-1">Data preparation</h2>
 <p>As before, we provide our <em>survey covariates</em> as a <code>list</code> but our site covariates can be supplied as a <code>dataframe</code>. Keep in mind, both of these are included in another <code>list</code>.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Survey covariate</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>det.covs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">rain =</span> dat<span class="sc">$</span>X.p[,,<span class="dv">2</span>])</span>
@@ -731,7 +788,7 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 <p>Keep this in mind when you’re collecting your own data. Variables that you think affect occupancy will (normally) have one value per site. Variables that you think affect detection will (generally) have one value per survey. But speak to me if you think you want to try something different.</p>
 <p>To fit this is relatively straight forward. For the occupancy model, we write <code>occ.formula = ~ tree + temp</code>, and for the detection model we write <code>det.formula = ~ rain</code>, and let the machinery do it’s thing.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp, </span>
@@ -747,7 +804,7 @@ rain         0.6930 0.2384  0.2328  0.6877  1.1801 1.0025 2604</code></pre>
 </div>
 <p>Once it’s run, we can check the <code>summary()</code> to see what the parameters were estimated as:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -762,7 +819,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0185
+Run Time (min): 0.0172
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
@@ -789,7 +846,7 @@ rain         0.1730 0.2214 -0.2499  0.1707  0.6115 1.0023 2983</code></pre>
 <p>Inevitably, the details are more complex than I can convey in two paragraphs but the general idea is there. If either number looks a bit worrying, it’s relatively cheap and easy to just rerun the model with more iterations and see if that solves the problem.</p>
 <p>Let’s do just that by increasing the number of iterations to 3000 per chain:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp, </span>
@@ -809,7 +866,7 @@ rain         0.1730 0.2214 -0.2499  0.1707  0.6115 1.0023 2983</code></pre>
 </div>
 <p>Once run, we can check how well they ran:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -824,7 +881,7 @@ Burn-in: 300
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 10800
-Run Time (min): 0.0263
+Run Time (min): 0.0238
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
@@ -878,7 +935,7 @@ rain         0.1791 0.2196 -0.2462  0.1772  0.6243 1.0016 4411</code></pre>
 <p>When we summarise the <em>posterior</em>, we have one row per iteration (or guess) and one column per site. So to summarise, we need to take the mean across row (i.e.&nbsp;across all iterations) for each column. That’s what the <code>apply()</code> function is doing in our code.</p>
 <p>Honestly, the code is more complex than I would like. I wish I could think of a simpler way to do it (and I might ask my wife, who’s better at coding than me, to see if she can improve it) but this is the best I can do for now. Speak to me if you need help.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Create a new fake data frame for tree (hold temp at median)</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -920,12 +977,16 @@ rain         0.1791 0.2196 -0.2462  0.1772  0.6243 1.0016 4411</code></pre>
 <span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>We repeat this for <code>temp</code>:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Create a new data frame for temp (hold tree at median)</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -967,12 +1028,16 @@ rain         0.1791 0.2196 -0.2462  0.1772  0.6243 1.0016 4411</code></pre>
 <span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>And finally for rain affecting our detection probability:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Create a new data frame for temp (hold tree at median)</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>fake <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -1013,7 +1078,11 @@ rain         0.1791 0.2196 -0.2462  0.1772  0.6243 1.0016 4411</code></pre>
 <span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="OccMods_WithCovariates_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
@@ -1026,7 +1095,7 @@ rain         0.1791 0.2196 -0.2462  0.1772  0.6243 1.0016 4411</code></pre>
 <h2 class="anchored" data-anchor-id="dataset-one">Dataset one</h2>
 <p>This is your detection history. Create an excel document, where each site (or camera) is on a row, and each survey period is a column. For the sake of argument, say that your sampling period is a 12 hour period, and you have three surveys at each location. Your excel should look something like:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>dh <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(dat<span class="sc">$</span>y)</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dh) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>)</span>
@@ -1106,7 +1175,7 @@ rain         0.1791 0.2196 -0.2462  0.1772  0.6243 1.0016 4411</code></pre>
 <p>Create another excel spreadsheet which will contain all of your site level covariates. This should be organised in the same order as your detection history dataset (above), such that if site 1 is top of your detection history spreadsheet, it should be top here as well. <strong>THIS IS CRUCIAL - BE CAREFUL AND MAKE SURE THIS IS DONE CORRECTLY</strong>.</p>
 <p>If you are interested in distance to road, have that be in here. If you are interested in distance to nearest pen, include it here. Each covariate should be a column:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">road =</span> <span class="fu">round</span>(<span class="fu">rgamma</span>(<span class="dv">50</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="at">digits =</span> <span class="dv">3</span>), <span class="at">pen =</span> <span class="fu">round</span>(<span class="fu">rgamma</span>(<span class="dv">50</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">digits =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -1170,7 +1239,7 @@ rain         0.1791 0.2196 -0.2462  0.1772  0.6243 1.0016 4411</code></pre>
 <p>The final dataset(s) contain your survey covariates, but <strong>importantly</strong>, you will need a new excel document for each survey covariate. So rather than having them all be together like in the site covariate speadsheet, here they’ll look more like the detection history spreadsheet. Each row is a site and each column is a survey.</p>
 <p>So if you were collecting data on light pollution you may have:</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="st">"1"</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">1</span>), <span class="st">"2"</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="st">"3"</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -1231,7 +1300,7 @@ rain         0.1791 0.2196 -0.2462  0.1772  0.6243 1.0016 4411</code></pre>
 <p>But if you were also collecting data on if a field was being ploughed or not you may have:<br>
 </p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="st">"1"</span> <span class="ot">=</span> <span class="fu">sample</span>(<span class="at">size =</span> <span class="dv">50</span>, <span class="at">x =</span> <span class="fu">c</span>(<span class="st">"Plough"</span>, <span class="st">"No plough"</span>), <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.5</span>), <span class="at">replace =</span> <span class="cn">TRUE</span>), </span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>           <span class="st">"2"</span> <span class="ot">=</span> <span class="fu">sample</span>(<span class="at">size =</span> <span class="dv">50</span>, <span class="at">x =</span> <span class="fu">c</span>(<span class="st">"Plough"</span>, <span class="st">"No plough"</span>), <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.9</span>), <span class="at">replace =</span> <span class="cn">TRUE</span>), </span>
@@ -1338,18 +1407,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1381,11 +1439,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/deonroos\.github\.io\/Occupancy_Modelling\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1395,8 +1492,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1408,7 +1514,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1452,6 +1681,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1477,6 +1707,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1537,6 +1793,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 
