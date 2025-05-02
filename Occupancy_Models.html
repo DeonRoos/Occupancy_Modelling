@@ -202,6 +202,7 @@ window.Quarto = {
   <li><a href="#fitting-the-model" id="toc-fitting-the-model" class="nav-link" data-scroll-target="#fitting-the-model">Fitting the model</a></li>
   <li><a href="#interpreting-the-results" id="toc-interpreting-the-results" class="nav-link" data-scroll-target="#interpreting-the-results">Interpreting the results</a></li>
   <li><a href="#what-next" id="toc-what-next" class="nav-link" data-scroll-target="#what-next">What next?</a></li>
+  <li><a href="#lecture-recording" id="toc-lecture-recording" class="nav-link" data-scroll-target="#lecture-recording">Lecture recording</a></li>
   </ul>
 </nav>
     </div>
@@ -323,7 +324,10 @@ logit(p_i) = \beta_0
 </div>
 </div>
 <p>Notice how as the probability approaches 0%, it never actually drops below it, even as the logit value keeps decreasing? And the same happens when it gets close to 100%. And that’s exactly what we want. The fact that logit values can range from <span class="math inline">\(-\infty\)</span> to <span class="math inline">\(+\infty\)</span> makes model fitting much easier: it turns a bounded probability into an unbounded scale, allows linear relationships with predictors, and ensures valid probabilities when converting predictions back. So even if our model estimates a logit value of 999 billion, it still maps to a probability of 100%. This ensures the natural bounds of probability, which is between 0% and 100%, are always respected.</p>
-<p>With that in mind, here’s how we’d fit this model in R. (Click <code>Code</code> to reveal the code.)</p>
+<p>If you want a bit more detail and intuition, here is an old lecture recording that covers the logit link function:</p>
+<iframe src="https://abdn.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=dea0921b-d1ce-49f4-84b9-acb700ef650f" width="720" height="405" allowfullscreen="">
+</iframe>
+<p>With that in mind, here’s how we’d fit our model in <code>R</code>. (Click <code>Code</code> to reveal the code.)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -817,9 +821,15 @@ Detection (logit scale):
 <p>Imagine one site is an elephant utopia. It has everything an elephant could ever want and is almost certainly occupied. Now consider a nearby site that is less ideal. On its own, we might expect a lower probability of occupancy. But because it is close to elephant utopia, it is more likely to be occupied than its local features alone would suggest.</p>
 <p>This is an example of <strong>spatial autocorrelation</strong>. The occupancy of one site can influence the occupancy of nearby sites, depending on how close they are. If we ignore spatial autocorrelation, we risk drawing misleading conclusions. For example, we might falsely assume that the non-utopian site is attractive to elephants when in fact, its occupancy is driven by its proximity to a better site.</p>
 <p>Failing to account for spatial structure can lead to flawed inference. Fortunately, occupancy models can be extended to handle this, and the <code>spOccupancy</code> package is designed with this in mind.</p>
-
-
 </section>
+</section>
+<section id="lecture-recording" class="level1">
+<h1>Lecture recording</h1>
+<p>Below is an old recording of a lecture (from during the COVID lockdown) I gave that covers some of these ideas (in slightly less detail).</p>
+<iframe src="https://abdn.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=3a68620b-f38d-467e-b791-acb701020d5e" width="720" height="405" allowfullscreen="">
+</iframe>
+
+
 </section>
 
 </main> <!-- /main -->
