@@ -32,15 +32,15 @@ A fundamental question in ecology is; Where are species present, and why are the
 
 To act as motivation for this intro to occupancy models, let's say we're interested in understanding why are elephants present in the north of [Etosha](https://www.etoshanationalpark.org/) nature reserve in Namibia, but not in the south of the reserve? (As a side note, I'd recommend going there on holiday if you ever get the chance). Are elephants present in some parts of Etosha due to water availability? Is it related to food? Could predators play a role?
 
-To find out, we needs stats. As useful as gut feelings and intuition are, it's not enough. Remember, *statistics is how we get the **evidence*** *to answer our research question using data*.
+To find out, we need stats. As useful as gut feelings and intuition are, it's not enough. Remember, *statistics is how we get the **evidence*** *to answer our research question using data*.
 
-The best statistical tool available for answering these types of questions are "occupancy modeling". These were originally developed by Daryl MacKenzie et al in [2002](https://doi.org/10.1890/0012-9658(2002)083%5B2248:ESORWD%5D2.0.CO;2) who wanted to deal with a subtle issue when trying to find animals (more on this in a second). The broad concept underlying MacKenzie's occupancy modelling framework built on ideas that had already been developed for estimating *survival* *of* *individual* animals, called the Cormack-Jolly-Seber, or CJS, model. As a cool note; Cormack and Jolly independently developed this model *while they worked in Aberdeen University* - a vital and internationally renowned model was developed right here in bloody Aberdeen! In my entire time as an undergradute student in Aberdeen no one ever told me this, even though I was using these models during my PhD! I only found out when I was at a conference in France. We, as a school, should be far more proud of this than we are.
+The best statistical tool available for answering these types of questions are "occupancy modeling". These were originally developed by Daryl MacKenzie et al in [2002](https://doi.org/10.1890/0012-9658(2002)083%5B2248:ESORWD%5D2.0.CO;2) who wanted to deal with a subtle issue when trying to find animals (more on this in a second). The broad concept underlying MacKenzie's occupancy modelling framework built on ideas that had already been developed for estimating *survival* *of* *individual* animals, called the Cormack-Jolly-Seber, or CJS, model. As a cool note; Cormack and Jolly independently developed this model *while they worked in Aberdeen University* - a vital and internationally renowned model was developed right here in bloody Aberdeen! In my entire time as an undergraduate student, then as a PhD *in Aberdeen* no one ever told me this (even though I was taught these methods in Aberdeen)! I only found out at a conference in France years after leaving Aberdeen. As a school, we should be far more proud of this than we are.
 
-The problem that occupancy models solve is subtle but insanely crucial.
+The problem that occupancy models solve is subtle, yet absolutely crucial. Occupancy models estimate the probability a species occupies a site, **and also** the probability that you see them.
 
 Assume I want to determine where elephants are present in Etosha nature reserve in Namibia. I need data to answer this, so I decide to do ten elephant surveys in Etosha. Specifically, I go to visit these ten sites that are nicely spread throughout the park. At each site, whenever I spot an elephant I note down that elephants are present at that location. When I don't see any elephants I record that elephants are absent at that location. Simple, right?
 
-My data set for these ten sites and surveys might look something like:
+Let’s imagine we collect data across ten sites. Here’s what our dataset might look like:
 
 ```{r}
 set.seed(1988)
@@ -51,9 +51,9 @@ etosha <- data.frame(
 etosha
 ```
 
-The only thing to note here is that when `elephants` is `1`, then that means I saw them at that site. When `elephants` is `0`, then I didn't see them. `1` means `Present`, `0` means `Absent` (at least for now).
+When `elephants` is `1`, it means elephants were seen at that site; when it's `0`, they were not. So, `1` indicates presence, and `0` indicates absence; at least for now.
 
-To figure out the average probability that any one of my ten sites are occupied, I can run a Bernoulli Generalised Linear Model. The Bernoulli distribution (named after [Jacob Bernoulli](https://en.wikipedia.org/wiki/Jacob_Bernoulli)) is a type of distribution that will generate (or expect) values of `1` or `0`; perfect here because our data can only be `1` or `0`.
+To figure out the average probability that any one of my ten sites are occupied, I can run a Bernoulli Generalised Linear Model. The Bernoulli distribution (named after [Jacob Bernoulli](https://en.wikipedia.org/wiki/Jacob_Bernoulli)) generates values of `1` or `0`, which is perfect for our binary presence–absence data.
 
 The model would be:
 
@@ -77,11 +77,11 @@ Let's go through these equations slowly:
 
 -   $p$ is the probability of success (i.e. there is $p$ probability that we see an elephant). We can't possibly know what $p$ is when we collect the data, so we need to figure it out with statistics. (The $i$ means each site *could* have a different probability - but we're not doing that yet)
 
--   $\beta_0$ is the intercept which here, given we have nothing else in this part of the model, means the average probability to see an elephant.
+-   $logit$ is the link function to ensure that $p$ remains between 0% and 100%. Specifically, it's a little bit of maths: $log(\frac{p}{1-p})$, which is the natural log of the probability to succeed ($p$) divided by the probability to fail ($1-p$). More on this in a second.
 
--   $logit$ is the link function to ensure that $p$ remains between 0% and 100%. Specifically, it's a little bit of maths: $log(\frac{p}{1-p})$, which is the natural log of the probability to succeed ($p$) divided by the probability to fail ($1-p$).
+-   $\beta_0$ is the intercept. Since we haven’t included any covariates (yet), it captures the average logit value of elephant presence across all sites. When converted back from the logit scale, this will give us the average probability of elephant presence.
 
-To get a sense of how the $logit$ link function works, here's a figure where the different potential probability that elephants are present is on the y-axis. Remember, we don't know what this probability is but *we do know* that at minimum it's 0% and at most it's 100%. The x-axis shows the corresponding logit value (if we take each probability and feed it into $log(\frac{p}{1-p})$).
+To understand how the logit link transforms probabilities, have a look at this figure. It maps the full range of probabilities (0% to 100%) to the logit scale.
 
 ```{r}
 p <- seq(from = 0, to = 1, by = 0.001)
@@ -96,9 +96,13 @@ ggplot(dat) +
   theme_minimal()
 ```
 
-Notice how as the probability gets close to 0%, it never actually goes below 0%, even as the logit value keeps decreasing? And the same happens when it gets close to 100%. That's exactly what we want! Having logit values that can go from $-\infty$ to $+\infty$ is great for model fitting (for reasons we don't need to go into here) but importantly, even if our model thinks the logit value is 999 billion, then that's still just 100%. The "natural bounds" of the data is respected (the bounds here are 0% and 100%).
+Notice how as the probability approaches 0%, it never actually drops below it, even as the logit value keeps decreasing? And the same happens when it gets close to 100%. And that’s exactly what we want. The fact that logit values can range from $-\infty$ to $+\infty$ makes model fitting much easier: it turns a bounded probability into an unbounded scale, allows linear relationships with predictors, and ensures valid probabilities when converting predictions back. So even if our model estimates a logit value of 999 billion, it still maps to a probability of 100%. This ensures the natural bounds of probability, which is between 0% and 100%, are always respected.
 
-Taking that into account, here's how we'd run that model in `R` (click the `Show` button to see the code):
+If you want a bit more detail and intuition, here is an old lecture recording that covers the logit link function:
+
+<iframe src="https://abdn.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=dea0921b-d1ce-49f4-84b9-acb700ef650f" width="720" height="405" allowfullscreen></iframe>
+
+With that in mind, here’s how we’d fit our model in `R`. (Click `Code` to reveal the code.)
 
 ```{r}
 mod <- glm(elephants ~ 1,
@@ -106,13 +110,13 @@ mod <- glm(elephants ~ 1,
            family = binomial(link = "logit"))
 ```
 
-Which returns the estimate of $\beta_0$ (or average probability to detect elephants *on the link function scale*, i.e. it's a logit value):
+This estimates $\beta_0$, the average probability of elephant presence, but on the logit scale. We can see what it has been estimated as by looking at the summary of the model:
 
 ```{r}
 summary(mod)
 ```
 
-The estimate for `(Intercept)` (or $\beta_0$) is `-1.3863`. We can always plug that back into our equation if we wanted to, now that we know what $\beta_0$ is:
+The estimate for `(Intercept)` (or $\beta_0$) is `-1.3863`. Now that we have an estimate for $\beta_0$, we can plug it into our model:
 
 $$
 y_i \sim Bernoulli(p_i) \\
@@ -122,31 +126,37 @@ $$
 logit(p_i) = -1.3863
 $$
 
-We can go a bit further though, where we convert this intercept (-1.3863) that's on the logit value into a probability by doing the inverse logit (`R` has a nice way to do this using the function `plogis()`):
+To interpret this on the probability scale, we apply the inverse logit transformation using `plogis()` in `R`:
 
 ```{r}
 plogis(-1.3863)
 ```
 
-We now have our estimate as a proportion (which we can multiply by 100 to get to percentage), to get us to 20%. This probability tells us that there's a roughly 20% chance that an elephant occupies a site in Etosha.
+This gives us a probability of approximately 0.2, or 20%, meaning there’s a 20% chance a site is occupied by elephants.
 
 Or does it?
 
 # Imperfect detection
 
-The meaning behind this 20% estimate is not actually as simple as "there's a 20% chance that one of our sites has elephant present". The reason is subtle but it because this 20% is actually the product of two probabilities. For us to detect an elephant and get a `1` in the `etosha` dataset, two things need to happen.
+That 20% estimate isn’t as straightforward as “there’s a 20% chance a site has elephants.” It’s actually the result of two probabilities being multiplied together. For us to detect an elephant and get a `1` in the `etosha` dataset, two things need to happen.
 
 1.  The elephant must obviously be there, with some probability. We can call this probability $\psi$ (called "psi", pronounced like "sigh").
 
-2.  I have to *see* the elephant. This will never have a 100% chance no matter how good I am at spotting elephants. We can call this probability $p$.
+2.  I also have to *see* the elephant, and no matter how good I am, that probability is almost certainly never going to be 100%. We normally call this probability $p$.
 
-So all of the `1`'s in our `etosha` dataset are the result of succeeding in both of these probabilities. However, all of the `0`s are the result of failing either probability; either there were no elephants ($1-\psi$), or there were you just didn't see them ($\psi \times 1-p$). Fundamentally, the problem is that `elephants` represents $\psi \times p$, and not just $\psi$ like we want.
+So all of the `1`'s in our `etosha` dataset are the result of succeeding in both of these probabilities. But a `0` could be the result from **either** of two failures:
+
+1.  either there truly were no elephants ($1 - \psi$ - remember $\psi$ is the probability there are elephants, e.g. 20% or 0.2, in which case $1-0.2 = 0.8$ or 80% chance there are no elephants),
+
+2.  or elephants were present but we didn’t detect them ($\psi \times (1 - p)$ - remember that $p$ is the probability to detect a species, so if $\psi = 0.2$ and $p = 0.6$, then the probability to **not** see them is $0.2 * (1 - 0.6) = 0.08$, or "there is an 8% chance elephants are present but not detected).
+
+Fundamentally, the problem is that the data in the `elephants` column of our `etosha` dataset represents $\psi \times p$, and not just $\psi$ like we want.
 
 For example, here's a picture from BI3010 that you might remember. I've added a white line to show where the elephant is almost perfectly obscured by an acacia tree. If this was at one of our sites in `etosha`, then we'd have recorded `0` (or said `Absent`) despite it being there.
 
 ![](images/occupancy.PNG)
 
-There's no shortage of reasons why you might not see an elephant despite it being there. It can be as simple and dumb as the elephant was behind a bush when I checked that site. Or, if we were using cameras, it might be that the motion sensor didn't trigger. Or it might be that the elephant was behind the camera. This process of an animal being present but us not seeing it reflects something called *imperfect detection*, i.e. just cause it's there doesn't mean we're guaranteed to see it.
+There's no shortage of reasons why you might not see an elephant despite it being there. It can be as simple as the elephant was behind a bush when I checked that site. Or, if we were using cameras, it might be that the motion sensor didn't trigger. Or it might be that the elephant was behind the camera. This process of an animal being present but us not seeing it reflects something called *imperfect detection*, i.e. just cause it's there doesn't mean we're guaranteed to see it.
 
 *Imperfect detection* is not an issue for the `1`'s in our `etosha` data.
 
@@ -154,30 +164,33 @@ There's no shortage of reasons why you might not see an elephant despite it bein
 
 -   The complication happens when we ***don't*** detect an elephant; when `elephants` is `0`.
 
-What does that `0` mean? Are elephants actually **absent** from that site or are they **present** but we didn't see them?
+That’s the key problem: a `0` in the data doesn’t always mean “no elephants”, it could just mean we missed them.
 
-That's the problem! The `0`'s in the `etosha` data have multiple meanings. It's not as simple as "if I don't see an elephant, there are not elephants there".
+Occupancy models don’t ignore this, they’re built to handle it. They allow us to estimate two things separately: the probability that a site is occupied ($\psi$), and, if it is, the probability of detecting the species ($p$).
 
-Occupancy models do not ignore this. In fact, they actively disentangle this complication and tell us what's the probability that elephants are present at a site **and** if they are, what's the probability we see them. This is why occupancy models are such a powerful tool. Here's how they do it.
+That’s why they’re such a powerful tool. Here’s how they do it.
 
 # Occupancy models
 
 ## State model
 
-The first part of the occupancy model (which I'll call the *state model,* so called because we're trying to determine the state of a site - are the species *present* or *absent*) looks remarkably similar to the GLM above:
+The first part of an occupancy model is the *state model*, so called because it estimates the true state of each site: is the species present or absent?
 
 $$
 z_i \sim Bernoulli(\psi_i)\\
+$$
+
+$$
 logit(\psi_i) = \beta_0
 $$
 
-They look similar, because they're both $Bernoulli$ GLMs! But they differ in two important ways,
+This model probably looks similar. That's because like the first model we spoke about further above, it's also a $Bernoulli$ GLM. But they differ in two important ways:
 
--   $z$ is the **true** presence or absence of elephants in site $i$
+-   $z$ is the **true** presence or absence of elephants in site $i$ (this isn't $y$)
 
 -   $\psi$ is the probability to be present
 
-Ok, so the labels have changed, but how does that magically solve the problem of imperfect detection? Well, if we left it there this new model wouldn't solve anything. We need something that will deal with impefect detection; a second GLM.
+That's nice and all but just changing the labels doesn’t fix imperfect detection. To solve that, we need a second model: the *observation model*.
 
 ## Observation model
 
@@ -185,34 +198,39 @@ The second GLM (which I'll call the *observation model*) also looks remarkably s
 
 $$
 y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\
+$$
+
+$$
 logit(p_{i,j}) = \alpha_0
 $$
 
-It's yet another $Bernoulli$ GLM but with some really important changes.
+It's another $Bernoulli$ GLM but with some crucial differences.
 
 -   $y$ is now the **detection** or not of an elephant. This is worth highlighting - $y$ is **not** the presence or absence of elephants, it's the detection of elephants **if** they're present!
 
--   $j$ is *survey*, which means we have *multiple surveys*, not just one like in our first GLM example above where $i$ was a single (of ten) sites. This has implications for how we collect data, which we'll come back to.
+-   $j$ represents which *survey* $y$ was collected in, which inherently means we have *multiple surveys*, not just one like in our first GLM example above where $i$ was a single (of ten) sites. This has implications for how we collect data, which we'll come back to.
 
 -   $p$ is the probability to detect an elephant at site $i$ in survey $j$ (e.g. what is the probability to detect an elephant in site 1 in the third survey?)
 
-Importantly, the probability to detect elephants ($p$) is *multiplied* by $z$. What's $z$? Well that's the true occupancy state of that site from the *state model*. It's this multiplication that allows the two models to "speak" to each other, and how we deal with imperfect detection.
+Importantly, the probability to detect elephants ($p$) is *multiplied* by $z$. What's $z$? Well that's the true occupancy state of that site from the *state model*. It's this multiplication that allows the two models to "speak" to each other, and how we deal with imperfect detection; it ensures the *observation process* depends on whether the species is actually present.
 
 If there are elephants in a site ($z = 1$), then $p \times z = p \times 1 = p$. If elephants are absent from a site ($z = 0$), then $p \times z = p \times 0 = 0$. This means *you cannot detect elephants if they aren't there*. That's blindingly obvious... It's so dumb that most people don't realise you need to specify it (I've heard people say: "surely any model can figure this out?"). But this stupidly simple logic is missing from our starting GLM! And a lot of research asking about where species are use a model equivalent to the very first GLM on this page.
 
-> Keep in mind that we don't know $z$ - that's the "true" occupancy state of a site. It's something called a *latent variable*, meaning a "colum of data" that can't be measured or recorded in the field. Instead, much like with parameters, we use the data we have collected to estimate this latent variable for each site that we have data from.
+> Keep in mind that we don't know $z$. That’s the true occupancy state, a *latent variable*. Latent just means it’s unobserved: we can’t measure $z$ directly in the field, but we can estimate it using the data we collect, much like we do with parameters.
 
-That's how occupancy model knows that you can only detect elephants if they're present, and if they aren't present then you can't see them! That's the beauty of occupancy models and why they are one of my favorite types of analysis.
+That's how occupancy models "know" that you can only detect elephants if they're present, and that if they’re absent, you won’t detect them. It seems so obvious, yet this logic is missing from many models that treat non-detections as true absences.
+
+And that’s the beauty of occupancy models. They handle the messy reality of ecological data (but can also be used in e.g. medicine), and that’s why they’re one of my favorite types of analysis.
 
 # The robust design and closure
 
-Ok, great, we've got a clever modelling framework but how does the above help us resolve if we go to a site and don't see an elephant? How do we distinguish between a "true negative" (i.e. we don't see elephants because there really aren't any elephants) versus a "false negative" (i.e. we don't see elephants but they were there)?
+So, we have a clever modeling framework, but how does it help when we go to a site and don’t see any elephants? How can we tell the difference between a true negative (the site was genuinely unoccupied) and a false negative (elephants were present, but we missed them)?
 
-This is where the subscript $j$ in the observation model becomes important. Imagine we visit a site once and we see no elephants. With no additional information you have absolutely no way to determine if it was occupied or not. You just know you didn't see any elephants.
+This is where the subscript $j$ in the observation model becomes important. If you only visit a site once and don’t see any elephants, you’re left guessing. With no extra information, you can’t know whether the site was unoccupied or whether you simply failed to detect them.
 
 But imagine I went back to that same site the next day. This time I do see elephants. We learn a few things from this. First, we know elephants are present at the site. Secondly, we learn that the first survey must have been a false negative - we just didn't see elephants despite them being there.
 
-Imagine we did that for all ten of our sites:
+Now imagine we scale this up by repeating this process where we now survey each of the ten sites three times. What might that data look like?
 
 ```{r}
 set.seed(1988)
@@ -254,7 +272,7 @@ kable(etosha_kbl, "html", escape = FALSE) |>
   kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
 ```
 
-Now with three surveys per site, we gain some extra information that helps us solve imperfect detection.
+By surveying each site three times, we gain crucial extra information to help account for imperfect detection.
 
 We detect elephants in three sites:
 
@@ -264,33 +282,37 @@ We detect elephants in three sites:
 
 -   Site 9 in survey 2
 
-From this, we know there are definitely elephants in sites 1, 8 and 9. But we also learn some additional information that's going to be very useful. In sites 1, 8 and 9, we see elephants only once out of three attempts in each site. So, given we know there are elephants there (we saw them after all), we only see them in $1/3$ surveys, or phrased alternatively we have a ca. 30% detection probability when we know an elephant is present.
+From this, we know there are definitely elephants in sites 1, 8 and 9. But we also learn some additional information that's going to be very useful. In sites 1, 8 and 9, we see elephants only once out of three attempts in each site. Since we *know* elephants are present at those sites (we saw them at least once), and yet we only detected them in 1 out of 3 visits, we can estimate detection probability as roughly 30%.
 
-Now we can look at those sites where we never saw any elephants. Let's assume there were elephants in site 2. What's the probability that we just didn't see them? Well, we've manually estimated our detection probability at 30% meaning the probability not to detect them is 100% - 30%, or 1-0.3, so the probability **not to detect** them on any of the three surveys is:
+Now let’s consider a site where we never detected elephants, say, site 2. What’s the chance that elephants were actually there, but we just missed them every time? Well, we've manually estimated our detection probability at 30% meaning the probability not to detect them is 100% - 30%, or 1-0.3, so the probability **not to detect** them on every single one of the three surveys is:
 
 $$(1-0.3) \times (1-0.3) \times (1-0.3) = (1-0.3)^3=0.343=34\%$$
 
-This tells us that there's a 34% chance that if we go to a site with elephants present, we have a 34% chance to completely miss them.
+So even if elephants are present, there’s a 34% chance we’d miss them on all three surveys. That’s not trivial and it shows how easily a site could look empty even when it’s not.
 
-This introduces a key assumption in occupancy models. For our estimate of 30% chance to detect an elephant to make any sense, then I have to assume that whenever we detect an elephant, even just once at a site, that they were present in *all surveys* in those sites. This means that I assume the `0`'s in sites 1, 8, and 9 were false negatives because there was at least one `1` in those sites. For example, I have to assume the elephants in site 8 didn't just happen to move into the site on the second survey - I assume they were there on survey one.
+This introduces a key assumption in occupancy models. But for that 30% detection probability to be meaningful, we must make an important assumption, called the *closure assumption*. This means we assume that if a site is occupied, it was occupied for all three surveys. In other words, the `0`s in sites 1, 8, and 9 were false negatives and not times when the elephants just happened to leave that site for a day. For example, we assume the elephants in site 8 didn’t just wander in before the third survey; they *were* there during the first and second surveys too.
 
 # The assumption of closure
 
-This assumption is called the "assumption of closure". This is often poorly understood, where people interpret it as meaning the site is physically "closed" - as if there is some kind of "fence" that prevents animals from moving. This is not correct. "Closure" here, means "demographically closed", i.e. if the species was present in survey one, then it is present in survey two and survey three, and so on, until you stop surveying.
+This is known as the *assumption of closure* (or *closure assumption*). It’s often misunderstood as meaning the site is physically “closed” off by something like a fence to prevent animals from entering and leaving. That’s not what it means. In occupancy models, closure means the population is demographically closed during the survey period. If a species is present at the first survey, it remains present for all subsequent surveys.
 
-> **Zitong** and **Joe**, this imposes two important considerations for your field work. We need to survey sites on multiple occasions - we need "$J$ surveys". In the context of camera trapping this means you need to leave each camera *in situ* (in place) for more than one sampling period. It's up to you to define what your sampling period is - it could be an hour, a day, a week - so long as you can assume that if your species is present at the first survey, then it will be present at the last survey.
+> **Zitong** and **Joe**, this has two important implications for your fieldwork:
 >
-> Secondly, these sampling occasions cannot extend over such a long period of time that it becomes increasingly hard, or unreasonable, to assume the species could not have gone locally extinct (e.g. shot or killed or just left the area) or that a previously unoccupied site has been re-colonised.
+> You need to survey each site on multiple occasions, i.e. you need $J$ surveys. If you’re using camera traps, this means leaving the camera in situ for more than one sampling period.
+>
+> You're completely free to define the sampling period (hour/day/week), but it must be short enough that if your species is present at the first survey, it’s still present at the last.
 
-In practice, a minimum of three survey occasions is required (e.g., three days or three 12 hour periods, or whatever you define your sampling periods as). Having more surveys is a bonus (e.g. if you leave your cameras in place for two weeks) but you don't want to monitor the same site for so long the species could go locally extinct (obviously dependent on the species you're working with). If such local extinctions and recolonisations are likely at a site, then you can extend from the single season occupancy models (the type of occupancy model that we're talking about here) into multi-season occupancy models.
+And, critically, the full survey period should not be so long that the species could realistically disappear from the site (e.g. due to death, migration, or disturbance) or recolonise it.
 
-This form of sampling (repeatedly sampling the same site a minimum of three times) is called "the robust design" and is one that is well worth attempting to do whenever you can.
+In practice, you need at least three survey occasions to estimate detection probability reliably. These could be three days, three 12-hour periods—whatever matches your chosen sampling unit. More surveys are great (e.g. two weeks of camera trapping), but be cautious: surveying over too long a period risks violating closure if the species could move in or out of the site (or go locally extinct or recolonise a vacant site).
+
+This approach, repeatedly surveying the same site at least three times within a “closed” window, is called the robust design. It's the backbone of reliable single-season occupancy modeling, and something you should aim to implement whenever possible.
 
 # The data
 
-I'm going to simulate data for an occupancy model to give you an idea of how you data should be organised and also to run a practice model with. To do so, I'll use the `R` package that you'll eventually use in your own analysis, `spOccupancy` (short for *spatial occupancy* - we'll focus on the *occupancy* part for now and get to the *spatial* part later).
+I’m going to simulate data for an occupancy model to show you how your data should be structured, and to give you something to practise with. We’ll use the `spOccupancy` package in `R` which you’ll also use in your own analysis. It stands for *spatial occupancy*, but we’ll focus on the *occupancy* part for now and save the *spatial* component for later.
 
-> On the next page (*Occupancy Models: Covariates*) I'll explain how to store any covariates you want to include, e.g. distance to road or distance to release pen. For now I'll leave covariates out for simplicity.
+> On the next page ([Occupancy Models: Covariates](OccMods_WithCovariates.qmd)), I’ll explain how to include environmental or site-level covariates, like distance to a road or release pen. For now, we’ll leave those out to keep things simple.
 
 ```{r}
 library(spOccupancy)
@@ -300,39 +322,59 @@ obs <- dat$y
 obs
 ```
 
-Each column is a survey (so I have three surveys in this toy dataset) and each row is site (so I have ten sites here). Your dataset may well look slightly different depending on how many sites and surveys you do but your "detection history" dataset should look something like this.
+Each column represents a survey occasion (we have three here), and each row corresponds to a site (ten total). Your dataset might have more or fewer rows/columns depending on your study, but the core format, called a *detection history matrix* or just *detection matrix*, will look something like this.
 
 Let's do the same thing that we did above, but with this more sensibly simulated dataset.
 
-1.  In site 3, or `[3,]`, and sites 4 and 8, we never see elephants. Without any further information, we don't know if this is because elephants weren't in those sites, or they were present but we didn't see.
+1.  In sites 3, 4, and 8, we never detect elephants. With no further information, we can’t say whether that’s because they were truly absent, or present but undetected.
 
 2.  In sites 1, 2, 5, 6, 7, 9, and 10, we see elephants at least once, so we know for sure that they are present there.
 
-3.  For the detection history of site 5 (`0` = `not detected`, `1` = `detected`, `1` = `detected`, or just `0`, `1`, `1`), we can guess that our detection probability is $2/3$, or about 66%.
+3.  In site 5, the detection history is `0`, `1`, `1`. So, if elephants were present for all surveys (closure assumed), we detected them in 2 out of 3 attempts, suggesting an estimated detection probability of about 66%.
 
-Armed with this 66%, we can figure out how likely it is that elephants were actually absent from site 3 and 4. Let's assume elephants were present at site 3. What's the probability that we would ***fail*** to detect them? Well, if there's a 66% chance to detect elephants, then failure to detect is $100\% -66\% = 34\%$ (or $1-0.66=0.34$). So a 34% chance not to detect an elephant even if it's there. What about two days in a row? $0.34 \times 0.34 = 0.12$, or $0.34^2 = 0.12$, - about 12% chance to not detect an elephant two days in a row if it was there. Three days? $0.34^3 = 0.04$, or 4% chance that, if there was an elephant in site 5 that we'd fail to detect it, three days in a row.
+Armed with this 66% detection probability, we can ask: *If elephants were present at a site, what’s the chance we’d fail to detect them on all surveys?*
 
-Given a measly 4% chance to completely miss elephants on all three days, it seems more likely that we didn't fail to detect, but that there was no elephant there. Since this is a simulation, we can verify our estimate by checking the true occupancy status of site 3.
+Let’s assume elephants were present at site 3. The probability of **not detecting** them on a single day is:
+
+$$1-0.66 = 0.34$$
+
+Then the probability of failing to detect them three days in a row is:
+
+$$0.34 \times 0.34 \times 0.34 = 0.34^3 = 0.04 or 4\%$$
+
+So, if elephants *were* present, there’s only a 4% chance we’d miss them all three times. That’s pretty unlikely, so we might reasonably infer that site 3 was truly unoccupied.
+
+And since this is simulated data, we can check the truth; we know whether elephants were really there or not.
 
 ```{r}
 dat$z[3]
 ```
 
-We see that elephants were absent in site 5 (above should read `[1] 0` which is absent). Our guess was correct - it was more likely that they weren't there and we ***literally could not*** see them, rather than they were there and we just got very unlucky.
+We see that elephants were absent in site 5. The output above should read `[1] 0`, which means absence. Our guess was correct. It was more likely that elephants were simply not there, rather than being present and somehow undetected every time.
 
-That's kind of how occupancy models work, except that rather than using a single site to have a very rough guess at what detection probability is, we use all of our data and use a statistical model to estimate these parameters. Here's how we do the analysis more formally.
+This is essentially how occupancy models work. But instead of using a single site and a rough estimate of detection probability, we use all of our data across all sites and surveys. The occupancy model then estimates both the probability that a site is occupied and the probability of detecting the species when it is present.
 
 # Data preparation
 
-Before getting to running a fancy model, we need to get our dataset organised in a way that works for `spOccupancy`. Contrary to linear models and GLMs, we don't provide a simple `data.frame` object. Instead, we provide a `list`, which itself can (and eventually will) contain *multiple* lists and data sets.
+Before getting to running a fancy model, we need to get our dataset organised in a format that works for `spOccupancy`. Unlike linear models or GLMs, which typically use a simple `data.frame` to supply the data, `spOccupancy` expects a `list` object. This list can (and often will) contain *multiple* datasets and nested lists.
 
-For the starting model we'll fit below, we only need our detection history *matrix* to be added to this list (which I'll call `etosha`). That detection history matrix is the data we saw above (shown again below). So for now, we're basically taking our data set and adding it to a list. A bit of a pain, given it's a seemingly unnecessary step, but it's needed for the more complex versions of the model. Here's our encounter history matrix:
+For the basic model we’ll fit below, we only need to include the *detection history matrix* - the one we used above. We’ll store this in a list called `etosha`.
+
+So at this stage, we're simply placing our existing *detection history matrix* into a list. It might seem like an unnecessary step now, but it becomes essential when we expand to more complex models with covariates, spatial structure, or hierarchical components.
+
+Here’s the detection history matrix again, which we’ll use as input:
 
 ```{r}
 dat$y
 ```
 
-The code to create the `etosha` list is actually relatively straightforward. The function `list()` will create the list, and we can just add our detection history (currently stored as `dat$y` - but this is just because I've simulated the data) and have it be called `y` (for the reason that we call it $y$ in our equations above). If you want to see the code, press the `Code` button to the right.
+Creating the `etosha` list is actually quite straightforward. We use the `list()` function in R to build the list and include only our detection history matrix (for now).
+
+In this example, the detection data is stored as `dat$y` (since it was simulated), and we’ll assign that to an element called `y` inside our new list. By convention we call it `y` to match the notation from our model equations above. 
+
+>An important note, even though I'm using `dat$y` in the code here, for your own data, you will most likely have a single dataset that you would load in with e.g. `read.csv()`.
+
+If you want to see the code, click the `Code` button to the left.
 
 ```{r}
 etosha <- list(
@@ -352,9 +394,11 @@ $$y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\$$
 
 $$logit(p_{i,j}) = \alpha_0$$
 
-This version of the model only has two average probabilities. One for the average probability that elephants occupy a site ($\beta_0$ which is fit on the $logit$ link function), and another for the average detection elephants *if* they are present ($\alpha_0$, also fit on the $logit$ link function).
+This version of the model only has two average probabilities. One for the average probability that elephants occupy a site ($\beta_0$, which is fit on the *logit* link function), and another for the average probability of detecting elephants *if* they are present ($\alpha_0$, also fit on the *logit* link function).
 
-The model is not fit using the so-called "frequentist framework". Instead, it uses the *Bayesian* framework. I'll gloss over what frequentist and Bayesian are and what the differences are for now, other than to say that maybe 95% (\$\\leftarrow\$ lousy stats joke) of scientists use the frequentist framework. Not by coincidence, it's also the framework that is generally taught to students (hence why most people use it). For your future, employers often think (rightly or wrongly) that Bayesian statistics is fancier and more sophisticated.
+The model is not fit using the so-called *frequentist framework*. Instead, it uses the *Bayesian* framework. I'll gloss over what frequentist and Bayesian mean (and how they differ) for now, except to note that maybe 95% ($\leftarrow$ lousy stats joke) of scientists use the frequentist framework. Not by coincidence, it's also the framework most commonly taught to students (which is partly why it's so widely used). 
+
+For your future, keep in mind that many employers, rightly or wrongly, see Bayesian statistics as fancier and more sophisticated. It's something worth including in your CV if you apply for quantitative jobs or PhDs.
 
 The code below uses the `PGOcc()` function from the `spOccupancy` package to fit a single species, single season occupancy model with no explanatory variables.
 
@@ -382,58 +426,92 @@ Having fit the model, we can inspect the parameter estimates:
 summary(fit)
 ```
 
-There's a lot of information in this summary but we only really care about a few things.
+There's a lot of information in this summary, but we only really care about a few things.
 
-`Occurrence (logit scale)`
+- `Occurrence (logit scale)`. This refers to the state model, which estimates the probability that an elephant is present at any given site.
 
--   This is the state model (i.e. what's the probability that an elephant is present in any site?)
+- `Detection (logit scale)`. This refers to the observation model, which estimates the probability that an elephant is detected in any given survey, assuming they were present.
 
--   The `(Intercept)` row contains all of the information on the... intercept. Because we only have an intercept, we only have an intercept row.
+- The `(Intercept)` rows contains all the information on the intercept for the respective model. Since we only included an intercept in both models, this is the only row for both the state and observation models.
 
--   `Mean` is the mean of the "posterior". Crudely, this is Bayesian terminology for the "parameter" (it's a bit more complicated than that, but we're leaving the Bayesian stuff for later).
+- `Mean` is the mean of the *posterior*. This is Bayesian terminology for the distribution of the parameter estimate. (It's a bit more complicated than that, but we’ll return to Bayesian ideas later.)
 
--   `SD` is the standard deviation of the posterior.
+- `SD` is the standard deviation of the posterior.
 
--   `2.5%` is the lower 95% **credible** interval (this is not a confidence interval but you can think of them as being the same for now).
+- `2.5%` is the lower bound of the 95% *credible interval*. This is not a confidence interval, but for now you can think of it as similar.
 
--   `50%` is the median of the posterior.
+- `50%` is the median of the posterior.
 
--   `97.5%` is the upper 95% **credible** interval.
+- `97.5%` is the upper bound of the 95% credible interval.
 
--   `Rhat` will be entirely new to you. This is a measure of whether or not there were any problems in figuring out the posterior. If the `Rhat` value is close to 1, then it suggests that it could not find any problems (note this does not mean there are no problems, just that it couldn't find any). If the value goes above, say 1.1, then it suggests the model is not "convinced" that it's found the best posterior estimate. In that case, you would need to make some tweaks to the model.
+- `Rhat` is likely new to you. It helps assess whether the model had any issues estimating the posterior. If `Rhat` is close to 1, it suggests no issues were detected. (Note: this does not guarantee the model is correct, only that it appears stable.) If `Rhat` is higher than about 1.1, the model may not have converged properly and might need to be adjusted.
 
--   `ESS` stands for "Effective Sample Size". This is another new Bayesian *thing* that I'll gloss over the details of but for now, we want this value to be in the multiple hundreds or thousands. Having "too low" an `ESS` suggests problems that may also require tweaks to the model.
+- `ESS` stands for *Effective Sample Size*. This is another Bayesian diagnostic. For now, we want this value to be in the hundreds or ideally thousands. A low ESS suggests estimation problems and might also require model adjustments.
 
-In our case, all looks good. The `Rhat` values are generally close to 1 and the ESS are all in the thousands. We can move on to learning something biological.
+In our case, everything looks fine. The `Rhat` values are close to 1 and the `ESS` values are all in the thousands. We can now move on to interpreting the results biologically.
 
 # Interpreting the results
 
-So what do our results mean? For the state model (that `spOccupancy` calls `Occurence`), our mean is estimated as 1.4601 but we would surely expect this to be a probability, right? Keep in mind, we're fitting fancy Bernoulli GLMs, and with our Bernoulli GLMs we've used the logit link. So the 1.4601 value is *on the logit* link scale.
+So what do our results mean?
 
-We can convert this logit value to probabilities ourselves using the same `plogis()` function that we used before:
+For the state model (labelled `Occurrence` in the `spOccupancy` output), the estimated mean is 1.4601. But we would expect this to be a probability, right? Remember, we are fitting a Bernoulli GLM with a logit link. That means 1.4601 is on the *logit* scale.
+
+We can convert this logit value to a probability using the same inverse logit function we used earlier. 
 
 ```{r}
 plogis(1.4601)
 ```
 
-So we have a roughly 80% chance to have elephants in any of our sites. If you have a look at our actual data set, you'll see we don't have detections in 80% of the sites. We have detections in 70% of the sites. That's where the detection part of the model is helping us out - we don't have 100% detection probability, so we should find that we have more sites occupied on average than we would expect by looking at just the raw data.
+When we do that, we get a value of approximately 0.81, or 81%. So, the model estimates there is about an 80% chance that any given site is occupied by elephants.
 
-What was our detection probability? The mean of the intercept is estimated (as a logit value) at -0.1952. We know how to back transform this into probabilities:
+Now compare that to the observed data. In our detection history, we only saw elephants in 70% of the sites. That might seem inconsistent at first, but this is exactly where the detection part of the model helps us. Because we do not have perfect detection, we expect the *true* occupancy rate to be higher than what the raw data suggests.
+
+What about detection probability?
+
+The mean of the intercept for detection is estimated (also on the logit scale) as -0.1952. 
 
 ```{r}
 plogis(-0.1952)
 ```
 
-The model has estimated that we have roughly 45% chance of seeing an elephant if it's actually there. If we do have a 45% detection probability, then the chance of not seeing an elephant in sites 3, 4 or 8 is $0.45^3 = 0.09 = 9\%$. Not huge, but not trivial either.
+Converting that to a probability gives us about 45%. So, on average, if an elephant is present at a site, we have about a 45% chance of detecting it during any one survey.
 
-Most importantly, we learn that detection probability is not 100%. That alone is important. The consequence of that is to show, quite clearly, why the Bernoulli GLM approach we used at the very start of this page is not appropriate. Because that overly simplistic model ignored imperfect detections, it's unreliable. Our occupancy model is reliable as a result of dealing with imperfect detections.
+If our detection probability is 45%, then the chance of missing an elephant on all three visits to a site is:
+
+$$
+(1 - 0.45)^3 = 0.55^3 = 0.17 = 17\%
+$$
+
+That is not a huge chance, but it is not trivial either. In other words, even when elephants are present, there is a meaningful chance we might not see them at all in the data.
+
+The key takeaway is this: detection probability is not 100%. That single fact makes the Bernoulli GLM we started with right at the start of this page inappropriate. Because it ignores imperfect detection, it produces unreliable estimates. The occupancy model, by contrast, accounts for detection error and gives us a more trustworthy result.
 
 # What next?
 
-There are three big elements this document has not covered.
+There are three big elements this document has not yet covered.
 
-The first is including covariates. Just like in the modelling you did in BI3010, we can add anything that we think is playing a role in ***either*** the *state* or *detection models*; i.e. the detection of elephants or why elephants are there. Do you think rainfall influences how likely people are to detect elephants? Well, include rainfall in the detection model.
+### 1. Including covariates
 
-The second is Bayesian statistics. Summarised crudely, Bayesian statistics allows statisticians to include their (or others) understanding of the world into the model. What does this mean specifically? Well, we might have had some idea of what a sensible range of probabilities that elephants were present in any of our sites. Maybe we think 20% to 90% is sensible, i.e. we don't think it's possible that there aren't *any* elephants present or *all* sites are occupied by elephants. These "guesses" are formally called **priors**, and these are the hallmarks of Bayesian statistics, and they don't exist in frequentist statistics.
+Just like in the modelling you did in BI3010, we can add covariates that we believe influence *either* the *state model* (why elephants are present) or the *detection model* (how likely we are to see them). 
 
-The last one is spatial autocorrelation. Imagine one site is elephant utopia. It has everything an elephant could ever want. This site is almost certainly occupied. What about a site right next to it? This next door site is no utopia, so in isolation we would expect a lower occupancy probability, but because it's right next to utopia, it's probably more likely to be occupied than the local features of the site would suggest. This is spatial autocorrelation. The occupancy (or whatever it is we're measuring in space) of one site influences the occupancy of nearby sites, depending on how close they are to each other in space. If we don't account for spatial autocorrelation, then we might think there's some feature of the non-utopian elephant site that is more attractive to elephants than it actually is; leading to flawed inference.
+Do you think rainfall affects the likelihood of detecting elephants? Then include rainfall as a covariate in the detection model. Do you think distance to water affects where elephants choose to be? Then include that in the state model. This lets us link occupancy and detection to real ecological or observational factors.
+
+### 2. Bayesian statistics
+
+Very simply, Bayesian statistics allows us to include our prior understanding of the world into the model. For example, we might believe that a reasonable range for the probability of elephant presence is between 20% and 90%. That is, we don't think it is likely that *none* of the sites are occupied, and we also don't believe *all* of them are.
+
+These informed guesses are formally called *priors*. Priors are the foundation of Bayesian inference and do not exist in frequentist statistics. They allow us to combine prior knowledge with the data we collect to produce more informed estimates.
+
+### 3. Spatial autocorrelation
+
+Imagine one site is an elephant utopia. It has everything an elephant could ever want and is almost certainly occupied. Now consider a nearby site that is less ideal. On its own, we might expect a lower probability of occupancy. But because it is close to elephant utopia, it is more likely to be occupied than its local features alone would suggest.
+
+This is an example of **spatial autocorrelation**. The occupancy of one site can influence the occupancy of nearby sites, depending on how close they are. If we ignore spatial autocorrelation, we risk drawing misleading conclusions. For example, we might falsely assume that the non-utopian site is attractive to elephants when in fact, its occupancy is driven by its proximity to a better site.
+
+Failing to account for spatial structure can lead to flawed inference. Fortunately, occupancy models can be extended to handle this, and the `spOccupancy` package is designed with this in mind.
+
+# Lecture recording
+
+Below is an old recording of a lecture (from during the COVID lockdown) I gave that covers some of these ideas (in slightly less detail).
+
+<iframe src="https://abdn.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=3a68620b-f38d-467e-b791-acb701020d5e" width="720" height="405" allowfullscreen></iframe>

@@ -1,5 +1,5 @@
 ---
-title: "Bayesian Algorithms"
+title: "Bayesian Occupancy Models"
 author: "Deon Roos"
 date: "`r Sys.Date()`"
 format:
@@ -62,7 +62,7 @@ $$y_i \sim Normal(\mu_i, \sigma^2)$$
 
 $$\mu_i = \beta_0 + \beta_1 \times x_i $$
 
-So our objective here is to figure out $\beta_0$ and $\beta_1$. To do so, we'll set up an MCMC using one "chain". A chain is a Markov Chain - it's the black dot and orange line you can see in the animation below. This chain is trying to find the "True value" location marked with a teal X. At each step the black dot asks "if I take a step in a random direction, will I be closer to X or further away?". If it's closer, then it takes the step. If it's further away, then it's *less* likely to take the step but it's not impossible. This seems like a bad choice. Why move somewhere if it's further away from X? The answer is a bit nuanced, but the concise explanation is that sometimes there might be areas of the "parameter space" (the parameter space is all possible values of $\beta_0$ and $\beta_1$) which "work" quite well despite not being the true value. If we didn't have the behaviour, where the chain might take a step even though it's worse, then we might get stuck in one of these "bad" areas (technically, these "bad" areas are called "local minima").
+So our objective here is to figure out $\beta_0$ and $\beta_1$. To do so, we'll set up an MCMC using one "chain". A chain is a Markov Chain - it's the black dot and orange line you can see in the animation below. This chain is trying to find the "True value" location marked with a teal X. At each step the black dot asks "if I take a step in a random direction, will I be closer to X or further away?". If it's closer, then it takes the step. If it's further away, then it's *less* likely to take the step but it's not impossible. This seems like a bad choice. Why move somewhere if it's further away from X? The answer is a bit nuanced, but the concise explanation is that sometimes there might be areas of the "parameter space" (the parameter space is all possible values of $\beta_0$ and $\beta_1$) which work quite well despite not being the true value. If we didn't have the behaviour, where the chain might take a step even though it's worse, then we might get stuck in one of these "bad" areas (technically, these "bad" areas are called *local minima*).
 
 Here's our MCMC in action:
 
@@ -106,11 +106,13 @@ ggplot(samples, aes(x = x, y = y)) +
   theme_bw()
 ```
 
-![](images/single_chain_mcmc_animation.gif)
+<div style="text-align: center;">
+  ![](images/single_chain_mcmc_animation.gif){width=800}
+</div>
 
 Here's where the really clever bit comes in. At each iteration, if we record the parameter value it tried, and store it, when we build it up the end result is our *posterior*! This is what made Bayesian statistics possible! We don't need to use any crazy (and often impossible) maths to figure out the posterior, we just have MCMC walk around and the end result is an insanely good reflection of the posterior!
 
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = F}
 samples_long <- samples |>
   pivot_longer(cols = c(x, y), names_to = "parameter", values_to = "value")
 
@@ -145,11 +147,13 @@ ggplot(samples_long_cumulative, aes(x = value)) +
   theme_bw()
 ```
 
-![](images/posterior_mcmc_animation.gif)
+<div style="text-align: center;">
+  ![](images/posterior_mcmc_animation.gif){width=800}
+</div>
 
 Another way to show what the MCMC was up to is using something called "traceplots". These are relatively simple but actually quite powerful for determining if we *trust* the model output. We'll come back to this in a bit, but for now, we can show the MCMC exploring the parameter space using these traceplots.
 
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = F}
 samples_long_cumulative_trace <- samples_long |>
   group_by(parameter) |>
   group_split() |>
@@ -179,17 +183,19 @@ ggplot(samples_long_cumulative_trace, aes(x = iteration, y = value)) +
 
 ```
 
-![](images/trace_mcmc_animation.gif)
+<div style="text-align: center;">
+  ![](images/trace_mcmc_animation.gif){width=800}
+</div>
 
 # Improving our MCMC
 
-We've made a good start but we can improve this quite a bit. Firstly, limiting the algorithm to 100 iterations doesn't give it many opportunities to find the true value. In general, you often give MCMC thousands of iterations, rather than a paltry 100. So first improvement is to increase the number of iterations (you may remember we did this when we were going through the occupancy theory pages - now you know why!).
+We've made a good start but we can improve this quite a bit. Firstly, limiting the algorithm to 100 iterations doesn't give it many opportunities to find the true value. In general, you often give MCMC thousands of iterations, rather than only 100. So first improvement is to increase the number of iterations (you may remember we did this when we were going through the occupancy theory pages - now you know why!).
 
 Secondly, we're using one MCMC chain. Why not more? Afterall, if we have say four chains, then if all four agree that they're close to the true value that would give us more comfort. If they find different "True values", well, then it seems likely that we haven't actually found it.
 
 Let's implement our improvement and see what our plots now look like:
 
-```{r, message = FALSE, warning = FALSE, eval = FALSE}
+```{r, message = FALSE, warning = FALSE, eval = F}
 true_param <- c(2, -1)
 
 target_density <- function(x, y) {
@@ -219,7 +225,7 @@ chains_list <- map_dfr(1:n_chains, function(chain_id) {
   samples
 })
 
-ggplot(chains_list, aes(x = x, y = y, group = chain, color = as.factor(chain))) +
+anim <- ggplot(chains_list, aes(x = x, y = y, group = chain, color = as.factor(chain))) +
   geom_path(linewidth = 0.7) +
   geom_point(aes(x = x, y = y), size = 1.5) +
   geom_point(aes(x = true_param[1], y = true_param[2]), 
@@ -233,10 +239,12 @@ ggplot(chains_list, aes(x = x, y = y, group = chain, color = as.factor(chain))) 
     x = bquote(beta[0]),
     y = bquote(beta[1])) +
   theme_bw()
+animate(anim, fps = 25, duration = 20, width = 800, height = 600, renderer = gifski_renderer(), device = "png")
 ```
 
-![](images/multichain_mcmc_animation.gif)
-
+<div style="text-align: center;">
+  ![](images/multichain_mcmc_animation.gif){width=800}
+</div>
 
 ```{r, message = FALSE, warning = FALSE, eval = FALSE}
 samples_long <- chains_list %>%
@@ -261,7 +269,7 @@ samples_long_cumulative <- samples_long %>%
     })
   })
 
-ggplot(samples_long_cumulative, aes(x = value, fill = as.factor(chain))) +
+anim <- ggplot(samples_long_cumulative, aes(x = value, fill = as.factor(chain))) +
   geom_histogram(binwidth = 0.4, color = "white", boundary = 0, 
                  position = position_dodge(), alpha = 0.6) +
   geom_vline(aes(xintercept = true_value), linetype = "dashed", color = "#00A68A", linewidth = 1) +
@@ -271,8 +279,10 @@ ggplot(samples_long_cumulative, aes(x = value, fill = as.factor(chain))) +
   labs(title = "Cumulative Posterior up to Iteration {current_frame}",
        x = "Parameter Value", y = "Frequency") +
   theme_minimal()
+animate(anim, fps = 25, duration = 20, width = 800, height = 600, renderer = gifski_renderer())
 
-ggplot(samples_long_cumulative, aes(x = iteration, y = value, color = as.factor(chain))) +
+
+anim <- ggplot(samples_long_cumulative, aes(x = iteration, y = value, color = as.factor(chain))) +
   geom_line(linewidth = 0.7) +
   geom_hline(aes(yintercept = true_value), linetype = "dashed", color = "#00A68A", linewidth = 1) +
   facet_wrap(~parameter_label, scales = "free_y", labeller = label_parsed, ncol = 1) +
@@ -281,13 +291,19 @@ ggplot(samples_long_cumulative, aes(x = iteration, y = value, color = as.factor(
   labs(title = "Traceplot up to Iteration {current_frame}",
        x = "Iteration", y = "Parameter Value") +
   theme_minimal()
+animate(anim, fps = 25, duration = 20, width = 800, height = 600, renderer = gifski_renderer())
+
 ```
 
-![](images/multichain_posterior_mcmc_animation.gif)
+<div style="text-align: center;">
+  ![](images/multichain_posterior_mcmc_animation.gif){width=800}
+</div>
 
-![](images/multichain_trace_mcmc_animation.gif)
+<div style="text-align: center;">
+  ![](images/multichain_trace_mcmc_animation.gif){width=800}
+</div>
 
-I have a bit more confidence in our posteriors now:
+Having seen these animations, I have a bit more confidence in our posteriors. Here's why:
 
 - All chains seem to agree on the same value (they have "converged" to the same answer)
 
@@ -296,6 +312,68 @@ I have a bit more confidence in our posteriors now:
 - The traceplots resemble "hairy caterpillars", which matches the Markov Chain idea that the next value depends only on the current value (it doesn't "remember" older values).
 
 The final thing I want to bring your attention to are the first hundred or so iterations. Generally, these iterations can be pretty wild, fluctuating massively. If you think about it, that's kind of fair enough. We're starting each MCMC chain at random locations, so it's fair if things are a bit **wobbly** at the start. So what we do with these early iterations is to simply ignore them. These are called "burn in" iterations, as in, we're letting the engine warm up, so these are just used to get up to speed. Mostly arbitrarily, we typically ignore the first 10% of iterations, so where we've used 1000 iterations, we'd generally ignore the first 100.
+
+# A bad fit
+
+As useful as it is to see what a "good" fit looks like, it's often more comforting to see what a "bad" fit looks like. So here is it:
+
+```{r}
+set.seed(123)
+n_iter <- 1000
+n_chains <- 4
+iterations <- 1:n_iter
+
+non_converged <- map_dfr(1:n_chains, function(chain_id) {
+  loc <- c(2, -1, 1.5, -0.5)[chain_id]  # Different modes
+  tibble(
+    iteration = iterations,
+    value = rnorm(n_iter, mean = loc, sd = 0.1),
+    chain = factor(paste("Chain", chain_id)),
+    issue = "Non-Convergence"
+  )
+})
+
+poor_mixing <- map_dfr(1:n_chains, function(chain_id) {
+  stick_vals <- sample(seq(-1, 1, length.out = 20), size = 20)
+  values <- rep(stick_vals, each = n_iter / 20)
+  tibble(
+    iteration = iterations,
+    value = values,
+    chain = factor(paste("Chain", chain_id)),
+    issue = "Poor Mixing"
+  )
+})
+
+autocorrelated <- map_dfr(1:n_chains, function(chain_id) {
+  drift <- cumsum(rnorm(n_iter, mean = 0, sd = 0.01)) + runif(1, -1, 1)
+  tibble(
+    iteration = iterations,
+    value = drift,
+    chain = factor(paste("Chain", chain_id)),
+    issue = "High Autocorrelation"
+  )
+})
+
+bad_mcmc <- bind_rows(non_converged, poor_mixing, autocorrelated)
+
+ggplot(bad_mcmc, aes(x = iteration, y = value, color = chain)) +
+  geom_line(linewidth = 0.7) +
+  facet_wrap(~issue, scales = "free_y", ncol = 1) +
+  labs(x = "Iteration", y = "Parameter Value") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  scale_color_brewer(palette = "Set1")
+```
+
+If you're traceplots look *anything* like the above, then you have *learnt nothing*. You *will* still get results, but those results will mean *absolutely nothing*. You might as well write fiction at that point.
+
+Note that these figures aren't from an actual MCMC run, they're "fake", but there are times when you see traceplots that look like this. So keep an eye out for them! 
+
+>I once saw diagnostics that looked this bad in a peer reviewed paper. That's shameful enough but what made it even worse was that it had been selected for an award by the four senior editors of the prestigious journal! The height of shame.
+>
+>That's one of the downsides of Bayesian statistics. People glaze it to such an extreme that it's often enough to get a free pass if you just use Bayesian stats (and in some cases awards)... Don't be fooled into thinking results are robust just because you or someone else used Bayesian.
+
+Let's move on before I really start ranting...
 
 # Fitting the occupancy model using MCMC
 
@@ -319,7 +397,7 @@ fit <- PGOcc(
   
   n.chains = 4,     # 4 chains just like in our simple example
   n.samples = 2000, # 2000 iterations for each chain
-  n.burn = 200,     # We ignore the first 200 iterations to give MCMC a chance to get it's feet
+  n.burn = 200,     # We ignore the first 200 iterations to give MCMC a chance to get its feet
   
   verbose = FALSE   # This just says don't spit out details while fitting 
   # (normally I would leave verbose = TRUE so I can keep track of the model while it's fitting)
@@ -412,7 +490,7 @@ So far, we've let the `spOccupancy` package handle setting the priors for us beh
 
 In the background, `spOccupancy` uses something called Pólya-Gamma data augmentation, and under the hood, this method assumes $Normal$ priors for both the occupancy and detection parameters (including their intercepts).
 
-If you don't specify anything, spOccupancy will set:
+If you don't specify anything, `spOccupancy` will set:
 
 - The "hypermean" (mean of $Normal$ distribution for all priors) = 0
 
@@ -505,25 +583,19 @@ And pull up the summary:
 summary(fit_priors)
 ```
 
-If we compare this with the original model, where we left the priors at their defaults we can see that different priors can lead to different posteriors. Keep in mind how Bayesian statistics work - the posterior is a combination of our data and prior beliefs. We've changed our prior belief and our posteriors have changed as a result.
-
-Now in this case, the difference in posteriors are pretty minimal. It might not always be. And in truth, we would want to think a bit more carefully about the priors. Don't be fooled here. Just because my randomly chosen priors are different from the default ones doesn't mean the default model is necessarily better. The best option is to choose priors you think are reasonable. If you have different prior beliefs (e.g. I have some informative priors but also some uninformative priors) I can run the model with both, and see how much of a difference it makes. This is something called "prior sensitivity analysis" and is a fairly useful tool to have in your back pocket when you're not sure about your priors.
+If we compare this with the original model, where we left the priors at their defaults we can see that different priors can lead to different posteriors. Keep in mind how Bayesian statistics work - the posterior is a combination of our data and prior beliefs. We've changed our prior belief and our posteriors have changed as a result. Keep in mind, the more data we have and the stronger the effect is, the less important the priors are.
 
 ```{r, message = FALSE, warning = FALSE}
 summary(fit)
 ```
 
-# Fin
+Now in this case, the difference in posteriors are *relatively* minimal. It might not always be, sometimes changing the prior can make a big differences, in others it won't do anything. In truth, we would want to think a bit more carefully about the priors we used than I did here. But don't be fooled. Just because my randomly chosen priors are different from the default ones doesn't mean the default priors will necessarily always be better. 
 
-With that, you should be good to run a Bayesian occupancy model. Something you can add to your CV and have employers fawn over you. Even better if you understand it, so that when they ask you about it you can have a conversation!
-
-The only part left in the analysis is including "spatial autocorrelation". We'll cover that in the next page.
+The best course of action is to choose priors you think are reasonable, whether they be informative or uninformative. If you have a number of different priors and you're not sure which to use (e.g. I have some informative priors but also some uninformative priors) then you can always can rerun the model with both versions, and see if it makes any difference. This is something called *prior sensitivity analysis* and is a fairly useful tool to have in your back pocket when you're not sure about your priors.
 
 # A subtle point: Priors and the link function
 
-When we choose priors in a Bayesian model, it's really important to remember what scale those priors live on.
-
-In our occupancy model, we specify priors for the parameters on the logit scale, not directly on the probability (0–1) scale.
+When we choose priors in a Bayesian model, it's really important to remember what scale those priors live on. In our occupancy model, we specify priors for the parameters on the logit scale, not directly on the probability (0–1) scale.
 
 For example, if we write:
 
@@ -537,11 +609,11 @@ Remember, the logit function stretches the 0–1 probability scale onto the whol
 
 - Probabilities near 0 or 1 correspond to logits of $-\infty$ and $+\infty$.
 
-This means that a $Normal$ prior with mean 0 and large variance on the logit scale is not flat on the probability scale! Even "uninformative" $Normal$ priors on the logit scale can actually imply very strong beliefs on the probability scale.
+This means that a $Uniform$ prior with a minimum of -10 and a maximum of 10 on the logit scale, is not uninformative on the probability scale! Even "uninformative" $Normal$ priors on the logit scale can actually imply strong beliefs on the probability scale.
 
 To build some intuition, we'll do a little prior predictive simulation:
 
-- We'll randomly draw values for $\beta_0$ and $\beta_1$ from a $Normal(0, 2.72)$ prior.
+- We'll randomly draw values for $\beta_0$ and $\beta_1$ from a $Uniform(-10, 10)$ prior.
 
 - We'll simulate the relationship between $x$ and $p(x)$ by plugging those $\beta_0$ and $\beta_1$ values into the logit equation.
 
@@ -553,8 +625,8 @@ set.seed(123)
 n_draws <- 100
 x_seq <- seq(-3, 3, length.out = 100)
 
-beta_0_draws <- rnorm(n_draws, mean = 0, sd = sqrt(2.72))
-beta_1_draws <- rnorm(n_draws, mean = 0, sd = sqrt(2.72))
+beta_0_draws <- runif(n_draws, min = -10, max = 10)
+beta_1_draws <- runif(n_draws, min = -10, max = 10)
 
 prior_simulations <- map2_dfr(
   beta_0_draws, beta_1_draws,
@@ -567,20 +639,18 @@ prior_simulations <- map2_dfr(
   },
   .id = "draw"
 )
-# Plot
 ggplot(prior_simulations, aes(x = x, y = p, group = draw)) +
   geom_line(alpha = 0.2, color = "#FF5733") +
   theme_minimal() +
   labs(
-    title = "Prior Predictive Simulation",
     x = "Covariate (x)",
     y = "Probability (p)"
   )
 ```
 
-Each orange line is a possible relationship between $x$ and $p(x)$ given the priors we chose. Notice that some lines are almost flat at 0 or 1? While others are very steep, flipping from 0 to 1 over a narrow range of $x$? Even though the prior on $\beta_0$ and $\beta_1$ was centered at 0 with large variance, the resulting priors on $p$ are not uniform or "neutral."
+Each orange line is a possible relationship between $x$ and $p(x)$ given the priors we chose. Notice that some lines are almost flat at 0 or 1? While others are very steep, flipping from 0 to 1 over a narrow range of $x$? Even though the prior on $\beta_0$ and $\beta_1$ was anywhere from -10 to 10, the resulting priors on $p$ are not uniform or "neutral."
 
-If I were being hyper cautious, I might be worried these priors are pushing the model towards the extreme flipping behaviour. In some cases that might be good, in others it might be bad.
+This is why choosing priors on the logit scale can unintentionally imply strong assumptions on the probability scale, even if they seem vague on the logit scale. If I were being hyper cautious and this were a real model, I would be very worried these $Uniform(-10,10)$ priors are pushing the model towards the extreme flipping behaviour. In some cases that might be good, in others it might be bad.
 
 The broader points I am making here are:
 
@@ -589,3 +659,11 @@ The broader points I am making here are:
 - But give a little thought as to what a sensible prior would be, especially when working with link functions.
 
 If you're in doubt speak with me! I think having a discussion about your priors would be an excellent use of one of our meetings (hint, hint).
+
+# What's next?
+
+With that, you should be good to run a Bayesian occupancy model. Something you can add to your CV and have employers fawn over you. Even better if you understand it, so that when they ask you about it you can have a conversation. Even better *yet*, is if this makes complete sense because then moving into Bayesian programing, using things like `nimble` and `Stan` become much, much easier.
+
+The only part left in the analysis is including "spatial autocorrelation". We'll cover that in the next page.
+
+> Spatioal autocorrelation not yet complete.

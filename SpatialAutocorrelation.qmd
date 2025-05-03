@@ -1,0 +1,136 @@
+---
+title: "Understanding Spatial Autocorrelation"
+author: "Deon Roos"
+date: "`r Sys.Date()`"
+format:
+  html:
+    theme: flatly
+    highlight-style: monochrome
+    code-fold: true
+    toc: true
+    toc-depth: 2
+    toc-location: right
+---
+
+## A Common Spatial Problem
+
+Imagine you're surveying a species across a landscape. You visit dozens of locations, scattered across a region, recording whether or not the species is detected. Here's what you landscape might look like:
+
+```{r}
+library(ggplot2)
+library(viridis)
+library(imager)
+library(dplyr)
+
+set.seed(666)
+
+grid_size <- 30
+
+noise <- matrix(rnorm(grid_size^2), nrow = grid_size)
+noise_img <- as.cimg(noise)
+
+smoothed_img <- isoblur(noise_img, sigma = 3)
+
+df <- as.data.frame(smoothed_img)
+
+cams_x <- sample(2:29, size = 10, replace = FALSE)
+cams_y <- sample(2:29, size = 10, replace = FALSE)
+
+cams <- data.frame(x = cams_x, y = cams_y)
+
+ggplot(df, aes(x = x, y = y, fill = value)) +
+  geom_raster() +
+  geom_point(data = cams, aes(x = cams_x, y = cams_y), inherit.aes = FALSE) +
+  scale_fill_viridis_c() +
+  coord_fixed() +
+  labs(
+    fill = "Habitat\nQuality"
+  ) +
+  theme_minimal() +
+  theme(axis.text = element_blank(),
+        axis.title = element_blank(),
+        panel.grid = element_blank())
+
+```
+
+We have some areas that are "good" and some that are "bad". Importantly, like most real world locations, the habitat changes gradually. In any case, we go place our cameras in the landscape (the black dots) and collect our data.
+
+After fitting a model to understand what influences occupancy, say habitat quality, you notice something odd: nearby locations tend to have very similar occupancy probabilities.
+
+For example, two camera sites with similar distance to roads and vegetation cover might show very different presence/absence results, unless they're next to each other. In that case, their occupancy tends to align. This "clumping" effect suggests your model might be missing something.
+
+## What is Spatial Autocorrelation?
+
+Spatial autocorrelation refers to the phenomenon where data collected at nearby locations tend to be more similar (or dissimilar) than those collected at distant locations. In the context of species occupancy, this means that whether a species is present at one site may provide information about its presence at nearby sites.
+
+```{r}
+distances <- seq(0, 20, length.out = 200)
+
+correlation_df <- tibble(
+  distance = rep(distances, 3),
+  correlation = c(
+    rep(0, length(distances)), # No autocorrelation
+    exp(-distances / 5),   # Moderate autocorrelation/fast decay
+    exp(-distances / 2)  # Strong autocorrelation/slow decay
+  ),
+  scenario = factor(rep(c("None", "Slow Decay", "Fast Decay"), each = length(distances)),
+                    levels = c("None", "Slow Decay", "Fast Decay"))
+)
+
+ggplot(correlation_df, aes(x = distance, y = correlation, color = scenario)) +
+  geom_line(size = 1.2) +
+  scale_color_manual(values = c("grey40", "steelblue", "firebrick")) +
+  labs(
+    x = "Pairwise Distance",
+    y = "Correlation",
+    color = "Autocorrelation"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+The figure above shows how the similarity between nearby locations changes as the distance between them increases. This is often called spatial autocorrelation, the idea that places close to each other tend to be more alike than places far apart. On the x-axis is the pairwise distance between two locations, how far apart they are. On the y-axis is the correlation between what we measure at those locations, like whether a species is present or not.
+
+The grey line shows a world where there's no spatial pattern at all: knowing what happens at one site tells you nothing about another, no matter how close. In reality, that's pretty rare in ecology. Animals move, plants disperse seeds, and environments like soil, moisture, and temperature usually change gradually. That means close sites often share similar ecological conditions and observations.
+
+The red line, fast decay, might reflect species with small home ranges or patchy habitats. For instance, frogs that only live in isolated wetlands may show very different occupancy just a few kilometers apart. The blue line, slow decay, could reflect species that occupy large territories or respond to broad environmental gradients. Think of a forest-dwelling bird that ranges over many square kilometers; if it's present in one forest, it's probably also nearby.
+
+Whether spatial autocorrelation fades quickly or slowly matters. If it fades slowly and we ignore it, we might wrongly assume we have lots of independent data when really we're just seeing the same pattern repeated locally. That can lead to overconfident conclusions and poor predictions. Understanding how fast that decay happens helps us choose the right tools to model and account for it.
+
+## Strategies for Addressing Spatial Autocorrelation
+
+There are several strategies for dealing with spatial dependence in ecological models:
+
+-   *Spatially explicit covariates*: Sometimes the cause of spatial autocorrelation can be explained by environmental gradients not initially included in the model. Adding relevant covariates can reduce spatial structure in residuals.
+-   *Autocovariate terms*: Including information about neighboring sites (e.g., average response of nearby locations) can account for local similarity.
+-   *Spatial random effects*: Random effects that are spatially structured (e.g., using Gaussian Processes or Conditional Autoregressive models) can capture residual spatial correlation.
+-   *Eigenvector-based methods*: Moran's Eigenvector Maps (MEMs) or Principal Coordinates of Neighbor Matrices (PCNM) are techniques to generate spatial predictors from location data.
+
+## The option we'll use
+
+To account for spatial autocorrelation in occupancy models, one powerful approach is to include a "hidden" or *latent* spatial surface. This surface acts like a flexible backdrop that captures patterns shared by nearby locations; patterns that our measured covariates might miss. For example, if two neighbouring sites have similar occupancy not just because of vegetation or distance to roads but because of unmeasured factors like microclimate or local dispersal, the spatial surface helps model that.
+
+This spatial surface is modeled using something called a *Gaussian process*. You can think of this like drawing a smooth, continuous layer over the landscape that reflects spatial trends in occupancy. Locations that are close together share more of this spatial effect than distant ones, which mimics the idea of spatial autocorrelation.
+
+$$z_i \sim Bernoulli(\psi_i)$$
+$$logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i + w_i \\$$
+$$y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)$$
+
+$$logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}$$
+
+$$w_i \sim \text{MVN}(0, \Sigma) \\\\$$
+
+$$\Sigma_{ij} = \sigma^2 \times C(d_{ij})$$
+
+where
+
+- $w_i$ is the spatial effect for site $i$, shared across all surveys at that site.
+
+- $\Sigma$ is the covariance matrix capturing spatial structure.
+
+- $C(d_{ij})$ is the spatial correlation function based on the distance $d_{ij}$ between sites $i$ and $j$.
+
+Now, fitting this kind of model can get computationally expensive, especially when we have lots of survey locations. To make it faster and more scalable, the method uses something called a *Nearest Neighbor Gaussian Process*. Instead of using every other location to estimate the spatial effect at a given point, it uses just a few of the closest sites---say, the 15 nearest neighbors. This simplifies the math without losing much accuracy.
+
+Different options are available for how this spatial relationship is modeled---like assuming it fades gradually with distance (exponential), has a specific shape (spherical), or includes more complex flexibility (Matérn). These choices control how quickly the spatial correlation drops off with distance, and the method can be adapted depending on the species, the landscape, and the data.
+
+This approach allows us to model both what we know (through measured covariates) and what we don't (through spatial patterns), all while accounting for imperfect detection. The result is a model that makes better use of the data, gives more realistic uncertainty, and is especially helpful when making predictions across a broader landscape---even in places we didn't sample directly.

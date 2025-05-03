@@ -12,9 +12,9 @@ format:
     toc-location: right
 ---
 
-On this page, we'll begin expanding on the intercept-only occupancy model we fit in *Occupancy Models: The basics* and begin the process of injecting some biology into the `etosha` elephant occupancy model.
+On this page, we'll start expanding on the intercept-only occupancy model from *Occupancy Models: The basics* by injecting some biology into our `etosha` elephant model.
 
-As before, we'll be using `spOccupancy` to fit the occupancy model. In addition, I'm also using `ggplot2` and `patchwork` (which allows you to stich ggplots togeher) for visualisations.
+As before, we'll use `spOccupancy` to fit the model. For visualisation, we'll also use `ggplot2` and `patchwork` (which lets you combine multiple ggplots into one).
 
 ```{r, message = FALSE, warning = FALSE}
 library(spOccupancy)
@@ -24,7 +24,7 @@ library(patchwork)
 
 # The theory
 
-On the previous page we went through a simple example to get a sense of how occupancy models work. We're now going to begin the process of slowly increasing the complexity. To start, we're going to need to include covariates (also called *explanatory variables* or *independent variables* or a wide variety of other names - terminology in statistics is a mess).
+On the previous page, we introduced a simple occupancy model to understand the basic structure. Now, we’ll gradually increase the complexity—starting by adding covariates. These are also called *explanatory variables*, *independent variables*, or several other names (statistical terminology can be a mess).
 
 Let's revisit our simple occupancy model:
 
@@ -44,19 +44,26 @@ $$
 logit(p_{i,j}) = \alpha_0  \tag{Observation Deterministic}
 $$
 
-I've added some tags to the left to help us keep track of each part. Remember that here *stochastic* means "the part of the model that deals with randomness", and *deterministic* means "the part of the model that deals with why something happens". In this occupancy model, the State formulae represent why a species is present at a site or not, and the Observation formulae represent if the species is detected or not.
+I've included the tags on the right to help distinguish the two types of equations. *Stochastic* refers to the parts of the model that deal with randomness. *Deterministic* refers to the parts that explain *why* something happens. The *state model* explains whether a species is present at a site, and the *observation model* explains whether we detect it.
 
-What we're going to do in this section is to add in covariates to the deterministic parts (why something happens), starting with the observation model.
+In this section, we’ll start by adding covariates to the deterministic parts, arbitrarily starting with the *observation model*.
 
-The first thing to I want to remind you of is that $y$ is indexed by both $i$ and $j$, where $i$ was the site and $j$ was the survey. That $j$ is important because it allows us to specify covariates that vary not just by site (e.g. site 1 has 20 trees while site 2 has 10 trees) but by survey as well (e.g. on survey 1 in site 1, the temperature was 20 degrees, 15 degrees in survey 2 and 5 degrees in survey 3). This means that anything that was different in one survey to the next can be accounted for and included in the model (so long as we can measure and record it).
+A quick reminder: $y$ is indexed by both $i$ (site) and $j$ (survey). This is important because it allows us to include covariates that vary by both site and survey, not just by site. For example:
 
-Specifically, these *survey varying covariates* are features that we think may have made us (or whoever or whatever collected the data) to be more or less effective. Using cameras? Well maybe the presence of fog has a big impact on how likely we are to detect elephants. Doing surveys yourself? Well maybe the hour of day that you did the survey had a big impact. The point is, we can include these variables that deal with differences in detection probability.
+- A site-level covariate might be: site 1 has 20 trees, site 2 has 10.
+- A survey-level covariate might be: at site 1, the temperature was 20°C in survey 1, 15°C in survey 2, and 5°C in survey 3.
+
+This means we can include variables that change across surveys, *as long as we measured and recorded them*.
+
+These *survey-varying covariates* represent conditions that might affect how likely we are to detect the species. If you're using cameras, maybe fog reduces detection. If you're doing visual surveys, maybe time of day matters. These variables help us model the variables that affect detection probability.
 
 ![A photo taken after some unseen animal triggered the motion sensor on a foggy day.](images/fog.jpg)
 
-I'll simulate a new dataset (with a bit more data for us to work with - 64 sites surveyed 3 times each) to show this off. I'll include a the detection covariate in this case, which is rainfall, but note that the values for rainfall will be centred on zero (don't worry about this - just treat it as the larger `rain` is, the more rain there was).
+I’ll simulate a new dataset with a bit more data to work with: 64 sites, each surveyed three times. This time, I’ll include a detection covariate; *rainfall*.
 
-Here's what the data looks like:
+Note that the values for rainfall are *centred on zero*. You don’t need to worry about the details for now - you don't need to do this but you can if you want to. For now: the higher the value of `rain`, the more rainfall there was in that site, on that survey.
+
+Here’s what the data looks like:
 
 ```{r}
 set.seed(1234)
@@ -115,19 +122,27 @@ CC
 p1 + p2 + p3 + plot_annotation(tag_levels = "A", tag_suffix = ")") + plot_layout(design = design)
 ```
 
-**A)** shows the amount of rainfall over each survey. Each point represents a site in a given survey. **B)** shows the amount of rainfall against whether or not an elephant was detected. **C)** shows the detection history, where detections of elephants are coloured green and no detection is coloured grey.
+**A)** shows the amount of rainfall across each survey. Each point represents a site in a given survey. **B)** shows rainfall plotted against whether or not an elephant was detected. **C)** shows the detection history, with detections coloured green and non-detections in grey.
 
-Notice anything? In **A)** we can see that in each survey, there's a lot of variation across the 64 sites in how much rainfall there was; maybe peaking in survey 2. In **B)**, it looks like it might be more likely that we detect elephants more often when there's more rainfall. While **C)** shows that most of the time we only detect elephants in one survey then never again (remember the assumption of closure? we assume that whenever we detect an elephant, then they were present in all other surveys at that site).
+Notice anything?
 
-Based on **B)** how confident are you that there's an influence on rain on the detection probability of elephants? If you're confident there is, then how strong do you think it is? Can you say *exactly* how strong is it?
+In **A)**, we can see that rainfall varies widely across the 64 sites in each survey, with a possible peak in survey 2.  
+In **B)**, it looks like elephants might be detected more often when there’s more rainfall.  
+In **C)**, we see that detections usually happen in just one survey per site, with no detection in the others. Remember the closure assumption; we assume that if elephants were detected once, they were present during all surveys at that site.
 
-There's no way you can answer those questions. That's where we need stats. So let's add in rainfall to our model. I'll recycle the code from the previous document and include rainfall. Here's how we do that.
+Now consider **B)** more carefully. How confident are you that rainfall influences detection probability? If you think it does, how strong is that effect? Can you say exactly *how* strong it is?
+
+You probably can't, and that’s where we need statistics.
+
+Let’s add rainfall as a covariate in the model. I’ll reuse the basic model structure from the previous page but now include rainfall as a detection covariate.
 
 ## Data preparation
 
-Just like in the previous page, we need to include our different datasets into a `list`. If you're still not sure what a `list` is in `R`, think of it like a folder on your computer. You can add lots of different files to a folder (and any type of file), but they're all "tied" together by being within the same folder. That's the same as a `list` in `R`.
+Just like on the previous page, we need to include our datasets in a `list`. If you're still unsure what a `list` is in R, think of it like a folder on your computer. You can add lots of different files to a folder—any type of file—and they’re all "tied together" by being in the same place. A `list` in R works the same way.
 
-Here, I'm going to do something seemingly strange. I'm going to create a `list` and include this into our `etosha` `list`. A list within a list. The reason is that we might have more than one detection covariate, so having a list, though redundant here, will make adding additional variables easier in the future.
+The complication now is that I have *two* datasets. One for my detection history matrix and another for the *rain* covariate. To include both, I’m going to do something that might seem a little strange at first. I’ll create a `list` for the detection covariate and then include that list inside our main `etosha` list. That gives us a list *within* a list.
+
+Why? Because we might want to add more than one detection covariate later. Even though it feels redundant now, this structure makes it easier to expand the model in the future.
 
 ```{r}
 # Note you wouldn't need to do the dat$X.p[,,2] bit
@@ -140,23 +155,27 @@ etosha <- list(
 )
 ```
 
-And we're good to go on to the modelling.
+And with that, we’re ready to move on to modelling.
 
 ## Fitting the model
 
-A few things to note in the `R` code;
+Here are a few things to note about the model specification:
 
--   `occ.formula = ~ 1` is the equivalent to $logit(\psi_{i,j}) = \beta_0$
+- `occ.formula = ~ 1` corresponds to the equation  
+  $$
+  \text{logit}(\psi_i) = \beta_0
+  $$  
+  This is an intercept-only occupancy model, meaning we are not including any covariates for the probability that a site is occupied.
 
-    -   I.e. an intercept only occupancy model, meaning we are not including any covariates for the probability that a site is occupied.
+- `det.formula = ~ rain` corresponds to the equation  
+  $$
+  \text{logit}(p_i) = \alpha_0 + \alpha_1 \times \text{Rain}_i
+  $$  
+  This means we are modelling detection probability as a function of rainfall. The model includes both an intercept ($\alpha_0$) and a slope for rain ($\alpha_1$).
 
--   `det.formula = ~ rain` is the equivalent to $logit(p_i) = \alpha_0 + \alpha_1 \times Rain_i$
+- We specify that all the data needed for the model is contained in the list called `etosha` (think of it like a folder that holds everything in one place).
 
-    -   I.e. we have both an intercept and slope given we have included rain in the model.
-
--   We specify that all data is contained in the list (i.e. "folder") called `etosha`.
-
--   The remainder of the arguments (e.g. `n.chains`) can be ignored for now.
+- The remaining arguments (such as `n.chains`) control how the Bayesian model is run. You can ignore these for now.
 
 ```{r}
 fit <- PGOcc(
@@ -177,53 +196,55 @@ fit <- PGOcc(
 
 ## Interpreting
 
-Having now fit the model to the data, we can see what we've learnt:
+Now that we’ve fit the model to the data, we can see what we’ve learned.
 
-```{r}
-summary(fit)
-```
-
-Compared to the model on the previous page we now have additional information for `Detection (logit scale)`; we have both an `(Intercept)` and `rain`. These are $\alpha_0$ and $\alpha_1$ from our detection model ($logit(p_i) = \alpha_0 + \alpha_1 \times Rain_i$). If we really wanted to, we could now replace the parameter labels (e.g. the $\alpha$s and $\beta$s) with their now estimated values which would look like (rounding the estimates to two decimal points arbitrarily):
-
-$$z_i \sim Bernoulli(\psi_i)\\  \tag{State Stochastic}$$
+Compared to the model on the previous page, we now have additional output under `Detection (logit scale)`. Specifically, we have estimates for both `(Intercept)` and `rain`. These correspond to $\alpha_0$ and $\alpha_1$ in our detection model:
 
 $$
-logit(\psi_i) = 1.88\\  \tag{State Deterministic}
+\text{logit}(p_i) = \alpha_0 + \alpha_1 \times \text{Rain}_i
 $$
 
+If we want, we can substitute in the estimated values (rounded to two decimal places) and rewrite the model like this:
+
 $$
-y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\  \tag{Observation Stochastic}
+z_i \sim \text{Bernoulli}(\psi_i) \tag{State Stochastic}
 $$
 
 $$
-logit(p_{i,j}) = -1.89 + 0.69 \times Rain_i  \tag{Observation Deterministic}
+\text{logit}(\psi_i) = 1.88 \tag{State Deterministic}
 $$
 
-With this, we can swap out $Rain$ in the *Observation Deterministic* equation for any value of rain that we might be interested in, to see how it changes our estimated detection probability. For example, let's see what happens when $Rain = 1$ (equivalent to lots of rain based on how I simulated `rain`).
+$$
+y_{i,j} \sim \text{Bernoulli}(p_{i,j} \times z_i) \tag{Observation Stochastic}
+$$
 
-```{r}
--1.89 + 0.69 * 1
-```
+$$
+\text{logit}(p_{i,j}) = -1.89 + 0.69 \times \text{Rain}_i \tag{Observation Deterministic}
+$$
 
-Our logit value is -1.2. How do we get that into probabilities that we can actually understand? Backtransform out of logit using `plogis()`:
+This final equation lets us calculate detection probabilities for different rainfall values. For example, when $\text{Rain} = 1$ (which corresponds to heavy rainfall in this dataset), we get:
 
-```{r}
-plogis(-1.89 + 0.69 * 1)
-```
+$$
+\text{logit}(p) = -1.89 + 0.69 \times 1 = -1.2
+$$
 
-And we get a ca. 23% chance to detect an elephant when $Rain = 1$. What about when $Rain = 0$ (equivalent to medium rain)? Well, we can do that easily enough now that we know thew general steps:
+To convert this logit value back to a probability, we apply the inverse logit (also called the logistic function):
 
-```{r}
-plogis(-1.89 + 0.69 * 0)
-```
+$$
+p = \frac{1}{1 + \exp(-(-1.20))} = \frac{1}{1 + \exp(1.20)} = 0.23 = 23\%
+$$
 
-When $Rain = 0$, we predict a ca. 13% chance to detect elephants.
+Or we could just do `plogis(-1.89 + 0.69 * 1)`.
 
-This approach, whereby we make a prediction for a specific value of $Rain$ can be extended into making multiple predictions at once, such that we can then draw a line through them. Here's how we'd do that.
+When $Rain = 0$ (moderate rainfall), the logit becomes -1.89, which converts to a detection probability of about 13%.
+
+This process, whereby we plug in a covariate value to make a prediction, is something we can repeat for many values of `rain`. Doing so allows us to build the predicted relationship that shows how detection probability changes with rainfall.
+
+Next, we’ll create that prediction curve and visualise the effect of rainfall on detection.
 
 ## Plot predicted relationships
 
-We start by creating a sequence of $Rain$ values, rather than doing one a time like we did above. Here we use the `seq()` function to create a sequence, which will range from the minimum $Rain$ value to the maximum within our dataset. The number of values that we want in this sequence is specified as 20 but we can choose any value here - we just need enough that the line is drawn "accurately".
+To visualise the relationship between rainfall and detection probability, we first create a sequence of `Rain` values. Rather than calculating one at a time as we just did, we’ll use the `seq()` function to generate a smooth range of values between the minimum and maximum rainfall in our dataset. Here, we use 20 points to draw a smooth line, but you could choose any number depending on the level of detail you want.
 
 ```{r}
 rain <- seq(from = min(det.covs$rain),
@@ -233,16 +254,16 @@ rain <- seq(from = min(det.covs$rain),
 rain
 ```
 
-Now we have our values, we don't want to manually enter each value into our equation. Instead we can use the fact that `R` works with vectors (i.e. columns of data) to do this quickly and easily:
+Now that we have our sequence of rainfall values, we want to calculate the predicted detection probability for each one. Because `R` works with vectors (columns of values), we can apply our model equation to the entire sequence in one step.
 
 ```{r}
 pred <- plogis(-1.89 + 0.69 * rain)
 pred
 ```
 
-Now for each value of rain, we have the predicted probability of detecting an elephant. Useful but you wouldn't want to throw these two columns at your audience/reader and expect them to make sense of it. It'd be better if we include these in a figure.
+This gives us a predicted detection probability for each rainfall value. That’s useful, but a raw table of numbers wouldn’t be very effective in a thesis or presentation. It’s far clearer to visualise this relationship in a figure.
 
-To do so, we'll combine both columns into a single dataset and plot using `ggplot2`:
+To do that, we combine the rainfall values and their corresponding predicted probabilities into a new dataset and then plot the relationship using `ggplot2`.
 
 ```{r}
 df <- data.frame(
@@ -254,7 +275,9 @@ ggplot(df) +
   geom_line(aes(x = rain, y = pred))
 ```
 
-From this figure it now appears much more intuitive that increasing rain makes elephants easier to detect. We can do a little "tidying" of the figure to make it more visually pleasing:
+The resulting figure makes it much easier to interpret the model. We can now clearly see that detection probability increases with rainfall.
+
+We can also tidy up the plot to make it more visually effective, by doing relatively small things like adjusting axis labels, converting probabilities to percentages, and applying a clean theme.
 
 ```{r}
 ggplot(df) +
@@ -266,23 +289,41 @@ ggplot(df) +
        y = "Predicted detection\nprobability of elephants")
 ```
 
-Based on our figure, we'd now be able to make some biological inference. From what we see in our figure, we have evidence that elephants are easier to spot when it rains. If we were writing this as a paper, we might discuss why that was the case. However (and this is important) we should have really considered this *before* we did the analysis. The risk of making sense of this now is that we rationalise something that's actually stupid. This is something called HARKing, or Hypothesising After the Results are Known and it's a form of scientific fraud. Keep in mind, this is simulated data where the stakes are low. My goal here is to explain the methods to you. With real analysis, we need to be more thorough and responsible - so make sure you have your hypotheses before you do your analysis!
+### Biological interpretation
+
+From the plot, it looks like elephants are more likely to be detected when it rains. If this were real data, we might start discussing ecological explanations. But here's a key point:
+
+**We should have thought about this before fitting the model.**
+
+Interpreting results *after* seeing them and retroactively inventing explanations is risky. It’s called *HARKing*; *Hypothesising After the Results are Known* and it’s a form of scientific misconduct. It leads to misleading conclusions and reduces the credibility of research. Don't do it. Even if it's just for your own integrity.
+
+Here, the data are simulated, so the stakes are low. The goal is to understand the modelling process. But in real research, it’s essential to define your question, hypotheses and state your predictions before doing the analysis. This starts going down the road of *pre-registration* but I won't touch on that here.
+
+So while visualising and interpreting your model is valuable, doing so responsibly is just as important.
 
 ## Uncertainty
 
-The above figure is a good start but we're missing any measure of uncertainty. If we were doing frequentist statistics, we would use 95% confidence intervals but these are exclusively frequentist. There are no 95% confidence intervals when we use the Bayesian statistical framework. Instead we have *credible intervals*. I'll explain the Bayesian framework in a subsequent workflow but for now here is the formal definition of a **credible** interval:
+The figure we created is a good start, but it’s missing something important: uncertainty.
 
-> There is a 95% probability that the **True** parameter value lies within the interval range, given the data and model.
+If we were using frequentist statistics, we’d include 95% confidence intervals. But in the Bayesian framework, confidence intervals don’t exist. Instead, we use *credible intervals*.
 
-This is in contrast with the frequentist confidence interval whose formal definition of a confidence interval is so bizarre and unintuitive that it's barely useful. 95% *credible intervals* are actually useful and work exactly the way people *think* frequentist intervals work. I'll explain how they work in a later page, so just trust me for now that they're *better*.
+Here’s the formal definition of a 95% *credible interval*:
 
-But how do we include these in the figure? Well, the model summary makes it easy to find the values:
+> There is a 95% probability that the **true** parameter value lies within the interval range, given the data and model.
+
+This contrasts with frequentist confidence intervals, whose definition is more convoluted and often misunderstood. In fact, credible intervals behave exactly the way most people *think* confidence intervals do. I’ll explain the Bayesian framework more fully in a later section but for now, just trust me that credible intervals are more intuitive and arguably more useful.
+
+### How do we show credible intervals on our figure?
+
+The model summary includes everything we need. The `2.5%` and `97.5%` columns from the summary output give us the lower and upper bounds of the credible interval for each parameter.
 
 ```{r}
 summary(fit)
 ```
 
-They're the `2.5%` and `97.5%` values in our summary table. So all we need to do is repeat the code we used to make our predictions, except now using these credible interval values to get our measure of uncertainty. Importantly, if you remember back to BI3010 where you had to multiplya parameters standard error by 1.96, we ***do not*** need to do that here. That's frequentist nonsense - we're fancy Bayesian scientists now.
+To incorporate these into our plot, we repeat the prediction process we used earlier but this time, we use the lower and upper parameter estimates to calculate the corresponding detection probabilities. These will form the bounds of our uncertainty ribbon.
+
+One important note: you do **not** need to multiply the standard error by 1.96 (as we did in BI3010). That approach belongs to the frequentist framework. With Bayesian models, we work directly with the posterior distributions and their quantiles, no extra calculation needed.
 
 Let's do just that:
 
@@ -292,7 +333,7 @@ df$upp <- plogis(-1.2939 + 1.1801 * df$rain)
 df
 ```
 
-And we can add in our uncertainty using `geom_ribbon()`:
+Once we’ve calculated the lower and upper bounds, we can visualise the uncertainty using `geom_ribbon()` in `ggplot2`. This shaded area gives a clear, intuitive representation of the uncertainty around our predictions.
 
 ```{r}
 ggplot(df) +
@@ -306,15 +347,13 @@ ggplot(df) +
        y = "Predicted detection\nprobability of elephants")
 ```
 
-With that, we have a publication ready figure.
+The result is a publication- or thesis-ready figure: a smooth line showing the predicted detection probability as rainfall increases, surrounded by a shaded band representing the credible interval.
 
 # Multiple covariates
 
-Let's increase the complexity a bit and have the simulation include multiple covariates. We'll say that tree height and average temperature affect whether or not a site is occupied (elephants will like tall trees and cooler locations). We'll still have rain affect our detection probability, as above.
+Let’s increase the complexity by including multiple covariates in our simulation. We’ll assume that *tree height* and *average temperature* affect whether or not a site is occupied, where elephants prefer taller trees and cooler conditions. As before, *rainfall* will influence detection probability.
 
-A note here is that the covariates are still centered on zero. That's just the way the data is simulated but the data you collect does not need to be the same (so ignore the fact that we will have trees that are -1 m tall - the general idea doesn't change).
-
-> A technical note if you're interested. To create the figures below I need to do some tweaks to the data. The `df` object I create in the code below has one row per survey, with three surveys per site. Our occupancy covariates, `tree` and `temp` have just one value; these do not change from one survey to the next. If a tree is 3 m tall in survey one, then it'll still be 3 m tall in surveys two and three. That's why I "cheat" and replicate `tree` and `temp` three times each.
+> **Technical note:** To create the figures below, I needed to slightly restructure the data. The object used for plotting has one row per survey, with three surveys per site. The occupancy covariates (`tree` and `temp`) do not change across surveys, if a tree is 3 metres tall in survey one, it’s still 3 metres tall in surveys two and three. That’s why these variables are “recycled” or repeated across surveys.
 
 ```{r, message=FALSE, warning=FALSE, fig.width=12, fig.height=10}
 set.seed(1234)
@@ -403,23 +442,35 @@ p1 + p2 + p3 + p4 + p5 + p6 + p7 +
    plot_layout(design = design)
 ```
 
-There are two things worth highlighting from the above figures. Firstly, based on how we "measured" and "collected" the data temperature and tree height in **A)**, **B)**, **C)** and **D)** do not change from one survey to the next. These are constant from one day to the next and will be used as *site covariates* in the model (i.e. variables which only change from one site to the next). *A small note here is that you can have site covariates that change in both surveys and sites, but I'm keeping things simple here*. Conversely, in **E)** and **F)** does vary from one survey to the next and between sites. We'll use this as a *survey covariate* in the model.
+### What do the figures show?
 
-Secondly, it becomes quite hard to see any clear pattern in the two right hand figures, **B)** and **D)**. Keep in mind that the zeros in *detections* are misleading. Some of the zeros are genuine, in that there were no elephants there, and `tree` and `temp` caused that (which I only know because the data is simulated in this case) but the other zeros are false negatives; The elephants were there, we just didn't see them.
+There are two important things to notice:
 
-This is why we need a model to figure out what the relationships are. We can no longer trust our eyes to see the pattern.
+1. **Covariate types**  
+   In plots **A)** to **D)**, you’ll see that *temperature* and *tree height* do not vary from one survey to the next. These are constant within each site and are used as *site-level covariates* in the model.  
+   On the other hand, **E)** and **F)** show that *rainfall* does vary between surveys and between sites. This makes it a *survey-level covariate*.
 
-So let's get our data organised such that we can fit our model.
+   > *Note:* It’s technically possible to have site covariates that vary across time, but we’ll keep things simple here.
+
+2. **Misleading visual patterns**  
+   In plots **B)** and **D)** (temperature and tree height vs. detection), it’s hard to spot a clear relationship just by looking. That’s because not all zeros in detection are equal; some are true absences, and others are *false negatives*. In this simulation, we know which is which, but in real data we wouldn’t. The presence of false negatives hides the true relationship between covariates and elephant presence.
+
+This is exactly why we need a model.
+
+Visual inspection can only take us so far, especially when detection is imperfect. We need a statistical model to help uncover the true patterns in the data.
+
+Let’s get the data organised so we can fit that model.
 
 ## Data preparation
 
-As before, we provide our *survey covariates* as a `list` but our site covariates can be supplied as a `dataframe`. Keep in mind, both of these are included in another `list`.
+As before, we include our *survey covariates* as a `list`, while *site covariates* can be supplied as a `data.frame`. Both are then combined in another `list`, which is what we pass to the model.
 
 ```{r}
 # Survey covariate
 det.covs <- list(rain = dat$X.p[,,2])
 # Site covariates
 occ.covs <- data.frame(tree = tree, temp = temp)
+# Combine into a single list called etosha
 etosha <- list(
   y = dat$y, # Detection history
   det.covs = det.covs,
@@ -429,7 +480,7 @@ etosha <- list(
 
 ## Fitting the model
 
-The core model we're going to fit is:
+The core model we’re fitting now includes two site covariates and one survey covariate:
 
 $$z_i \sim Bernoulli(\psi_i)$$
 
@@ -439,15 +490,18 @@ $$y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\$$
 
 $$logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}$$
 
-The main thing that I want to highlight here, other than having included $Tree$ and $Temp$ as effecting occupancy probability ($\psi$), is that the subscripts are different.
+What’s important to notice here, aside from the inclusion of `Tree` and `Temp` in the state model, is the use of subscripts.
 
-In the deterministic part of the state model ($logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i$) the variables are subscript by $i$, indicating that we have one value of $Tree$ or $Rain$ for each site $i$.
+In the state model, the covariates are subscripted by $i$, meaning each site has one value for `Tree` and `Temp`. In the observation model, `Rain` is subscripted by both $i$ and $j$, meaning it can vary between sites *and* surveys. This reflects how you’d record rainfall each time you visit a site.
 
-But in the deterministic part of the observation model ($logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}$) $Rain$ is subscript by both $i$ and $j$. That's because we have a different $Rain$ value for each survey $j$. This would be something we record every time we visit the site (or extract from some online source for each sampling period).
+Keep this in mind when collecting your own data:
 
-Keep this in mind when you're collecting your own data. Variables that you think affect occupancy will (normally) have one value per site. Variables that you think affect detection will (generally) have one value per survey. But speak to me if you think you want to try something different.
+- **Occupancy covariates** usually vary by site, not by survey.
+- **Detection covariates** typically vary by survey (i.e. time).
 
-To fit this is relatively straight forward. For the occupancy model, we write `occ.formula = ~ tree + temp`, and for the detection model we write `det.formula = ~ rain`, and let the machinery do it's thing.
+That’s the general rule, but if you're unsure or have an unusual situation, ask me.
+
+To fit this model, we specify the occupancy formula as `~ tree + temp` and the detection formula as `~ rain`. The rest of the model setup (e.g. number of chains, samples, etc.) stays the same.
 
 ```{r}
 fit <- PGOcc(
@@ -462,31 +516,47 @@ fit <- PGOcc(
   verbose = FALSE)
 ```
 
-Once it's run, we can check the `summary()` to see what the parameters were estimated as:
+## Interpreting the results
+
+Once the model has run, we can inspect the estimates using `summary()`.
 
 ```{r}
 summary(fit)
 ```
 
-We see that `tree` has a positive effect on occupancy (0.3649) and `temp` has a negative effect (-1.1005). This is kind of good. These estimates are close to the values I used in the simulation - but they don't match up particularly well. Specifically, in the simulation `tree` was set to `0.3` but has been estimated as `0.37` (pretty close), while `temp` was set to `-0.2` but has been estimated as `-1.1` (kind of far away).
+We see that `tree` has a positive effect on occupancy (estimated at 0.3649), and `temp` has a negative effect (-1.1005). These estimates are in the general direction of the true values used in the simulation, though they’re not perfect:
 
-So we've got the general relationships reasonably well estimated but it's not perfectly accurate to the **True** value I used in the simulation. This is where having *credible intervals* is useful. Keep in mind that credible intervals are, correctly, interpreted as having a 95% chance of containing the "True" value (the True value here is what each parameter was set to in the simulation). For both `tree` and `temp` the True parameter value is indeed within the 95% credible intervals! Both 95% CI are wide, but that's good here! The model isn't entirely sure what the values are (partly because of sample size and the effects being subtle) and that is being conveyed to us! We're not deluding ourselves into thinking we have a perfect understanding when we don't!
+- `tree` was simulated at 0.3 and estimated at 0.37 (very close)
+- `temp` was simulated at -0.2 but estimated at -1.1 (more of a difference)
 
-There are some warning signs that the model might not be performing especially well. The first is that the `Rhat` values are getting uncomfortably large for the `Occurence` parameters. My personal rule of thumb is `Rhat` values close to 1.05 is where I get worried. None of our parameters are at 1.05 but they're close enough that I'm paying attention to them and want to see if I can fix the problem. We'll come back to `Rhat` values when we talk about *Bayesian* statistics.
+While the estimated relationship for `temp` is "correct" in that it gets the direction right (it's a negative effect), it's kind of far away from the true value that was specified in the simulation. That’s where *credible intervals* become useful. Remember, a 95% credible interval means there’s a 95% chance the true parameter lies within that range. In our case, the true values for both `tree` and `temp` do fall within their respective 95% credible intervals. This is good, it tells us the model reflects its uncertainty accurately, which is especially important with small sample sizes or subtle effects.
 
-The other warning sign is the `ESS` for the `Occurence` model are all "low". At least noticeably lower than the `Detection` model parameters. Again, the rule of thumb here is that we want hundreds or thousands of "Effective Sample Size", so we're technically OK but I'm still concerned. We'll also cover `ESS` later on.
+## Diagnosing potential issues
 
-Now, to be clear, we ignored these issues with the first model we ran in this document, whereas here we're going to see if we can resolve this problem.
+There are two early warning signs that suggest this model might not be performing optimally:
+
+1. **Rhat values**  
+   The Rhat values for the `Occurrence` parameters are getting close to 1.05. While they haven’t crossed the danger threshold, they’re high enough to warrant attention. My personal rule of thumb is to start worrying around 1.05.
+
+2. **Effective Sample Size (ESS)**  
+   The ESS for the `Occurrence` parameters is noticeably lower than for the detection parameters. While we still have several hundred samples, which is generally acceptable, it’s another flag that suggests the model might benefit from refinement.
+
+In our first model earlier on the previous page (the intercept only occupancy model), we ignored these diagnostics (in part because there were no issues). This time, we’ll see if we can address them to improve model performance.
 
 ## Resolving issues
 
-To fully appreciate the solution will require a deeper understanding of Bayesian statistics. But for now, we're not going to cover this. Instead, I'll simply say that the "machinery" of Bayesian statistics revolves around giving a number of algorithms (called "chains") a number of guesses (called "iterations") to try and figure out the most likely values for our parameters.
+To fully understand how to resolve issues like high `Rhat` or low `ESS` values requires a deeper dive into Bayesian statistics. We’ll save that for a later section. For now, here’s a simplified explanation:
 
-The two metrics we used above, `Rhat` and `ESS`, both monitor these chains and iterations and let us know if they are *not in agreement* (`Rhat`) or when they haven't been well estimated (`ESS`). When `Rhat` values get high, and `ESS` values get low, it *can* suggest we need to give the algorithms more iterations (i.e. chances to intelligently guess).
+The Bayesian framework relies on algorithms, called *chains*, that take many *iterations* (or guesses) to estimate the most likely values of the model parameters.
 
-Inevitably, the details are more complex than I can convey in two paragraphs but the general idea is there. If either number looks a bit worrying, it's relatively cheap and easy to just rerun the model with more iterations and see if that solves the problem.
+The two metrics we use to assess how well this process is working are:
 
-Let's do just that by increasing the number of iterations to 3000 per chain:
+- *`Rhat`*: Tells us whether the different chains agree with each other (or have *converged* to more-or-less the same answer). Higher values suggest poor convergence.
+- *`ESS` (Effective Sample Size)*: Indicates how well the parameter was estimated. Lower values suggest greater uncertainty or inefficiency.
+
+If `Rhat` values are high or `ESS` values are low, one common fix is to increase the number of iterations. This gives the algorithms more opportunities to find consistent and stable parameter estimates.
+
+So let’s do just that: we increase the total number of iterations to 3000 per chain, and slightly increase the number of burn-in iterations (guesses that we ignore from when the algorithm starts) to account for that change.
 
 ```{r}
 fit <- PGOcc(
@@ -505,7 +575,10 @@ fit <- PGOcc(
   verbose = FALSE)
 ```
 
-Once run, we can check how well they ran:
+After running the model again, we can check the summary output. If all goes well, we hope to see:
+
+- `Rhat` values closer to 1
+- Higher `ESS` values for the occupancy parameters
 
 ```{r}
 summary(fit)
@@ -513,55 +586,68 @@ summary(fit)
 
 Now when we look at the `Rhat` and `ESS` values, we are doing better. Still not perfect but good enough for me to be happy that *by these two metrics alone* there's nothing to suggest the machinery is struggling and that the parameters are being estimated as robustly as possible.
 
-> Importantly, these are not the only metrics or tools available to us. We'll check out the other options in a later document.
+This won’t always fix every problem, but in many cases it’s a simple and effective first step.
 
-As far as we can tell, for now, we can trust this model and move on to plotting the predicted relationships.
+> Note: `Rhat` and `ESS` are not the only diagnostics we can use. In a later section, we’ll explore other ways to assess how well our model is performing.
+
+For now, based on these two metrics, we’re happy that the model has converged and is estimating parameters robustly. We can now move on to plotting the predicted relationships.
 
 ## Plot predicted relationships
 
-Previously, we made the predictions ourselves by "hand". This time, we're going to use the `predict()` function to do this for us to make life easier on ourselves. Importantly, the process is exactly the same;
+Previously, we generated predictions by hand using parameter estimates and "manual" calculations. This time, we’ll (kind of) simplify things by using the `predict()` function, which does most of the heavy lifting for us. The overall process is still the same:
 
-1.  Create a "fake" dataset with the covariate values we want to predict for.
+1. Create a “fake” dataset with covariate values for which we want predictions.
+2. Apply the model to these values to generate predicted responses.
+3. Convert logit values to probabilities.
+4. Plot the predicted probabilities against covariate values to show the relationship.
 
-2.  Apply this fake data to our equation, with the now estimated parameter values, to generate the predictions. We'll make life easier for ourselves by using `predict()` rather than doing it by hand.
+Remember, occupancy models are essentially two connected Bernoulli GLMs. When using `predict()`, we must specify which part of the model we’re predicting from: `occupancy` or `detection`.
 
-3.  Convert from logit values to probabilities.
-
-4.  Plot the predicted probabilities against the fake covariate values to show the estimated relationship.
-
-Remember that occupancy models are really two $Bernoulli$ GLMs that speak to each other. When using `predict()` we need to specify which "model" we want to predict from.
-
-Normally, for a GLM I'd start by making a figure for `tree` height. Just like in BI3010, remember that when we have multiple explanatory variables in a model, to make the figure for one variable, we hold all others constant at some other value - often the median.
+Normally, when plotting the effect of one covariate (e.g. `tree`), we hold the other covariates constant—typically at their median values, just like you did in BI3010.
 
 However, for these models there are a few extra (annoying) things we need to do and for me to explain here. As a warning some of these get quite technical. It might be a good time to take a break and come back when you're fresh.
 
-Whenever you do tackle this next part, if you get confused, don't worry. We can talk this through in person.
+However, with `spOccupancy`, there are a few additional steps involved. Some are a bit technical, so if you’re feeling tired, it might be a good point to pause and return later. If you’re confused by anything below, don’t worry, we can talk it through in person.
 
 ### Model matrix
 
-In the code below I create something called a model matrix (`model.matrix()`). This is a way to turn our covariate data (like `tree` and `temp`) into the actual numbers and form used in the model. When we fit a model like `~ tree + temp`, `R` internally builds a matrix where each column represents a variable (or intercept), and each row is a combination of values at a site. This matrix is what the model uses to calculate predictions.
+To make predictions, we need to pass a *design matrix* to the `predict()` function. This is done using `model.matrix()`. It turns your covariate data (like `tree` and `temp`) into the format expected by the model, where each column represents a variable, and each row represents a combination of covariate values.
 
-When we use `predict()` with a fitted occupancy model, we must supply this design matrix (`X.0`) because it matches the structure the model expects, just like when we built it during fitting.
+When we fit a model using `~ tree + temp`, R internally builds a model matrix. When predicting, we must do the same so the structure matches.
 
 ### `qlogis` and `plogis`
 
-When we use `predict()` for our occupancy model, we get thousands of *posterior* draws (I'll explain this later but for now, think of these are different likely values the parameter could be) for each site's occupancy probability (i.e. these are already backtransformed out of logit values into probabilities for us).
+The `predict()` function returns thousands of posterior draws for each site's occupancy or detection probability. These are already on the probability scale (i.e. backtransformed from the logit scale).
 
-But here's the subtle issue (and it is really, *really*, super subtle).
+However, there’s a subtle issue here. If we summarise these probability values directly (e.g. take their mean or credible intervals), the result can sometimes be misleading, especially if the underlying uncertainty is skewed. The shape of the probability distribution can become distorted and give odd patterns (like artificial peaks or dips).
 
-If we calculate the mean or credible intervals of these already backtransformed probabilities, it can sometimes end up looking distorted (e.g. it might look like it increases, peaks, then decreases). So to be safe:
+To avoid this, when working with `spOccupancy`, we need to:
 
-1.  We have to take our probabilities and turn them *back* into logit values (annoyingly) using `qlogis()`.
-2.  Then we calculate the mean and credible intervals.
-3.  Then we backtransform out of logit back into probabilities.
+1. Transform probabilities *back* to the logit scale using `qlogis()`.
+2. Summarise the posterior draws on the logit scale (mean and credible intervals).
+3. Transform the summaries *back* to probabilities using `plogis()`.
+
+This avoids distortion and produces smoother, more reliable estimates.
 
 ### `apply()`
 
-When we summarise the *posterior*, we have one row per iteration (or guess) and one column per site. So to summarise, we need to take the mean across row (i.e. across all iterations) for each column. That's what the `apply()` function is doing in our code.
+The posterior samples are structured with one row per iteration (i.e. per guess) and one column per site. To summarise across iterations for each site, we use `apply()` with `MARGIN = 2` (i.e. apply the function across columns). We calculate the mean, lower (2.5%), and upper (97.5%) quantiles for each.
 
 Honestly, the code is more complex than I would like. I wish I could think of a simpler way to do it (and I might ask my wife, who's better at coding than me, to see if she can improve it) but this is the best I can do for now. Speak to me if you need help.
 
+### Plotting predictions
+
+We can now generate prediction curves for each covariate in our model:
+
+- *Tree height* (site-level covariate affecting occupancy): Create a range of values for `tree`, hold `temp` at its median, predict, summarise, and plot.
+
+- *Temperature* (another site-level covariate): Hold `tree` at its median and repeat the steps above for `temp`.
+
+- *Rainfall* (survey-level covariate affecting detection): Generate a sequence of rainfall values and repeat the prediction and summarisation steps for detection probability.
+
+
 ```{r}
+# Tree height ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Step 1: Create a new fake data frame for tree (hold temp at median)
 fake <- data.frame(
   tree = seq(min(etosha$occ.covs$tree), max(etosha$occ.covs$tree), length.out = 100),
@@ -594,17 +680,15 @@ fake <- data.frame(
 )
 
 # Step 7: Plot
-ggplot(fake, aes(x = tree, y = mean.psi)) +
+p1 <- ggplot(fake, aes(x = tree, y = mean.psi)) +
   geom_line() +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
   labs(x = "Tree height", y = "Occupancy probability (ψ)") +
   scale_y_continuous(labels = scales::percent) +
   theme_minimal()
-```
 
-We repeat this for `temp`:
+# Mean temperature ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-```{r}
 # Step 1: Create a new data frame for temp (hold tree at median)
 fake <- data.frame(
   tree = median(etosha$occ.covs$tree),
@@ -637,17 +721,15 @@ fake <- data.frame(
 )
 
 # Step 5: Plot
-ggplot(fake, aes(x = temp, y = mean.psi)) +
+p2 <- ggplot(fake, aes(x = temp, y = mean.psi)) +
   geom_line() +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
   labs(x = "Temperature", y = "Occupancy probability (ψ)") +
   scale_y_continuous(labels = scales::percent) +
   theme_minimal()
-```
 
-And finally for rain affecting our detection probability:
+# Rain fall ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-```{r}
 # Step 1: Create a new data frame for temp (hold tree at median)
 fake <- data.frame(
   rain = seq(min(etosha$det.covs$rain), max(etosha$det.covs$rain), length.out = 100)
@@ -679,59 +761,117 @@ fake <- data.frame(
 )
 
 # Step 5: Plot
-ggplot(fake, aes(x = rain, y = mean.p)) +
+p3 <- ggplot(fake, aes(x = rain, y = mean.p)) +
   geom_line() +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
   labs(x = "Rainfall", y = "Detection probability (p)") +
   scale_y_continuous(labels = scales::percent) +
   theme_minimal()
+
+design <- "
+AB
+CC
+"
+
+p1 + p2 + p3 + plot_layout(design = design)
 ```
 
 # How should I store my data?
 
-The data storage for these models can seem a bit complicated at first. I would suggest you start off by having at least three datasets.
+The data storage required for occupancy models can feel a bit complicated at first. A good starting point is to organise your data into at least *three separate datasets*, each with a specific purpose.
 
-## Dataset one
+## Dataset one: Detection history
 
-This is your detection history. Create an excel document, where each site (or camera) is on a row, and each survey period is a column. For the sake of argument, say that your sampling period is a 12 hour period, and you have three surveys at each location. Your excel should look something like:
+This dataset records whether or not the species was detected during each survey at each site.
+
+Create an Excel sheet where **rows are sites (or cameras)** and **columns are survey periods**. For example, if your sampling unit is a 12-hour period and you have three surveys per site, your dataset might look like:
 
 ```{r}
-dh <- as.data.frame(dat$y)
-colnames(dh) <- c("1", "2", "3")
-dh
+library(DT)
+
+dh <- data.frame(
+  "1" = rbinom(50, size = 1, prob = 0.3),
+  "2" = rbinom(50, size = 1, prob = 0.5),
+  "3" = rbinom(50, size = 1, prob = 0.4),
+  check.names = FALSE
+)
+
+datatable(dh, options = list(pageLength = 10))
 ```
 
-## Dataset two
+- Row 1: Site 1 detections for surveys 1, 2, 3  
+- Row 2: Site 2 detections for surveys 1, 2, 3  
+- etc.
 
-Create another excel spreadsheet which will contain all of your site level covariates. This should be organised in the same order as your detection history dataset (above), such that if site 1 is top of your detection history spreadsheet, it should be top here as well. **THIS IS CRUCIAL - BE CAREFUL AND MAKE SURE THIS IS DONE CORRECTLY**.
+Each cell should be a `1` (detection) or `0` (no detection).
 
-If you are interested in distance to road, have that be in here. If you are interested in distance to nearest pen, include it here. Each covariate should be a column:
+## Dataset two: Site-level covariates
+
+This dataset contains all of your **site covariates**, variables that do not change from one survey to the next. These should be organised in the **same order** as your detection history dataset.
+
+> **This is crucial.** If site 1 is the first row in your detection history, it must also be the first row here. Check and double-check that the site ordering is consistent across files.
+
+Each covariate should be a column. For example:
+
+- Distance to nearest road  
+- Distance to nearest release pen  
+- Habitat type
 
 ```{r}
-data.frame(road = round(rgamma(50, 1, 2), digits = 3), pen = round(rgamma(50, 2, 3), digits = 1))
+df <- data.frame(
+  road = round(rgamma(50, 1, 2), digits = 3),
+  pen = round(rgamma(50, 2, 3), digits = 1),
+  habitat = sample(size = 50, x = c("Forest", "Field"), prob = c(0.5, 0.5), replace = TRUE)
+)
+
+datatable(df, options = list(pageLength = 10))
 ```
 
-## Dataset three (+)
+## Dataset three (and beyond): Survey-level covariates
 
-The final dataset(s) contain your survey covariates, but **importantly**, you will need a new excel document for each survey covariate. So rather than having them all be together like in the site covariate speadsheet, here they'll look more like the detection history spreadsheet. Each row is a site and each column is a survey.
+Each **survey covariate** needs its own Excel file. These files are structured like your detection history:
 
-So if you were collecting data on light pollution you may have:
+- Rows are sites  
+- Columns are surveys
+
+This setup allows each covariate to vary by site and by survey, which is essential when fitting more realistic detection models.
+
+For example, you might have a dataset that records average light pollution on each survey:
 
 ```{r}
-data.frame("1" = rnorm(50, 0, 1), "2" = rnorm(50, 1, 2), "3" = rnorm(50, -1, 1), check.names = FALSE)
+df <- data.frame(
+  "1" = rnorm(50, 0, 1),
+  "2" = rnorm(50, 1, 2),
+  "3" = rnorm(50, -1, 1),
+  check.names = FALSE
+)
+
+datatable(df, options = list(pageLength = 10))
 ```
 
-But if you were also collecting data on if a field was being ploughed or not you may have:\
+But if you were also collecting data on if a field was being ploughed or not you may have:
 
 ```{r}
-data.frame("1" = sample(size = 50, x = c("Plough", "No plough"), prob = c(0.5, 0.5), replace = TRUE), 
-           "2" = sample(size = 50, x = c("Plough", "No plough"), prob = c(0.1, 0.9), replace = TRUE), 
-           "3" = sample(size = 50, x = c("Plough", "No plough"), prob = c(0.8, 0.2), replace = TRUE), 
-           check.names = FALSE)
+df <- data.frame(
+  "1" = sample(size = 50, x = c("Plough", "No plough"), prob = c(0.5, 0.5), replace = TRUE), 
+  "2" = sample(size = 50, x = c("Plough", "No plough"), prob = c(0.1, 0.9), replace = TRUE), 
+  "3" = sample(size = 50, x = c("Plough", "No plough"), prob = c(0.8, 0.2), replace = TRUE), 
+  check.names = FALSE
+)
+
+datatable(df, options = list(pageLength = 10))
 ```
 
 # What next?
 
-Hopefully this page helped give you an understanding of the theory, how to implement it, and how to collect and store your data.
+Hopefully this page gave you a clearer understanding of the theory, how to implement occupancy models in practice, and how to collect and store your data correctly.
 
-On the next page, we're going to begin thinking about *Bayesian* statistics. But take a break, go for a walk, do something else for a day or two. Then come back when you're ready.
+On the next page, we’ll begin thinking about *Bayesian* statistics.
+
+But before that, take a break. Go for a walk, close the laptop, and come back in a day or two. When you're ready, we’ll dive into how the Bayesian framework works, and why it underpins everything we've done so far.
+
+# Lecture recording
+
+Unlike on the previous page, I don't have a lecture recording a a single-season occupancy model that includes covariates. The lecture below does include covariates, but for models when you have multiple seasons. So a lot of the lecture won't be directly related to your thesis, other than where I talk about how to include covariates. Sorry for that!
+
+<iframe src="https://abdn.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=5cfbf4bd-b968-42ad-bd26-acb7010aa806" width="720" height="405" allowfullscreen></iframe>
