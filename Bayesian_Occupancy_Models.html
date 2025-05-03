@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Deon Roos">
-<meta name="dcterms.date" content="2025-05-01">
+<meta name="dcterms.date" content="2025-05-03">
 
-<title>Occupancy Modelling - Bayesian Algorithms</title>
+<title>Occupancy Modelling - Bayesian Occupancy Models</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -152,11 +152,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#how-do-we-estimate-a-posterior" id="toc-how-do-we-estimate-a-posterior" class="nav-link active" data-scroll-target="#how-do-we-estimate-a-posterior">How do we estimate a posterior?</a></li>
   <li><a href="#what-does-mcmc-look-like" id="toc-what-does-mcmc-look-like" class="nav-link" data-scroll-target="#what-does-mcmc-look-like">What does MCMC look like?</a></li>
   <li><a href="#improving-our-mcmc" id="toc-improving-our-mcmc" class="nav-link" data-scroll-target="#improving-our-mcmc">Improving our MCMC</a></li>
+  <li><a href="#a-bad-fit" id="toc-a-bad-fit" class="nav-link" data-scroll-target="#a-bad-fit">A bad fit</a></li>
   <li><a href="#fitting-the-occupancy-model-using-mcmc" id="toc-fitting-the-occupancy-model-using-mcmc" class="nav-link" data-scroll-target="#fitting-the-occupancy-model-using-mcmc">Fitting the occupancy model using MCMC</a></li>
   <li><a href="#credible-intervals" id="toc-credible-intervals" class="nav-link" data-scroll-target="#credible-intervals">Credible intervals</a></li>
   <li><a href="#specifying-priors" id="toc-specifying-priors" class="nav-link" data-scroll-target="#specifying-priors">Specifying priors</a></li>
-  <li><a href="#fin" id="toc-fin" class="nav-link" data-scroll-target="#fin">Fin</a></li>
   <li><a href="#a-subtle-point-priors-and-the-link-function" id="toc-a-subtle-point-priors-and-the-link-function" class="nav-link" data-scroll-target="#a-subtle-point-priors-and-the-link-function">A subtle point: Priors and the link function</a></li>
+  <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s next?</a></li>
   </ul>
 </nav>
     </div>
@@ -165,7 +166,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Bayesian Algorithms</h1>
+<h1 class="title">Bayesian Occupancy Models</h1>
 </div>
 
 
@@ -182,7 +183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 1, 2025</p>
+      <p class="date">May 3, 2025</p>
     </div>
   </div>
   
@@ -216,7 +217,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>For this, we have the following simple linear model:</p>
 <p><span class="math display">\[y_i \sim Normal(\mu_i, \sigma^2)\]</span></p>
 <p><span class="math display">\[\mu_i = \beta_0 + \beta_1 \times x_i \]</span></p>
-<p>So our objective here is to figure out <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span>. To do so, we’ll set up an MCMC using one “chain”. A chain is a Markov Chain - it’s the black dot and orange line you can see in the animation below. This chain is trying to find the “True value” location marked with a teal X. At each step the black dot asks “if I take a step in a random direction, will I be closer to X or further away?”. If it’s closer, then it takes the step. If it’s further away, then it’s <em>less</em> likely to take the step but it’s not impossible. This seems like a bad choice. Why move somewhere if it’s further away from X? The answer is a bit nuanced, but the concise explanation is that sometimes there might be areas of the “parameter space” (the parameter space is all possible values of <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span>) which “work” quite well despite not being the true value. If we didn’t have the behaviour, where the chain might take a step even though it’s worse, then we might get stuck in one of these “bad” areas (technically, these “bad” areas are called “local minima”).</p>
+<p>So our objective here is to figure out <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span>. To do so, we’ll set up an MCMC using one “chain”. A chain is a Markov Chain - it’s the black dot and orange line you can see in the animation below. This chain is trying to find the “True value” location marked with a teal X. At each step the black dot asks “if I take a step in a random direction, will I be closer to X or further away?”. If it’s closer, then it takes the step. If it’s further away, then it’s <em>less</em> likely to take the step but it’s not impossible. This seems like a bad choice. Why move somewhere if it’s further away from X? The answer is a bit nuanced, but the concise explanation is that sometimes there might be areas of the “parameter space” (the parameter space is all possible values of <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span>) which work quite well despite not being the true value. If we didn’t have the behaviour, where the chain might take a step even though it’s worse, then we might get stuck in one of these “bad” areas (technically, these “bad” areas are called <em>local minima</em>).</p>
 <p>Here’s our MCMC in action:</p>
 <div class="cell">
 <details>
@@ -260,7 +261,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><img src="images/single_chain_mcmc_animation.gif" class="img-fluid"></p>
+<div style="text-align: center;">
+<p><img src="images/single_chain_mcmc_animation.gif" class="img-fluid" width="800"></p>
+</div>
 <p>Here’s where the really clever bit comes in. At each iteration, if we record the parameter value it tried, and store it, when we build it up the end result is our <em>posterior</em>! This is what made Bayesian statistics possible! We don’t need to use any crazy (and often impossible) maths to figure out the posterior, we just have MCMC walk around and the end result is an insanely good reflection of the posterior!</p>
 <div class="cell">
 <details>
@@ -299,7 +302,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><img src="images/posterior_mcmc_animation.gif" class="img-fluid"></p>
+<div style="text-align: center;">
+<p><img src="images/posterior_mcmc_animation.gif" class="img-fluid" width="800"></p>
+</div>
 <p>Another way to show what the MCMC was up to is using something called “traceplots”. These are relatively simple but actually quite powerful for determining if we <em>trust</em> the model output. We’ll come back to this in a bit, but for now, we can show the MCMC exploring the parameter space using these traceplots.</p>
 <div class="cell">
 <details>
@@ -332,11 +337,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><img src="images/trace_mcmc_animation.gif" class="img-fluid"></p>
+<div style="text-align: center;">
+<p><img src="images/trace_mcmc_animation.gif" class="img-fluid" width="800"></p>
+</div>
 </section>
 <section id="improving-our-mcmc" class="level1">
 <h1>Improving our MCMC</h1>
-<p>We’ve made a good start but we can improve this quite a bit. Firstly, limiting the algorithm to 100 iterations doesn’t give it many opportunities to find the true value. In general, you often give MCMC thousands of iterations, rather than a paltry 100. So first improvement is to increase the number of iterations (you may remember we did this when we were going through the occupancy theory pages - now you know why!).</p>
+<p>We’ve made a good start but we can improve this quite a bit. Firstly, limiting the algorithm to 100 iterations doesn’t give it many opportunities to find the true value. In general, you often give MCMC thousands of iterations, rather than only 100. So first improvement is to increase the number of iterations (you may remember we did this when we were going through the occupancy theory pages - now you know why!).</p>
 <p>Secondly, we’re using one MCMC chain. Why not more? Afterall, if we have say four chains, then if all four agree that they’re close to the true value that would give us more comfort. If they find different “True values”, well, then it seems likely that we haven’t actually found it.</p>
 <p>Let’s implement our improvement and see what our plots now look like:</p>
 <div class="cell">
@@ -371,7 +378,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  samples</span>
 <span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(chains_list, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">group =</span> chain, <span class="at">color =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>anim <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(chains_list, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">group =</span> chain, <span class="at">color =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
 <span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_path</span>(<span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
 <span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y), <span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
 <span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> true_param[<span class="dv">1</span>], <span class="at">y =</span> true_param[<span class="dv">2</span>]), </span>
@@ -384,10 +391,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"MCMC Chains Step: {round(frame_along, digits = 0)}"</span>,</span>
 <span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">bquote</span>(beta[<span class="dv">0</span>]),</span>
 <span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">bquote</span>(beta[<span class="dv">1</span>])) <span class="sc">+</span></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="fu">animate</span>(anim, <span class="at">fps =</span> <span class="dv">25</span>, <span class="at">duration =</span> <span class="dv">20</span>, <span class="at">width =</span> <span class="dv">800</span>, <span class="at">height =</span> <span class="dv">600</span>, <span class="at">renderer =</span> <span class="fu">gifski_renderer</span>(), <span class="at">device =</span> <span class="st">"png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><img src="images/multichain_mcmc_animation.gif" class="img-fluid"></p>
+<div style="text-align: center;">
+<p><img src="images/multichain_mcmc_animation.gif" class="img-fluid" width="800"></p>
+</div>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -413,7 +423,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    })</span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  })</span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">fill =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>anim <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">fill =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.4</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">boundary =</span> <span class="dv">0</span>, </span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>                 <span class="at">position =</span> <span class="fu">position_dodge</span>(), <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
@@ -423,27 +433,98 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Cumulative Posterior up to Iteration {current_frame}"</span>,</span>
 <span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Parameter Value"</span>, <span class="at">y =</span> <span class="st">"Frequency"</span>) <span class="sc">+</span></span>
 <span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> iteration, <span class="at">y =</span> value, <span class="at">color =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">labeller =</span> label_parsed, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>, <span class="at">name =</span> <span class="st">"Chain"</span>) <span class="sc">+</span></span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Traceplot up to Iteration {current_frame}"</span>,</span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Iteration"</span>, <span class="at">y =</span> <span class="st">"Parameter Value"</span>) <span class="sc">+</span></span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="fu">animate</span>(anim, <span class="at">fps =</span> <span class="dv">25</span>, <span class="at">duration =</span> <span class="dv">20</span>, <span class="at">width =</span> <span class="dv">800</span>, <span class="at">height =</span> <span class="dv">600</span>, <span class="at">renderer =</span> <span class="fu">gifski_renderer</span>())</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>anim <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> iteration, <span class="at">y =</span> value, <span class="at">color =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">labeller =</span> label_parsed, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>, <span class="at">name =</span> <span class="st">"Chain"</span>) <span class="sc">+</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Traceplot up to Iteration {current_frame}"</span>,</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Iteration"</span>, <span class="at">y =</span> <span class="st">"Parameter Value"</span>) <span class="sc">+</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a><span class="fu">animate</span>(anim, <span class="at">fps =</span> <span class="dv">25</span>, <span class="at">duration =</span> <span class="dv">20</span>, <span class="at">width =</span> <span class="dv">800</span>, <span class="at">height =</span> <span class="dv">600</span>, <span class="at">renderer =</span> <span class="fu">gifski_renderer</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><img src="images/multichain_posterior_mcmc_animation.gif" class="img-fluid"></p>
-<p><img src="images/multichain_trace_mcmc_animation.gif" class="img-fluid"></p>
-<p>I have a bit more confidence in our posteriors now:</p>
+<div style="text-align: center;">
+<p><img src="images/multichain_posterior_mcmc_animation.gif" class="img-fluid" width="800"></p>
+</div>
+<div style="text-align: center;">
+<p><img src="images/multichain_trace_mcmc_animation.gif" class="img-fluid" width="800"></p>
+</div>
+<p>Having seen these animations, I have a bit more confidence in our posteriors. Here’s why:</p>
 <ul>
 <li><p>All chains seem to agree on the same value (they have “converged” to the same answer)</p></li>
 <li><p>The posteriors look reasonably well estimated (they’ll close to the true value - but keep in mind that with real analysis we don’t know what the truth is)</p></li>
 <li><p>The traceplots resemble “hairy caterpillars”, which matches the Markov Chain idea that the next value depends only on the current value (it doesn’t “remember” older values).</p></li>
 </ul>
 <p>The final thing I want to bring your attention to are the first hundred or so iterations. Generally, these iterations can be pretty wild, fluctuating massively. If you think about it, that’s kind of fair enough. We’re starting each MCMC chain at random locations, so it’s fair if things are a bit <strong>wobbly</strong> at the start. So what we do with these early iterations is to simply ignore them. These are called “burn in” iterations, as in, we’re letting the engine warm up, so these are just used to get up to speed. Mostly arbitrarily, we typically ignore the first 10% of iterations, so where we’ve used 1000 iterations, we’d generally ignore the first 100.</p>
+</section>
+<section id="a-bad-fit" class="level1">
+<h1>A bad fit</h1>
+<p>As useful as it is to see what a “good” fit looks like, it’s often more comforting to see what a “bad” fit looks like. So here is it:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>n_iter <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>n_chains <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>iterations <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>n_iter</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>non_converged <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span>n_chains, <span class="cf">function</span>(chain_id) {</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  loc <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="fl">1.5</span>, <span class="sc">-</span><span class="fl">0.5</span>)[chain_id]  <span class="co"># Different modes</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">iteration =</span> iterations,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> <span class="fu">rnorm</span>(n_iter, <span class="at">mean =</span> loc, <span class="at">sd =</span> <span class="fl">0.1</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">chain =</span> <span class="fu">factor</span>(<span class="fu">paste</span>(<span class="st">"Chain"</span>, chain_id)),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">issue =</span> <span class="st">"Non-Convergence"</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>poor_mixing <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span>n_chains, <span class="cf">function</span>(chain_id) {</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  stick_vals <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">seq</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">20</span>), <span class="at">size =</span> <span class="dv">20</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  values <span class="ot">&lt;-</span> <span class="fu">rep</span>(stick_vals, <span class="at">each =</span> n_iter <span class="sc">/</span> <span class="dv">20</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">iteration =</span> iterations,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> values,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">chain =</span> <span class="fu">factor</span>(<span class="fu">paste</span>(<span class="st">"Chain"</span>, chain_id)),</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">issue =</span> <span class="st">"Poor Mixing"</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>autocorrelated <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="dv">1</span><span class="sc">:</span>n_chains, <span class="cf">function</span>(chain_id) {</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  drift <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(<span class="fu">rnorm</span>(n_iter, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fl">0.01</span>)) <span class="sc">+</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">iteration =</span> iterations,</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> drift,</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">chain =</span> <span class="fu">factor</span>(<span class="fu">paste</span>(<span class="st">"Chain"</span>, chain_id)),</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">issue =</span> <span class="st">"High Autocorrelation"</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>bad_mcmc <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(non_converged, poor_mixing, autocorrelated)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bad_mcmc, <span class="fu">aes</span>(<span class="at">x =</span> iteration, <span class="at">y =</span> value, <span class="at">color =</span> chain)) <span class="sc">+</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>issue, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Iteration"</span>, <span class="at">y =</span> <span class="st">"Parameter Value"</span>) <span class="sc">+</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>If you’re traceplots look <em>anything</em> like the above, then you have <em>learnt nothing</em>. You <em>will</em> still get results, but those results will mean <em>absolutely nothing</em>. You might as well write fiction at that point.</p>
+<p>Note that these figures aren’t from an actual MCMC run, they’re “fake”, but there are times when you see traceplots that look like this. So keep an eye out for them!</p>
+<blockquote class="blockquote">
+<p>I once saw diagnostics that looked this bad in a peer reviewed paper. That’s shameful enough but what made it even worse was that it had been selected for an award by the four senior editors of the prestigious journal! The height of shame.</p>
+<p>That’s one of the downsides of Bayesian statistics. People glaze it to such an extreme that it’s often enough to get a free pass if you just use Bayesian stats (and in some cases awards)… Don’t be fooled into thinking results are robust just because you or someone else used Bayesian.</p>
+</blockquote>
+<p>Let’s move on before I really start ranting…</p>
 </section>
 <section id="fitting-the-occupancy-model-using-mcmc" class="level1">
 <h1>Fitting the occupancy model using MCMC</h1>
@@ -453,21 +534,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><span class="math display">\[y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\\]</span></p>
 <p><span class="math display">\[logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\]</span></p>
 <p>Which we can translate into the following code. But pay attention to the <code>n.chains</code>, <code>n.samples</code> and <code>n.burn</code> arguments. This is where we specify how many chains we want (<code>n.chains</code>), how many iterations we want (<code>n.samples</code>, note an iteration can also be called a sample), and how many of the first iterations we want to ignore (<code>n.burn</code>).</p>
-<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-8_50bb74cbd7a92a7fc0284a7e8e09ee2d">
+<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-9_ce735f30aafd30673bcb58d36d829aed">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp, </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain, </span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha, </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,     <span class="co"># 4 chains just like in our simple example</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>, <span class="co"># 2000 iterations for each chain</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,     <span class="co"># We ignore the first 200 iterations to give MCMC a chance to get it's feet</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>   <span class="co"># This just says don't spit out details while fitting </span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (normally I would leave verbose = TRUE so I can keep track of the model while it's fitting)</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,     <span class="co"># 4 chains just like in our simple example</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>, <span class="co"># 2000 iterations for each chain</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,     <span class="co"># We ignore the first 200 iterations to give MCMC a chance to get its feet</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>   <span class="co"># This just says don't spit out details while fitting </span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (normally I would leave verbose = TRUE so I can keep track of the model while it's fitting)</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We can now check how our model worked. The code is pretty simple. The only tricky thing is to specify if you want <code>beta</code> or <code>alpha</code>. Importantly, <code>beta</code> here refers to the occupancy parameters, and <code>alpha</code> refers to the detection parameters.</p>
@@ -476,10 +557,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>And here are the traceplots and posteriors for <span class="math inline">\(\alpha_0\)</span> and <span class="math inline">\(\alpha_1\)</span> in:</p>
@@ -487,17 +568,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>And we can also get a more numeric summary of the model using <code>summary()</code>. Importantly, the information you see below is the same as the data in the figures above. It’s just summarised! So the <code>Mean</code> is just the mean of the posteriors above!</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -510,18 +591,18 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0183
+Run Time (min): 0.017
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
-(Intercept)  2.0536 1.0657  0.1991  1.9727 4.2706 1.0151 315
-tree         0.2259 1.2968 -2.1384  0.1544 2.9006 1.0797 278
-temp        -1.1362 1.1440 -3.2916 -1.1758 1.3257 1.0396 272
+(Intercept)  1.9882 0.9808  0.2375  1.9178 4.0394 1.0301 367
+tree         0.2568 1.2787 -2.1142  0.1916 2.9079 1.0278 293
+temp        -1.2973 1.0994 -3.3247 -1.3506 1.0453 1.0122 299
 
 Detection (logit scale): 
                Mean     SD    2.5%     50%   97.5%   Rhat  ESS
-(Intercept) -1.8539 0.2623 -2.3783 -1.8533 -1.3435 1.0018 1142
-rain         0.1730 0.2207 -0.2558  0.1719  0.6087 1.0015 2994</code></pre>
+(Intercept) -1.8502 0.2625 -2.3781 -1.8432 -1.3424 1.0064 1182
+rain         0.1704 0.2175 -0.2473  0.1681  0.6090 1.0013 3195</code></pre>
 </div>
 </div>
 </section>
@@ -531,54 +612,54 @@ rain         0.1730 0.2207 -0.2558  0.1719  0.6087 1.0015 2994</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>beta_0_samples <span class="ot">&lt;-</span> fit<span class="sc">$</span>beta.samples[,<span class="dv">1</span>]</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>beta_0_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">beta_0 =</span> beta_0_samples)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>summary_stats <span class="ot">&lt;-</span> beta_0_df <span class="sc">%&gt;%</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">mean</span>(beta_0),</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">median =</span> <span class="fu">median</span>(beta_0),</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower =</span> <span class="fu">quantile</span>(beta_0, <span class="fl">0.025</span>),</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">upper =</span> <span class="fu">quantile</span>(beta_0, <span class="fl">0.975</span>)</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(beta_0_df, <span class="fu">aes</span>(<span class="at">x =</span> beta_0)) <span class="sc">+</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"#00A68A"</span>, <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Vertical lines</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>mean, <span class="at">linetype =</span> <span class="st">"solid"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>median, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>lower, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>upper, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># curved arrows</span></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>mean <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">400</span>, </span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>mean, <span class="at">yend =</span> <span class="dv">350</span>), </span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>median <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">300</span>, </span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>median, <span class="at">yend =</span> <span class="dv">250</span>), </span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>lower <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, </span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>lower, <span class="at">yend =</span> <span class="dv">75</span>), </span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>upper <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, </span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>upper, <span class="at">yend =</span> <span class="dv">75</span>), </span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>mean <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">400</span>, <span class="at">label =</span> <span class="st">"Mean"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>median <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">300</span>, <span class="at">label =</span> <span class="st">"Median"</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>lower <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, <span class="at">label =</span> <span class="st">"2.5% CI"</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>upper <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, <span class="at">label =</span> <span class="st">"97.5% CI"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(beta[<span class="dv">0</span>], <span class="st">" or '(Intercept)'"</span>)),</span>
-<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Frequency"</span></span>
-<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>beta_0_samples <span class="ot">&lt;-</span> fit<span class="sc">$</span>beta.samples[,<span class="dv">1</span>]</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>beta_0_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">beta_0 =</span> beta_0_samples)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>summary_stats <span class="ot">&lt;-</span> beta_0_df <span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">mean</span>(beta_0),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">median =</span> <span class="fu">median</span>(beta_0),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower =</span> <span class="fu">quantile</span>(beta_0, <span class="fl">0.025</span>),</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">upper =</span> <span class="fu">quantile</span>(beta_0, <span class="fl">0.975</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(beta_0_df, <span class="fu">aes</span>(<span class="at">x =</span> beta_0)) <span class="sc">+</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"#00A68A"</span>, <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Vertical lines</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>mean, <span class="at">linetype =</span> <span class="st">"solid"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>median, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>lower, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>upper, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># curved arrows</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>mean <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">400</span>, </span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>mean, <span class="at">yend =</span> <span class="dv">350</span>), </span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>median <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">300</span>, </span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>median, <span class="at">yend =</span> <span class="dv">250</span>), </span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>lower <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, </span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>lower, <span class="at">yend =</span> <span class="dv">75</span>), </span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>upper <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, </span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>upper, <span class="at">yend =</span> <span class="dv">75</span>), </span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>mean <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">400</span>, <span class="at">label =</span> <span class="st">"Mean"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>median <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">300</span>, <span class="at">label =</span> <span class="st">"Median"</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>lower <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, <span class="at">label =</span> <span class="st">"2.5% CI"</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>upper <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>, <span class="at">label =</span> <span class="st">"97.5% CI"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(beta[<span class="dv">0</span>], <span class="st">" or '(Intercept)'"</span>)),</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Frequency"</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>From our summary table, the mean for the <span class="math inline">\(\beta_0\)</span> or <code>(Intercept)</code> posterior was estimated as 2.0536, the median (called <code>50%</code> in the summary table) was 1.9727, and the 95% credible intervals were 0.1991 and 4.2706, just like we see in the figure.</p>
@@ -588,7 +669,7 @@ rain         0.1730 0.2207 -0.2558  0.1719  0.6087 1.0015 2994</code></pre>
 <h1>Specifying priors</h1>
 <p>So far, we’ve let the <code>spOccupancy</code> package handle setting the priors for us behind the scenes. But we can actually specify our own priors if we want to.</p>
 <p>In the background, <code>spOccupancy</code> uses something called Pólya-Gamma data augmentation, and under the hood, this method assumes <span class="math inline">\(Normal\)</span> priors for both the occupancy and detection parameters (including their intercepts).</p>
-<p>If you don’t specify anything, spOccupancy will set:</p>
+<p>If you don’t specify anything, <code>spOccupancy</code> will set:</p>
 <ul>
 <li><p>The “hypermean” (mean of <span class="math inline">\(Normal\)</span> distribution for all priors) = 0</p></li>
 <li><p>The “hypervariance” (variance <span class="math inline">\(Normal\)</span> distribution for all priors) = 2.72</p></li>
@@ -598,11 +679,11 @@ rain         0.1730 0.2207 -0.2558  0.1719  0.6087 1.0015 2994</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify priors for detection (alpha) and occupancy (beta)</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha.normal =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">var =</span> <span class="fl">2.72</span>),  <span class="co"># Detection priors</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta.normal =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">var =</span> <span class="fl">2.72</span>)    <span class="co"># Occupancy priors</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify priors for detection (alpha) and occupancy (beta)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha.normal =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">var =</span> <span class="fl">2.72</span>),  <span class="co"># Detection priors</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta.normal =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">var =</span> <span class="fl">2.72</span>)    <span class="co"># Occupancy priors</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>The above code is basically doing what <code>spOccupancy</code> does by default. All priors will get <span class="math inline">\(Normal(0,2.72)\)</span> in both the detection and occupancy sub models. We can either give a single number (like 0 and 2.72 above), and it will apply to all parameters, or you can give a vector if you want different priors for different parameters.</p>
@@ -610,23 +691,23 @@ rain         0.1730 0.2207 -0.2558  0.1719  0.6087 1.0015 2994</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Different priors for each occupancy parameter</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>occurrence_priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="sc">-</span><span class="fl">0.5</span>),    <span class="co"># One mean for each occupancy parameter</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="fu">c</span>(<span class="fl">2.72</span>, <span class="dv">1</span>, <span class="dv">2</span>)        <span class="co"># One variance for each occupancy parameter</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Different priors for each detection parameter</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>detection_priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>),          <span class="co"># One mean for each detection parameter</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>)           <span class="co"># One variance for each detection parameter</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine into the priors list</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta.normal =</span> occurrence_priors,</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha.normal =</span> detection_priors</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Different priors for each occupancy parameter</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>occurrence_priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="sc">-</span><span class="fl">0.5</span>),    <span class="co"># One mean for each occupancy parameter</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="fu">c</span>(<span class="fl">2.72</span>, <span class="dv">1</span>, <span class="dv">2</span>)        <span class="co"># One variance for each occupancy parameter</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Different priors for each detection parameter</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>detection_priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>),          <span class="co"># One mean for each detection parameter</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>)           <span class="co"># One variance for each detection parameter</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine into the priors list</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta.normal =</span> occurrence_priors,</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha.normal =</span> detection_priors</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>This would translate into this model:</p>
@@ -641,43 +722,43 @@ rain         0.1730 0.2207 -0.2558  0.1719  0.6087 1.0015 2994</code></pre>
 <p><span class="math display">\[\alpha_1 \sim Normal(0.2, 1)\]</span></p>
 <p>Now, to be very, very clear; I am choosing these priors completely at random just for demonstration. I have no reason, in this case, to think that a reasonable prior for <span class="math inline">\(\beta_1\)</span> is <span class="math inline">\(Normal(0.5, 1)\)</span>.</p>
 <p>But we can always fit this model to see what happens:</p>
-<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-15_3b44ec601e6682549af06d711f6299d8">
+<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-16_ff4feb506e4e8e5283dab8c98978c6b4">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fit_priors <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp,</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain,</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha,</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">priors =</span> priors,     <span class="co"># We add our priors here</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>,</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fit_priors <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">priors =</span> priors,     <span class="co"># We add our priors here</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Having fit, we can see what the posteriors look like:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
 </div>
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid" width="672"></p>
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>And pull up the summary:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_priors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_priors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -691,26 +772,25 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0158
+Run Time (min): 0.0165
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
-(Intercept)  1.5053 0.9644 -0.2024  1.4383 3.5766 1.0514 304
-tree         0.5140 0.9042 -1.2174  0.4798 2.3414 1.0165 412
-temp        -1.2473 0.9496 -3.0085 -1.2664 0.7709 1.0097 365
+(Intercept)  1.5475 0.9264 -0.1169  1.4884 3.5468 1.0178 365
+tree         0.5273 0.9014 -1.1523  0.4846 2.3406 1.0197 462
+temp        -1.2934 0.9911 -3.1987 -1.2924 0.7518 1.0127 336
 
 Detection (logit scale): 
                Mean     SD    2.5%     50%   97.5%   Rhat  ESS
-(Intercept) -1.6451 0.2634 -2.1407 -1.6515 -1.0959 1.0112 1004
-rain         0.1595 0.2133 -0.2483  0.1565  0.6006 1.0048 3385</code></pre>
+(Intercept) -1.6516 0.2562 -2.1390 -1.6555 -1.1359 1.0034  883
+rain         0.1528 0.2101 -0.2529  0.1520  0.5780 1.0011 3291</code></pre>
 </div>
 </div>
-<p>If we compare this with the original model, where we left the priors at their defaults we can see that different priors can lead to different posteriors. Keep in mind how Bayesian statistics work - the posterior is a combination of our data and prior beliefs. We’ve changed our prior belief and our posteriors have changed as a result.</p>
-<p>Now in this case, the difference in posteriors are pretty minimal. It might not always be. And in truth, we would want to think a bit more carefully about the priors. Don’t be fooled here. Just because my randomly chosen priors are different from the default ones doesn’t mean the default model is necessarily better. The best option is to choose priors you think are reasonable. If you have different prior beliefs (e.g.&nbsp;I have some informative priors but also some uninformative priors) I can run the model with both, and see how much of a difference it makes. This is something called “prior sensitivity analysis” and is a fairly useful tool to have in your back pocket when you’re not sure about your priors.</p>
+<p>If we compare this with the original model, where we left the priors at their defaults we can see that different priors can lead to different posteriors. Keep in mind how Bayesian statistics work - the posterior is a combination of our data and prior beliefs. We’ve changed our prior belief and our posteriors have changed as a result. Keep in mind, the more data we have and the stronger the effect is, the less important the priors are.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -723,30 +803,26 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0183
+Run Time (min): 0.017
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
-(Intercept)  2.0536 1.0657  0.1991  1.9727 4.2706 1.0151 315
-tree         0.2259 1.2968 -2.1384  0.1544 2.9006 1.0797 278
-temp        -1.1362 1.1440 -3.2916 -1.1758 1.3257 1.0396 272
+(Intercept)  1.9882 0.9808  0.2375  1.9178 4.0394 1.0301 367
+tree         0.2568 1.2787 -2.1142  0.1916 2.9079 1.0278 293
+temp        -1.2973 1.0994 -3.3247 -1.3506 1.0453 1.0122 299
 
 Detection (logit scale): 
                Mean     SD    2.5%     50%   97.5%   Rhat  ESS
-(Intercept) -1.8539 0.2623 -2.3783 -1.8533 -1.3435 1.0018 1142
-rain         0.1730 0.2207 -0.2558  0.1719  0.6087 1.0015 2994</code></pre>
+(Intercept) -1.8502 0.2625 -2.3781 -1.8432 -1.3424 1.0064 1182
+rain         0.1704 0.2175 -0.2473  0.1681  0.6090 1.0013 3195</code></pre>
 </div>
 </div>
-</section>
-<section id="fin" class="level1">
-<h1>Fin</h1>
-<p>With that, you should be good to run a Bayesian occupancy model. Something you can add to your CV and have employers fawn over you. Even better if you understand it, so that when they ask you about it you can have a conversation!</p>
-<p>The only part left in the analysis is including “spatial autocorrelation”. We’ll cover that in the next page.</p>
+<p>Now in this case, the difference in posteriors are <em>relatively</em> minimal. It might not always be, sometimes changing the prior can make a big differences, in others it won’t do anything. In truth, we would want to think a bit more carefully about the priors we used than I did here. But don’t be fooled. Just because my randomly chosen priors are different from the default ones doesn’t mean the default priors will necessarily always be better.</p>
+<p>The best course of action is to choose priors you think are reasonable, whether they be informative or uninformative. If you have a number of different priors and you’re not sure which to use (e.g.&nbsp;I have some informative priors but also some uninformative priors) then you can always can rerun the model with both versions, and see if it makes any difference. This is something called <em>prior sensitivity analysis</em> and is a fairly useful tool to have in your back pocket when you’re not sure about your priors.</p>
 </section>
 <section id="a-subtle-point-priors-and-the-link-function" class="level1">
 <h1>A subtle point: Priors and the link function</h1>
-<p>When we choose priors in a Bayesian model, it’s really important to remember what scale those priors live on.</p>
-<p>In our occupancy model, we specify priors for the parameters on the logit scale, not directly on the probability (0–1) scale.</p>
+<p>When we choose priors in a Bayesian model, it’s really important to remember what scale those priors live on. In our occupancy model, we specify priors for the parameters on the logit scale, not directly on the probability (0–1) scale.</p>
 <p>For example, if we write:</p>
 <p><span class="math display">\[logit(p_i) = \beta_0 + \beta_1 \times x_i\]</span></p>
 <p>then <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> are in logit space.</p>
@@ -755,57 +831,63 @@ rain         0.1730 0.2207 -0.2558  0.1719  0.6087 1.0015 2994</code></pre>
 <li><p>Probabilities near 0.5 correspond to logits near 0.</p></li>
 <li><p>Probabilities near 0 or 1 correspond to logits of <span class="math inline">\(-\infty\)</span> and <span class="math inline">\(+\infty\)</span>.</p></li>
 </ul>
-<p>This means that a <span class="math inline">\(Normal\)</span> prior with mean 0 and large variance on the logit scale is not flat on the probability scale! Even “uninformative” <span class="math inline">\(Normal\)</span> priors on the logit scale can actually imply very strong beliefs on the probability scale.</p>
+<p>This means that a <span class="math inline">\(Uniform\)</span> prior with a minimum of -10 and a maximum of 10 on the logit scale, is not uninformative on the probability scale! Even “uninformative” <span class="math inline">\(Normal\)</span> priors on the logit scale can actually imply strong beliefs on the probability scale.</p>
 <p>To build some intuition, we’ll do a little prior predictive simulation:</p>
 <ul>
-<li><p>We’ll randomly draw values for <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> from a <span class="math inline">\(Normal(0, 2.72)\)</span> prior.</p></li>
+<li><p>We’ll randomly draw values for <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> from a <span class="math inline">\(Uniform(-10, 10)\)</span> prior.</p></li>
 <li><p>We’ll simulate the relationship between <span class="math inline">\(x\)</span> and <span class="math inline">\(p(x)\)</span> by plugging those <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> values into the logit equation.</p></li>
 <li><p>We’ll repeat this 100 times to show many possible relationships.</p></li>
 </ul>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>n_draws <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>x_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>beta_0_draws <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_draws, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fu">sqrt</span>(<span class="fl">2.72</span>))</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>beta_1_draws <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_draws, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fu">sqrt</span>(<span class="fl">2.72</span>))</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>prior_simulations <span class="ot">&lt;-</span> <span class="fu">map2_dfr</span>(</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  beta_0_draws, beta_1_draws,</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">.f =</span> <span class="cf">function</span>(b0, b1) {</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> x_seq,</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">logit_p =</span> b0 <span class="sc">+</span> b1 <span class="sc">*</span> x,</span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">p =</span> <span class="fu">plogis</span>(logit_p)</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">.id =</span> <span class="st">"draw"</span></span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(prior_simulations, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> p, <span class="at">group =</span> draw)) <span class="sc">+</span></span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#FF5733"</span>) <span class="sc">+</span></span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Prior Predictive Simulation"</span>,</span>
-<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Covariate (x)"</span>,</span>
-<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Probability (p)"</span></span>
-<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>n_draws <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>x_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>beta_0_draws <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_draws, <span class="at">min =</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">max =</span> <span class="dv">10</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>beta_1_draws <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_draws, <span class="at">min =</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">max =</span> <span class="dv">10</span>)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>prior_simulations <span class="ot">&lt;-</span> <span class="fu">map2_dfr</span>(</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  beta_0_draws, beta_1_draws,</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">.f =</span> <span class="cf">function</span>(b0, b1) {</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tibble</span>(</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> x_seq,</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">logit_p =</span> b0 <span class="sc">+</span> b1 <span class="sc">*</span> x,</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">p =</span> <span class="fu">plogis</span>(logit_p)</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">.id =</span> <span class="st">"draw"</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(prior_simulations, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> p, <span class="at">group =</span> draw)) <span class="sc">+</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#FF5733"</span>) <span class="sc">+</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Covariate (x)"</span>,</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Probability (p)"</span></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+<p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Each orange line is a possible relationship between <span class="math inline">\(x\)</span> and <span class="math inline">\(p(x)\)</span> given the priors we chose. Notice that some lines are almost flat at 0 or 1? While others are very steep, flipping from 0 to 1 over a narrow range of <span class="math inline">\(x\)</span>? Even though the prior on <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> was centered at 0 with large variance, the resulting priors on <span class="math inline">\(p\)</span> are not uniform or “neutral.”</p>
-<p>If I were being hyper cautious, I might be worried these priors are pushing the model towards the extreme flipping behaviour. In some cases that might be good, in others it might be bad.</p>
+<p>Each orange line is a possible relationship between <span class="math inline">\(x\)</span> and <span class="math inline">\(p(x)\)</span> given the priors we chose. Notice that some lines are almost flat at 0 or 1? While others are very steep, flipping from 0 to 1 over a narrow range of <span class="math inline">\(x\)</span>? Even though the prior on <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> was anywhere from -10 to 10, the resulting priors on <span class="math inline">\(p\)</span> are not uniform or “neutral.”</p>
+<p>This is why choosing priors on the logit scale can unintentionally imply strong assumptions on the probability scale, even if they seem vague on the logit scale. If I were being hyper cautious and this were a real model, I would be very worried these <span class="math inline">\(Uniform(-10,10)\)</span> priors are pushing the model towards the extreme flipping behaviour. In some cases that might be good, in others it might be bad.</p>
 <p>The broader points I am making here are:</p>
 <ul>
 <li><p>Don’t stress too much about priors. If you have a lot of data your prior will often not be terribly important.</p></li>
 <li><p>But give a little thought as to what a sensible prior would be, especially when working with link functions.</p></li>
 </ul>
 <p>If you’re in doubt speak with me! I think having a discussion about your priors would be an excellent use of one of our meetings (hint, hint).</p>
+</section>
+<section id="whats-next" class="level1">
+<h1>What’s next?</h1>
+<p>With that, you should be good to run a Bayesian occupancy model. Something you can add to your CV and have employers fawn over you. Even better if you understand it, so that when they ask you about it you can have a conversation. Even better <em>yet</em>, is if this makes complete sense because then moving into Bayesian programing, using things like <code>nimble</code> and <code>Stan</code> become much, much easier.</p>
+<p>The only part left in the analysis is including “spatial autocorrelation”. We’ll cover that in the next page.</p>
+<blockquote class="blockquote">
+<p>Spatioal autocorrelation not yet complete.</p>
+</blockquote>
 
 
 </section>
