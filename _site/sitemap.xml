@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://deonroos.github.io/Occupancy_Modelling/Bayesian_Occupancy_Models.html</loc>
-    <lastmod>2025-05-01T20:26:16.547Z</lastmod>
-  </url>
-  <url>
-    <loc>https://deonroos.github.io/Occupancy_Modelling/Bayesian_Statistics.html</loc>
-    <lastmod>2025-05-01T20:26:20.722Z</lastmod>
+    <loc>https://deonroos.github.io/Occupancy_Modelling/Occupancy_Models.html</loc>
+    <lastmod>2025-05-02T12:58:33.530Z</lastmod>
   </url>
   <url>
     <loc>https://deonroos.github.io/Occupancy_Modelling/index.html</loc>
-    <lastmod>2025-05-01T20:26:21.331Z</lastmod>
+    <lastmod>2025-05-02T09:33:09.432Z</lastmod>
+  </url>
+  <url>
+    <loc>https://deonroos.github.io/Occupancy_Modelling/Bayesian_Occupancy_Models.html</loc>
+    <lastmod>2025-05-02T09:10:36.791Z</lastmod>
+  </url>
+  <url>
+    <loc>https://deonroos.github.io/Occupancy_Modelling/Bayesian_Statistics.html</loc>
+    <lastmod>2025-04-30T10:01:31.073Z</lastmod>
   </url>
   <url>
     <loc>https://deonroos.github.io/Occupancy_Modelling/OccMods_WithCovariates.html</loc>
-    <lastmod>2025-05-01T20:26:33.478Z</lastmod>
-  </url>
-  <url>
-    <loc>https://deonroos.github.io/Occupancy_Modelling/Occupancy_Models.html</loc>
-    <lastmod>2025-05-01T20:26:37.901Z</lastmod>
+    <lastmod>2025-05-02T15:29:07.644Z</lastmod>
   </url>
 </urlset>

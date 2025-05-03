@@ -1,11 +1,11 @@
 ---
-title: "Welcome to Occupancy Modelling"
+title: "Welcome to your site"
 format: html
 ---
 
 # Hey Zitong and Joe!
 
-This site is for you both and introduces the fundamentals and advanced topics in occupancy modelling that you'll need to do your honours project. I've written the material to be accessible for you both, in terms of your honours projects, but also to help boost your skillset for when you finish you undergraduate.
+This site was made for you both and introduces the fundamentals and advanced topics in occupancy modelling that you'll need to do your honours project. I've tried to write the material to be accessible for you both, in terms of your honours projects, but also to help boost your skillset for when you finish you undergraduate.
 
 As always, if there is anything in the site that is either wrong or confusing, just let me know. If it helps, I would be amazed if you understood everything that's covered, so it's my *prior* belief that parts will need to be explained in person.
 
@@ -13,24 +13,24 @@ As always, if there is anything in the site that is either wrong or confusing, j
 
 To get the most out of this material, I recommend the following order:
 
-1.  **Occupancy Models: The basics**\
-    Learn the basic theory of occupancy models and how they help us infer species presence/absence from imperfect detection.
+1.  [**Occupancy Models: The basics**](Occupancy_Models.qmd)  
+    Learn the basic theory of occupancy models and how they help us infer species presence or absence from imperfect detection.
 
-2.  **Occupancy Models: Covariates**\
-    Learn how site and survey covariates can be incorporated to improve our biological understanding but also improve the accuracy of our inference.
+2.  [**Occupancy Models: Covariates**](OccMods_WithCovariates.qmd)  
+    Learn how site and survey covariates can improve our biological understanding and enhance the accuracy of our inferences.
 
-3.  **Bayesian models: The concept**\
-    Learn the basic theory of the Bayesian statistical framework; what's a prior versus a posterior?
-    
-4.  **Fitting Bayesian Models**\
-    Combine occupancy models with the Bayesian framework to fit Bayesian occupancy models.
-    
-5. **To be added - Spatial autocorrelation**\
-    Learn the basic theory of spatial autocorrelation
-    
-6. **To be added - Occupancy models with Spatial autocorrelation**\
-    Combine occupancy models, the Bayesian framework, and spatial autocorrelation to fit Bayesian occupancy models with spatial autocorrelation.
+3.  [**Bayesian models: The concept**](Bayesian_Statistics.qmd)  
+    Learn the basic theory of the Bayesian statistical framework: what's a prior, and what's a posterior?
 
-Be aware that this site is very much an on going work in progress. Some text may be unfinished, some code may be a bit janky. Let me know if you spot anything that needs some work.
+4.  [**Fitting Bayesian Models**](Bayesian_Occupancy_Models.qmd)  
+    Combine occupancy models with the Bayesian framework to fit models using the `spOccupancy` package.
 
-Enjoy! (Maybe?)
+5.  **To be added – Spatial autocorrelation**  
+    Learn the basic theory behind spatial autocorrelation.
+
+6.  **To be added – Occupancy models with spatial autocorrelation**  
+    Combine occupancy models, the Bayesian framework, and spatial autocorrelation to fit more advanced models that account for spatial structure.
+
+Be aware that this site is very much an on going work in progress. Let me know if you spot anything that needs some work.
+
+Enjoy!
