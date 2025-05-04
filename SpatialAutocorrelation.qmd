@@ -63,6 +63,38 @@ For example, two camera sites with similar distance to roads and vegetation cove
 
 Spatial autocorrelation refers to the phenomenon where data collected at nearby locations tend to be more similar (or dissimilar) than those collected at distant locations. In the context of species occupancy, this means that whether a species is present at one site may provide information about its presence at nearby sites.
 
+Let's see what that might look like for our ten sites in the figure above:
+
+\[
+
+```{=tex}
+\begin{array}{c|cccccccccc}
+ & \text{S1} & \text{S2} & \text{S3} & \text{S4} & \text{S5} & \text{S6} & \text{S7} & \text{S8} & \text{S9} & \text{S10} \\
+\hline
+\text{S1}  & 1.00 & 0.42 & 0.63 & 0.12 & 0.55 & 0.27 & 0.48 & 0.09 & 0.35 & 0.21 \\
+\text{S2}  &       & 1.00 & 0.39 & 0.58 & 0.18 & 0.62 & 0.26 & 0.47 & 0.11 & 0.30 \\
+\text{S3}  &       &       & 1.00 & 0.75 & 0.14 & 0.51 & 0.19 & 0.60 & 0.23 & 0.36 \\
+\text{S4}  &       &       &       & 1.00 & 0.31 & 0.22 & 0.67 & 0.45 & 0.17 & 0.54 \\
+\text{S5}  &       &       &       &       & 1.00 & 0.38 & 0.29 & 0.66 & 0.40 & 0.13 \\
+\text{S6}  &       &       &       &       &       & 1.00 & 0.33 & 0.52 & 0.27 & 0.46 \\
+\text{S7}  &       &       &       &       &       &       & 1.00 & 0.35 & 0.44 & 0.20 \\
+\text{S8}  &       &       &       &       &       &       &       & 1.00 & 0.58 & 0.24 \\
+\text{S9}  &       &       &       &       &       &       &       &       & 1.00 & 0.31 \\
+\text{S10} &       &       &       &       &       &       &       &       &       & 1.00 \\
+\end{array}
+```
+\]
+
+This is something called a *variance co-variance matrix*. Each row and column represents a site (in this case); $S1$ is Site 1, $S2$ is Site 2, and so on. The values, between 0 and 1, represent the correlation between $S_i$ and $S_I$. What you might notice is that Site 1 is perfectly correlated with itself. That's good. It should be. Your height is perfectly correlated with *your height*. What's more interesting is when we look at different sites. For example, $S1$ and $S2$ have a correlation of 0.42. $S1$ and $S3$ is 0.63. $S2$ and $S3$ is 0.39. This shows that sites 1 and 3 are very similar to each other.
+
+> The lower triangle of the matrix is left empty to reduce clutter but it is simply a mirror of the upper triangle. The Diagonal is how much sites correlate with themselves.
+
+Our question is then - Is that because they are close to each other in space? Is that why they're so similar?
+
+This is where we need something called *pairwise* distance. Pairwise distance is simply the distance between a pair of sites. As simple as that.
+
+If we have both pieces of this information, we can estimate spatial autocorrelation, which may look like:
+
 ```{r}
 distances <- seq(0, 20, length.out = 200)
 
@@ -88,7 +120,7 @@ ggplot(correlation_df, aes(x = distance, y = correlation, color = scenario)) +
   theme_minimal(base_size = 14)
 ```
 
-The figure above shows how the similarity between nearby locations changes as the distance between them increases. This is often called spatial autocorrelation, the idea that places close to each other tend to be more alike than places far apart. On the x-axis is the pairwise distance between two locations, how far apart they are. On the y-axis is the correlation between what we measure at those locations, like whether a species is present or not.
+The figure above shows how the similarity between nearby locations changes as the pairwise distance between them increases. This is often called spatial autocorrelation, the idea that places close to each other tend to be more alike than places far apart. On the x-axis is the pairwise distance between two locations, how far apart they are. On the y-axis is the correlation between what we measure at those locations, like whether a species is present or not.
 
 The grey line shows a world where there's no spatial pattern at all: knowing what happens at one site tells you nothing about another, no matter how close. In reality, that's pretty rare in ecology. Animals move, plants disperse seeds, and environments like soil, moisture, and temperature usually change gradually. That means close sites often share similar ecological conditions and observations.
 
@@ -111,9 +143,7 @@ To account for spatial autocorrelation in occupancy models, one powerful approac
 
 This spatial surface is modeled using something called a *Gaussian process*. You can think of this like drawing a smooth, continuous layer over the landscape that reflects spatial trends in occupancy. Locations that are close together share more of this spatial effect than distant ones, which mimics the idea of spatial autocorrelation.
 
-$$z_i \sim Bernoulli(\psi_i)$$
-$$logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i + w_i \\$$
-$$y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)$$
+$$z_i \sim Bernoulli(\psi_i)$$ $$logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i + w_i \\$$ $$y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)$$
 
 $$logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}$$
 
@@ -123,11 +153,11 @@ $$\Sigma_{ij} = \sigma^2 \times C(d_{ij})$$
 
 where
 
-- $w_i$ is the spatial effect for site $i$, shared across all surveys at that site.
+-   $w_i$ is the spatial effect for site $i$, shared across all surveys at that site.
 
-- $\Sigma$ is the covariance matrix capturing spatial structure.
+-   $\Sigma$ is the covariance matrix capturing spatial structure.
 
-- $C(d_{ij})$ is the spatial correlation function based on the distance $d_{ij}$ between sites $i$ and $j$.
+-   $C(d_{ij})$ is the spatial correlation function based on the distance $d_{ij}$ between sites $i$ and $j$.
 
 Now, fitting this kind of model can get computationally expensive, especially when we have lots of survey locations. To make it faster and more scalable, the method uses something called a *Nearest Neighbor Gaussian Process*. Instead of using every other location to estimate the spatial effect at a given point, it uses just a few of the closest sites---say, the 15 nearest neighbors. This simplifies the math without losing much accuracy.
 
