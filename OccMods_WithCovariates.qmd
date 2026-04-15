@@ -2,15 +2,33 @@
 title: "Including Covariates in Occupancy Models"
 author: "Deon Roos"
 date: "`r Sys.Date()`"
-format:
-  html:
-    theme: flatly
-    highlight-style: monochrome
-    code-fold: true
-    toc: true
-    toc-depth: 2
-    toc-location: right
+format: html
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+theme_dark_site <- function(...) {
+  ggplot2::theme_minimal(...) +
+  ggplot2::theme(
+    plot.background   = ggplot2::element_rect(fill = "#202123", colour = NA),
+    panel.background  = ggplot2::element_rect(fill = "#202123", colour = NA),
+    panel.grid.major  = ggplot2::element_line(colour = "#333333"),
+    panel.grid.minor  = ggplot2::element_line(colour = "#2d2e30"),
+    text              = ggplot2::element_text(colour = "#cccccc"),
+    axis.text         = ggplot2::element_text(colour = "#999999"),
+    plot.title        = ggplot2::element_text(colour = "#ffffff", face = "bold"),
+    plot.subtitle     = ggplot2::element_text(colour = "#999999"),
+    plot.caption      = ggplot2::element_text(colour = "#666666"),
+    legend.background = ggplot2::element_rect(fill = "#202123", colour = NA),
+    legend.key        = ggplot2::element_rect(fill = "#202123", colour = NA),
+    legend.text       = ggplot2::element_text(colour = "#cccccc"),
+    legend.title      = ggplot2::element_text(colour = "#cccccc"),
+    strip.background  = ggplot2::element_rect(fill = "#2d2e30", colour = NA),
+    strip.text        = ggplot2::element_text(colour = "#cccccc")
+  )
+}
+```
 
 On this page, we'll start expanding on the intercept-only occupancy model from *Occupancy Models: The basics* by injecting some biology into our `etosha` elephant model.
 
@@ -85,13 +103,13 @@ p1 <- ggplot(df) +
   geom_jitter(aes(x = factor(survey), y = cov),
               width = 0.2, height = 0) +
   labs(x = "Survey", y = "Rainfall") +
-  theme_minimal()
+  theme_dark_site()
 
 p2 <- ggplot(df) +
   geom_jitter(aes(y = factor(y), x = cov),
               alpha = 0.4, width = 0, height = 0.1) +
   labs(x = "Rainfall", y = "Elephant detection") +
-  theme_minimal()
+  theme_dark_site()
 
 obs_long <- as.data.frame(obs)
 colnames(obs_long) <- paste0("Survey_", 1:ncol(obs_long))
@@ -110,7 +128,7 @@ obs_long$Detection <- factor(obs_long$Detection, levels = c(1, 0), labels = c("D
   geom_tile(color = "white") +
   scale_fill_manual(values = c("Detection" = "darkgreen", "No detection" = "lightgrey")) +
   labs(x = "Site", y = "Survey") +
-  theme_minimal() +
+  theme_dark_site() +
   theme(legend.position = "bottom")
 
 design <- "
@@ -284,7 +302,7 @@ ggplot(df) +
   geom_line(aes(x = rain, y = pred)) +
   scale_y_continuous(labels = scales::percent,
                      limits = c(0,1)) +
-  theme_minimal() +
+  theme_dark_site() +
   labs(x = "Mean rainfall",
        y = "Predicted detection\nprobability of elephants")
 ```
@@ -342,7 +360,7 @@ ggplot(df) +
               alpha = 0.3) +
   scale_y_continuous(labels = scales::percent,
                      limits = c(0,1)) +
-  theme_minimal() +
+  theme_dark_site() +
   labs(x = "Mean rainfall",
        y = "Predicted detection\nprobability of elephants")
 ```
@@ -377,35 +395,35 @@ df <- data.frame(
 p1 <- ggplot(df) +
   geom_histogram(aes(x = temp)) +
   labs(y = "Count", x = "Temperature") +
-  theme_minimal()
+  theme_dark_site()
 
 p2 <- ggplot(df) +
   geom_jitter(aes(y = factor(y), x = temp),
               alpha = 0.4, width = 0, height = 0.1) +
   labs(x = "Temperature", y = "Elephant\ndetection") +
-  theme_minimal()
+  theme_dark_site()
 
 p3 <- ggplot(df) +
   geom_histogram(aes(x = tree)) +
   labs(x = "Tree height", y = "Count") +
-  theme_minimal()
+  theme_dark_site()
 
 p4 <- ggplot(df) +
   geom_jitter(aes(y = factor(y), x = tree),
               alpha = 0.4, width = 0, height = 0.1) +
   labs(x = "Tree", y = "Elephant\ndetection") +
-  theme_minimal()
+  theme_dark_site()
 
 p5 <- ggplot(df) +
   geom_histogram(aes(x = cov)) +
   labs(x = "Rain", y = "Count") +
-  theme_minimal()
+  theme_dark_site()
 
 p6 <- ggplot(df) +
   geom_jitter(aes(y = factor(y), x = tree),
               alpha = 0.4, width = 0, height = 0.1) +
   labs(x = "Rain", y = "Elephant\ndetection") +
-  theme_minimal()
+  theme_dark_site()
 
 obs_long <- as.data.frame(obs)
 colnames(obs_long) <- paste0("Survey_", 1:ncol(obs_long))
@@ -423,7 +441,7 @@ obs_long$Detection <- factor(obs_long$Detection, levels = c(1, 0), labels = c("D
   geom_tile(color = "white") +
   scale_fill_manual(values = c("Detection" = "darkgreen", "No detection" = "lightgrey")) +
   labs(x = "Site", y = "Survey") +
-  theme_minimal() +
+  theme_dark_site() +
   theme(legend.position = "bottom")
 
  design <- "
@@ -685,7 +703,7 @@ p1 <- ggplot(fake, aes(x = tree, y = mean.psi)) +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
   labs(x = "Tree height", y = "Occupancy probability (ψ)") +
   scale_y_continuous(labels = scales::percent) +
-  theme_minimal()
+  theme_dark_site()
 
 # Mean temperature ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
@@ -726,7 +744,7 @@ p2 <- ggplot(fake, aes(x = temp, y = mean.psi)) +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
   labs(x = "Temperature", y = "Occupancy probability (ψ)") +
   scale_y_continuous(labels = scales::percent) +
-  theme_minimal()
+  theme_dark_site()
 
 # Rain fall ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
@@ -766,7 +784,7 @@ p3 <- ggplot(fake, aes(x = rain, y = mean.p)) +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
   labs(x = "Rainfall", y = "Detection probability (p)") +
   scale_y_continuous(labels = scales::percent) +
-  theme_minimal()
+  theme_dark_site()
 
 design <- "
 AB

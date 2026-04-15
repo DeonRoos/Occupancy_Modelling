@@ -2,33 +2,47 @@
 title: "Introduction to Occupancy Models"
 author: "Deon Roos"
 date: "`r Sys.Date()`"
-format:
-  html:
-    theme: flatly
-    highlight-style: monochrome
-    code-fold: true
-    toc: true
-    toc-depth: 2
-    toc-location: right
+format: html
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE,
                       message = FALSE)
+
+theme_dark_site <- function(...) {
+  ggplot2::theme_minimal(...) +
+  ggplot2::theme(
+    plot.background   = ggplot2::element_rect(fill = "#202123", colour = NA),
+    panel.background  = ggplot2::element_rect(fill = "#202123", colour = NA),
+    panel.grid.major  = ggplot2::element_line(colour = "#333333"),
+    panel.grid.minor  = ggplot2::element_line(colour = "#2d2e30"),
+    text              = ggplot2::element_text(colour = "#cccccc"),
+    axis.text         = ggplot2::element_text(colour = "#999999"),
+    plot.title        = ggplot2::element_text(colour = "#ffffff", face = "bold"),
+    plot.subtitle     = ggplot2::element_text(colour = "#999999"),
+    plot.caption      = ggplot2::element_text(colour = "#666666"),
+    legend.background = ggplot2::element_rect(fill = "#202123", colour = NA),
+    legend.key        = ggplot2::element_rect(fill = "#202123", colour = NA),
+    legend.text       = ggplot2::element_text(colour = "#cccccc"),
+    legend.title      = ggplot2::element_text(colour = "#cccccc"),
+    strip.background  = ggplot2::element_rect(fill = "#2d2e30", colour = NA),
+    strip.text        = ggplot2::element_text(colour = "#cccccc")
+  )
+}
 ```
 
 # Where are species present and why are they present?
 
 A fundamental question in ecology is; Where are species present, and why are they present *there*?
 
-> **Zitong**, in your case this may be; Why are roe deer present at site A but not site B? Is it because site A is closer to roads? If a site is close to a road what's the probability roe deer are present? Is that very different to sites that are far away from a road?
+> **Morgan**, in your case this may be; Why are red foxes present at site A but not site B? Is it because site A is closer to urban areas or human settlements? If a site is in a more urbanised landscape, what's the probability red foxes are present? Is that very different from rural sites?
 >
-> What about features of the habitat? Are roe deer more likely if a site is forested versus agricultural?
+> What about features of the habitat? Are red foxes more likely to occupy sites with more woodland edge, or areas with higher prey availability?
 
-> **Joe**, in your case this may be; Why are pheasants present at site A but not site B? Is it related to how far away the nearest *known* release pen is? What does the relationship look like? If there is no relationship, what would that mean for policy?
+> **Stuart**, in your case this may be; Why are bats present at site A but not site B? Is it related to distance to water bodies or riparian habitat? What does the relationship between woodland cover and bat occupancy look like?
 >
-> What about the habitat makes pheasants more likely to occupy that site?
+> What about other features of the landscape? Are bats more likely to occupy sites away from artificial light at night, or where there is more continuous hedgerow connectivity?
 
 To act as motivation for this intro to occupancy models, let's say we're interested in understanding why are elephants present in the north of [Etosha](https://www.etoshanationalpark.org/) nature reserve in Namibia, but not in the south of the reserve? (As a side note, I'd recommend going there on holiday if you ever get the chance). Are elephants present in some parts of Etosha due to water availability? Is it related to food? Could predators play a role?
 
@@ -93,7 +107,7 @@ ggplot(dat) +
   labs(x = "Logit value that\nelephants are present",
        y = "Probability that\nelephants are present") +
   scale_y_continuous(labels = scales::percent) +
-  theme_minimal()
+  theme_dark_site()
 ```
 
 Notice how as the probability approaches 0%, it never actually drops below it, even as the logit value keeps decreasing? And the same happens when it gets close to 100%. And that’s exactly what we want. The fact that logit values can range from $-\infty$ to $+\infty$ makes model fitting much easier: it turns a bounded probability into an unbounded scale, allows linear relationships with predictors, and ensures valid probabilities when converting predictions back. So even if our model estimates a logit value of 999 billion, it still maps to a probability of 100%. This ensures the natural bounds of probability, which is between 0% and 100%, are always respected.
@@ -296,9 +310,9 @@ This introduces a key assumption in occupancy models. But for that 30% detection
 
 This is known as the *assumption of closure* (or *closure assumption*). It’s often misunderstood as meaning the site is physically “closed” off by something like a fence to prevent animals from entering and leaving. That’s not what it means. In occupancy models, closure means the population is demographically closed during the survey period. If a species is present at the first survey, it remains present for all subsequent surveys.
 
-> **Zitong** and **Joe**, this has two important implications for your fieldwork:
+> **Stuart** and **Morgan**, this has two important implications for your fieldwork:
 >
-> You need to survey each site on multiple occasions, i.e. you need $J$ surveys. If you’re using camera traps, this means leaving the camera in situ for more than one sampling period.
+> You need to survey each site on multiple occasions, i.e. you need $J$ surveys. If you’re using camera traps (Morgan) or acoustic detectors (Stuart), this means leaving the device in situ for more than one sampling period.
 >
 > You're completely free to define the sampling period (hour/day/week), but it must be short enough that if your species is present at the first survey, it’s still present at the last.
 

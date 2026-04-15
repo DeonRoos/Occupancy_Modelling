@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Deon Roos">
-<meta name="dcterms.date" content="2025-05-13">
+<meta name="dcterms.date" content="2026-04-12">
 
 <title>Occupancy Modelling - Understanding Spatial Autocorrelation</title>
 <style>
@@ -98,6 +98,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="nav-fixed">
@@ -133,6 +134,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="./Bayesian_Occupancy_Models.html" rel="" target="">
  <span class="menu-text">Fitting Bayesian Models</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./SpatialAutocorrelation.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Spatial Occupancy Models</span></a>
+  </li>  
 </ul>
             <div class="quarto-navbar-tools ms-auto">
 </div>
@@ -153,6 +158,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#what-is-spatial-autocorrelation" id="toc-what-is-spatial-autocorrelation" class="nav-link" data-scroll-target="#what-is-spatial-autocorrelation">What is Spatial Autocorrelation?</a></li>
   <li><a href="#strategies-for-addressing-spatial-autocorrelation" id="toc-strategies-for-addressing-spatial-autocorrelation" class="nav-link" data-scroll-target="#strategies-for-addressing-spatial-autocorrelation">Strategies for Addressing Spatial Autocorrelation</a></li>
   <li><a href="#the-option-well-use" id="toc-the-option-well-use" class="nav-link" data-scroll-target="#the-option-well-use">The option we’ll use</a></li>
+  <li><a href="#choosing-the-right-kernel" id="toc-choosing-the-right-kernel" class="nav-link" data-scroll-target="#choosing-the-right-kernel">Choosing the right kernel</a></li>
+  <li><a href="#summary-so-far" id="toc-summary-so-far" class="nav-link" data-scroll-target="#summary-so-far">Summary so far</a></li>
+  <li><a href="#fitting-a-spatial-occupancy-model" id="toc-fitting-a-spatial-occupancy-model" class="nav-link" data-scroll-target="#fitting-a-spatial-occupancy-model">Fitting a spatial occupancy model</a></li>
+  <li><a href="#plotting-maps" id="toc-plotting-maps" class="nav-link" data-scroll-target="#plotting-maps">Plotting maps</a></li>
+  <li><a href="#the-end" id="toc-the-end" class="nav-link" data-scroll-target="#the-end">The end</a></li>
   </ul>
 </nav>
     </div>
@@ -178,7 +188,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 13, 2025</p>
+      <p class="date">April 12, 2026</p>
     </div>
   </div>
   
@@ -190,117 +200,62 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="a-common-spatial-problem" class="level2">
 <h2 class="anchored" data-anchor-id="a-common-spatial-problem">A Common (Spatial) Problem</h2>
-<p>Imagine you’re surveying a species across a landscape. You visit dozens of locations, scattered across a region, recording whether or not the species is detected. Now these surveys don’t happen in a vacuum; at each site there is some sort of underlying habitat quality. Here’s what your landscape and survey locations might look like:</p>
+<p>Imagine you’re surveying a species across a landscape. You visit dozens of locations, scattered across a region, recording whether or not the species is detected. Now, these sites don’t exist in a vacuum; at each site there is some sort of underlying habitat quality. Here’s what your landscape and survey locations might look like:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(viridis)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: viridisLite</code></pre>
-</div>
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(imager)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: magrittr</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'imager'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:magrittr':
-
-    add</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    convolve, spectrum</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:graphics':
-
-    frame</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:base':
-
-    save.image</code></pre>
-</div>
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following object is masked from 'package:imager':
-
-    where</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">666</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>grid_size <span class="ot">&lt;-</span> <span class="dv">30</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>noise <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(grid_size<span class="sc">^</span><span class="dv">2</span>), <span class="at">nrow =</span> grid_size)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>noise_img <span class="ot">&lt;-</span> <span class="fu">as.cimg</span>(noise)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>smoothed_img <span class="ot">&lt;-</span> <span class="fu">isoblur</span>(noise_img, <span class="at">sigma =</span> <span class="dv">3</span>)</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(smoothed_img)</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>cams_x <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">29</span>, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>cams_y <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">29</span>, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>cams <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> cams_x, <span class="at">y =</span> cams_y)</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">fill =</span> value)) <span class="sc">+</span></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_raster</span>() <span class="sc">+</span></span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> cams, <span class="fu">aes</span>(<span class="at">x =</span> cams_x, <span class="at">y =</span> cams_y), <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>() <span class="sc">+</span></span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Habitat</span><span class="sc">\n</span><span class="st">Quality"</span></span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(viridis)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(imager)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">666</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>grid_size <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>noise <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(grid_size<span class="sc">^</span><span class="dv">2</span>), <span class="at">nrow =</span> grid_size)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>noise_img <span class="ot">&lt;-</span> <span class="fu">as.cimg</span>(noise)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>smoothed_img <span class="ot">&lt;-</span> <span class="fu">isoblur</span>(noise_img, <span class="at">sigma =</span> <span class="dv">3</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(smoothed_img)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>cams_x <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">29</span>, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>cams_y <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">29</span>, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>cams <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> cams_x, <span class="at">y =</span> cams_y)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">fill =</span> value)) <span class="sc">+</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_raster</span>() <span class="sc">+</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> cams, <span class="fu">aes</span>(<span class="at">x =</span> cams_x, <span class="at">y =</span> cams_y), <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>() <span class="sc">+</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Habitat</span><span class="sc">\n</span><span class="st">Quality"</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dark_site</span>() <span class="sc">+</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="SpatialAutocorrelation_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>We have some sites that are in “good” habitat and some that are “bad” (keep in mind that “habitat quality” here is just the lazy way I’ve simulated habitat). Importantly, like most real world habitats, the habitat changes gradually - we don’t go from extremly high quality to extremely low quality. In any case, we go place our cameras in the landscape (the black dots) and collect our data.</p>
-<p>Let’s say we then take this data and fit a model to understand how features of the habitat (e.g.&nbsp;distance to roads) influences occupancy. Looking at your results, you notice something odd:</p>
+<p>We have some sites that are in “good” habitat (yellow-ish cells) and some that are “bad” (blue cells). (Keep in mind that I’m being lazy by calling this “habitat quality”, this might be something like tree cover, or soil nutrients, or prey abundance etc.). Importantly, like most real world habitats, the habitat changes gradually - we don’t go from extremely high quality to extremely low quality in 1 cm. It decays (or improves) slowly over distance.</p>
+<p>In any case, we go place our cameras in the landscape (the black dots) and collect our data.</p>
+<p>Let’s say we then take this data and fit a model to understand how features of the habitat (e.g.&nbsp;distance to roads) influences occupancy. For now, let’s say we know the Truth that distance to road does influence occupancy. However, when looking at your hypothetical results, you might notice something odd:</p>
 <ol type="1">
-<li>Two nearby locations that have <em>completely contrasting</em> covariate values have very similar occupancy probabilities (e.g.&nbsp;Site A has very tall trees and Site B has grassland but both have 62% predicted occupancy).</li>
-<li>Coversly, two other sites which are very far apart from each other but have <em>identical</em> covariate values show totally contrasting predicted presence and absence (e.g.&nbsp;Site C has grassland and Site D has grassland but Site A has 6% occupancy and Site B has 87%).</li>
+<li>Two nearby locations that have <em>completely contrasting</em> covariate values have very similar occupancy probabilities (e.g.&nbsp;Site A might be very far from a road while Site B is adjacent but both have 62% predicted occupancy).</li>
+<li>Conversely, two other sites which are very far apart from each other but have <em>identical</em> covariate values show totally contrasting predicted presence and absence (e.g.&nbsp;Site C is 10 m to the nearest road and Site D is also 10 m but Site A has 6% occupancy and Site B has 87%).</li>
 </ol>
-<p>This “clumping” effect suggests your model <em>might</em> be missing something.</p>
+<p>What’s going on here? How is the relationship being obscured to us? It’s happening because we are missing something from our model, and therefore breaking an assumption.</p>
 </section>
 <section id="what-is-spatial-autocorrelation" class="level2">
 <h2 class="anchored" data-anchor-id="what-is-spatial-autocorrelation">What is Spatial Autocorrelation?</h2>
 <p>Spatial autocorrelation refers to the phenomenon where data (e.g.&nbsp;habitat, detections, weather) collected at nearby locations tend to be more similar (or dissimilar) than those collected at distant locations. In the context of species occupancy, this means that whether a species is present at one site may provide information about its presence at nearby sites.</p>
-<p>Consider how we could describe this. Any site we choose it will be perfectly correctly with itself - if the trees are tall in Site A that correlates perfectly with Site A that has tall trees. So simple and stupid that it might be confusing; <em>All sites are perfectly correlated with themselves</em>. In truth, we don’t particularly care about that, but it’s never-the-less true. What’s of more interest is how two different sites are correlated with each other. For example, Site 1 and Site 2 may have a correlation of 0.42. Site 1 and Site 3 is maybe 0.63. And so on, and so on.</p>
+<p>Consider how we could describe this. For any site we choose, it will be perfectly correlated with itself. If the trees are tall in Site A that correlates perfectly with Site A that has tall trees. So simple and stupid that it might be confusing; <em>All sites are perfectly correlated with themselves</em>.</p>
+<p>In truth, we don’t particularly care about that, but it’s never-the-less true. What’s of more interest is how two different sites are correlated with each other. For example, Site 1 and Site 2 may have a correlation of 0.42. Site 1 and Site 3 is maybe 0.63. And so on, and so on.</p>
 <p>It gets pretty miserable to write that out in text. Thankfully, there’s a convenient way to write this. Let’s see what that might look like for our ten sites from the example above:</p>
 <span class="math display">\[\begin{array}{c|cccccccccc}
 &amp; \text{S1} &amp; \text{S2} &amp; \text{S3} &amp; \text{S4} &amp; \text{S5} &amp; \text{S6} &amp; \text{S7} &amp; \text{S8} &amp; \text{S9} &amp; \text{S10} \\
@@ -316,57 +271,52 @@ Attaching package: 'dplyr'</code></pre>
 \text{S9}  &amp;       &amp;       &amp;       &amp;       &amp;       &amp;       &amp;       &amp;       &amp; 1.00 &amp; 0.31 \\
 \text{S10} &amp;       &amp;       &amp;       &amp;       &amp;       &amp;       &amp;       &amp;       &amp;       &amp; 1.00 \\
 \end{array}\]</span>
-<p>This is something called a <em>variance co-variance matrix</em>. Each row and column represents a site (in this case); <span class="math inline">\(S1\)</span> is Site 1, <span class="math inline">\(S2\)</span> is Site 2, and so on. The values, between 0 and 1, represent the correlation between <span class="math inline">\(S_i\)</span> and <span class="math inline">\(S_I\)</span>. Notice that Site 1 is perfectly correlated with itself? That’s good - we said it should be. Your height is perfectly correlated with <em>your height</em>. Like we said above, the more interesting part is when we look at different sites. For example, <span class="math inline">\(S1\)</span> and <span class="math inline">\(S2\)</span> have a correlation of 0.42. <span class="math inline">\(S1\)</span> and <span class="math inline">\(S3\)</span> is 0.63. <span class="math inline">\(S2\)</span> and <span class="math inline">\(S3\)</span> is 0.39. This shows that sites 1 and 3 are very similar to each other.</p>
+<p>This is something called a <em>correlation matrix</em>. Each row and column represents a site (in this case); <span class="math inline">\(S1\)</span> is Site 1, <span class="math inline">\(S2\)</span> is Site 2, and so on. The values, between -1 and 1, represent the correlation between <span class="math inline">\(S_i\)</span> and <span class="math inline">\(S_I\)</span>. Notice that Site 1 is perfectly correlated with itself? That’s good. We said it should be. Your height is perfectly correlated with <em>your height</em>. Like we said above, the more interesting part is when we look at different sites. For example, <span class="math inline">\(S1\)</span> and <span class="math inline">\(S2\)</span> have a correlation of 0.42. <span class="math inline">\(S1\)</span> and <span class="math inline">\(S3\)</span> is 0.63. <span class="math inline">\(S2\)</span> and <span class="math inline">\(S3\)</span> is 0.39. This shows that sites 1 and 3 are very similar to each other.</p>
 <blockquote class="blockquote">
 <p>The lower triangle of the matrix is left empty to reduce clutter but it is simply a mirror of the upper triangle. The Diagonal is how much sites correlate with themselves.</p>
 </blockquote>
 <p>Looking at these correlations, our question may be: Are these correlations because they are close to each other in space? Is that why they’re so similar?</p>
-<p>To anser this we need one last piece of information: something called <em>pairwise</em> distance. Pairwise distance is simply the distance between a pair of sites. As simple as that.</p>
+<p>To answer this we need one last piece of information: something called <em>pairwise</em> distance. Pairwise distance is simply the distance between a pair of sites. As simple as that.</p>
 <p>If we have both pieces of this information, we can estimate spatial autocorrelation at increasing pairwise distances. This can take various forms but here are some examples of what this may look like:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>distances <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">20</span>, <span class="at">length.out =</span> <span class="dv">200</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>correlation_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">distance =</span> <span class="fu">rep</span>(distances, <span class="dv">3</span>),</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">correlation =</span> <span class="fu">c</span>(</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(distances)), <span class="co"># No autocorrelation</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">exp</span>(<span class="sc">-</span>distances <span class="sc">/</span> <span class="dv">5</span>),   <span class="co"># Moderate autocorrelation/fast decay</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">exp</span>(<span class="sc">-</span>distances <span class="sc">/</span> <span class="dv">2</span>)  <span class="co"># Strong autocorrelation/slow decay</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">scenario =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"Slow Decay"</span>, <span class="st">"Fast Decay"</span>), <span class="at">each =</span> <span class="fu">length</span>(distances)),</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"Slow Decay"</span>, <span class="st">"Fast Decay"</span>))</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(correlation_df, <span class="fu">aes</span>(<span class="at">x =</span> distance, <span class="at">y =</span> correlation, <span class="at">color =</span> scenario)) <span class="sc">+</span></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"grey40"</span>, <span class="st">"steelblue"</span>, <span class="st">"firebrick"</span>)) <span class="sc">+</span></span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Pairwise Distance"</span>,</span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Autocorrelation"</span></span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>distances <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">20</span>, <span class="at">length.out =</span> <span class="dv">200</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>correlation_df <span class="ot">&lt;-</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">distance =</span> <span class="fu">rep</span>(distances, <span class="dv">3</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">correlation =</span> <span class="fu">c</span>(</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(distances)),   <span class="co"># No autocorrelation</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">exp</span>(<span class="sc">-</span>distances <span class="sc">/</span> <span class="dv">5</span>),         <span class="co"># Slow decay (stronger, longer-range corr)</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">exp</span>(<span class="sc">-</span>distances <span class="sc">/</span> <span class="dv">2</span>)          <span class="co"># Fast decay (weaker, shorter-range corr)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">scenario =</span> <span class="fu">factor</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"Slow Decay"</span>, <span class="st">"Fast Decay"</span>), <span class="at">each =</span> <span class="fu">length</span>(distances)),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"Slow Decay"</span>, <span class="st">"Fast Decay"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(correlation_df, <span class="fu">aes</span>(distance, correlation, <span class="at">color =</span> scenario)) <span class="sc">+</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"grey40"</span>, <span class="st">"steelblue"</span>, <span class="st">"firebrick"</span>)) <span class="sc">+</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Pairwise Distance"</span>, <span class="at">y =</span> <span class="st">"Correlation"</span>, <span class="at">color =</span> <span class="st">"Autocorrelation"</span>) <span class="sc">+</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dark_site</span>(<span class="at">base_size =</span> <span class="dv">14</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-ℹ Please use `linewidth` instead.</code></pre>
-</div>
 <div class="cell-output-display">
 <p><img src="SpatialAutocorrelation_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>The figure above shows how the similarity between nearby locations could change as the pairwise distance between them increases. These three lines are examples of <em>spatial autocorrelation</em>, the idea that places close to each other tend to be more alike than places far apart.</p>
-<p>The grey line shows a world where there’s no spatial pattern, or clustering, at all: knowing what happens at one site tells you nothing about another, no matter how close. In reality, this is pretty rare in ecology. Animals move, plants disperse seeds, and environments like soil, moisture, and temperature usually change gradually. That means sites to each often share similar ecological conditions and our observations of these.</p>
-<p>The red line, <em>fast decay</em>, might reflect species with small home ranges or patchy habitats. For instance, frogs that only live in isolated wetlands may show very different occupancy just a few kilometers apart. The blue line, slow decay, could reflect species that occupy large territories or respond to broad environmental gradients. Think of a forest-dwelling bird that ranges over many square kilometers; if it’s present in one forest, it’s probably also nearby.</p>
+<p>The figure above shows how the similarity between nearby locations could change as the pairwise distance between them increases in three hypothetical scenarios. These three lines are examples of <em>spatial autocorrelation</em>, the idea that sites close to each other tend to be more alike than places far apart.</p>
+<p>The grey line shows a world where there’s no spatial pattern, or clustering, at all: knowing what happens at one site tells you nothing about another, no matter how close. In reality, this is pretty rare in ecology. Animals move, plants disperse seeds, and environments like soil, moisture, and temperature usually change gradually. That means sites next to each often share similar ecological conditions and as a result, can likely influence occupancy (and really most things we could measure in the real world).</p>
+<p>The red line, <em>fast decay</em>, might reflect species with small home ranges or patchy habitats. For instance, frogs that only live in isolated wetlands may show very different occupancy just a few kilometers apart. The blue line, <em>slow decay</em>, could reflect species that occupy large territories or respond to broad environmental gradients. Think of a forest-dwelling bird that ranges over many square kilometers; if it’s present in one forest patch, it’s probably also in other adjacent forest patches.</p>
 <p>Whether spatial autocorrelation fades quickly or slowly matters. If it fades slowly and we ignore it, we might wrongly assume we have lots of independent data when really we’re just seeing the same pattern repeated locally. That can lead to overconfident conclusions and poor predictions. Understanding how fast that decay happens helps us choose the right tools to model and account for it.</p>
 </section>
 <section id="strategies-for-addressing-spatial-autocorrelation" class="level2">
 <h2 class="anchored" data-anchor-id="strategies-for-addressing-spatial-autocorrelation">Strategies for Addressing Spatial Autocorrelation</h2>
 <p>There are several strategies for dealing with spatial dependence in ecological models. We’ll only be using one of these in <code>spOccupancy</code> but these are some of the generic options:</p>
 <ul>
-<li><em>Spatially explicit covariates</em>: Sometimes the cause of spatial autocorrelation can be explained by including the environmental covariates in the model. In some cases, adding relevant covariates can reduce spatial structure in residuals.</li>
+<li><em>Spatially explicit covariates</em>: Sometimes the cause of spatial autocorrelation can be explained by including the environmental covariates in the model. In some cases, adding relevant covariates (e.g.&nbsp;distance to road) can reduce spatial structure in residuals. (But this can sometimes <em>create</em> correlation issues, or at least fail to solve them).</li>
 <li><em>Autocovariate terms</em>: Including information about neighboring sites (e.g., average response of nearby locations) can account for local similarity.</li>
 <li><em>Spatial random effects</em>: Something called <em>random effects</em> that are spatially structured (e.g., using Gaussian Processes or Conditional Autoregressive models) can capture residual spatial correlation.</li>
 <li><em>Eigenvector-based methods</em>: Moran’s Eigenvector Maps (MEMs) or Principal Coordinates of Neighbor Matrices (PCNM) are techniques to generate spatial predictors from location data.</li>
@@ -374,22 +324,323 @@ Attaching package: 'dplyr'</code></pre>
 </section>
 <section id="the-option-well-use" class="level2">
 <h2 class="anchored" data-anchor-id="the-option-well-use">The option we’ll use</h2>
-<p>To account for spatial autocorrelation in occupancy models, one powerful approach is to include a “hidden” or <em>latent</em> spatial surface. This surface acts like a flexible backdrop that captures patterns shared by nearby locations; patterns that our measured covariates might miss. For example, if two neighbouring sites have similar occupancy not just because of vegetation or distance to roads but because of unmeasured factors like microclimate or local dispersal, the spatial surface helps model that.</p>
+<p>We’ll be going with the random effect option in <code>spOccupancy</code>. This approach includes a “hidden” or <em>latent</em> spatial surface (note <em>latent</em> here means that we estimate it from the data, in much the same way that we estimate parameters [parameters are also latent]). This surface acts like a flexible backdrop that captures patterns shared by nearby locations; patterns that our measured covariates might miss. For example, if two neighbouring sites have similar occupancy not just because of vegetation or distance to roads but because of unmeasured factors like microclimate or local dispersal, the spatial surface helps model that.</p>
 <p>This spatial surface is modeled using something called a <em>Gaussian process</em>. You can think of this like drawing a smooth, continuous layer over the landscape that reflects spatial trends in occupancy. Locations that are close together share more of this spatial effect than distant ones, which mimics the idea of spatial autocorrelation.</p>
 <p>To get into the details, let’s see what it looks like we’ll go back to the occupancy model we fit in the previous page. I’m leaving the <em>priors</em> out just to keep things clean. As a reminder, the model we fit said that tree height and temperature caused elephants in Etosha to be more or less likely to be present, and we said that the amount of rain caused us to be more or less likely to detect elephants.</p>
 <p><span class="math display">\[z_i \sim Bernoulli(\psi_i)\]</span> <span class="math display">\[logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i + w_i \\\]</span> <span class="math display">\[y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\]</span></p>
 <p><span class="math display">\[logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\]</span></p>
 <p><span class="math display">\[w_i \sim \text{MVN}(0, \Sigma) \\\\\]</span></p>
 <p><span class="math display">\[\Sigma_{ij} = \sigma^2 \times C(d_{ij})\]</span></p>
-<p>There are a couple of new additions to our equations:</p>
+<p>You’ll see that there are a couple of new additions to our equations:</p>
 <ul>
-<li><p><span class="math inline">\(w_i\)</span> which is the spatial effect for site <span class="math inline">\(i\)</span>, and is shared across all surveys at that site.</p></li>
-<li><p><span class="math inline">\(\Sigma\)</span> is the covariance matrix capturing spatial structure.</p></li>
-<li><p><span class="math inline">\(C(d_{ij})\)</span> is the spatial correlation function based on the distance <span class="math inline">\(d_{ij}\)</span> between sites <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>.</p></li>
+<li><p><span class="math inline">\(w_i\)</span> which is the spatial effect for site <span class="math inline">\(i\)</span>, and is shared across all surveys at that site. This is within the <em>deterministic</em> part of the <em>state model</em> of what influences whether or not elephants are present.</p></li>
+<li><p><span class="math inline">\(w_i\)</span> is drawn from a type of distribution that will be new to you - the <em>Multivariate Normal</em> distribution (more on this in a bit).</p></li>
+<li><p><span class="math inline">\(\Sigma\)</span> is the covariance matrix capturing spatial structure (similar to the matrix further above).</p></li>
+<li><p><span class="math inline">\(C(d_{ij})\)</span> is the spatial correlation function based on the pairwise distance (<span class="math inline">\(d\)</span>) between site <span class="math inline">\(i\)</span> and site <span class="math inline">\(j\)</span>.</p></li>
 </ul>
-<p>Now, fitting this kind of model can get computationally expensive, especially when we have lots of survey locations. To make it faster and more scalable, the method uses something called a <em>Nearest Neighbor Gaussian Process</em>. Instead of using every other location to estimate the spatial effect at a given point, it uses just a few of the closest sites—say, the 15 nearest neighbors. This simplifies the math without losing much accuracy.</p>
-<p>Different options are available for how this spatial relationship is modeled—like assuming it fades gradually with distance (exponential), has a specific shape (spherical), or includes more complex flexibility (Matérn). These choices control how quickly the spatial correlation drops off with distance, and the method can be adapted depending on the species, the landscape, and the data.</p>
-<p>This approach allows us to model both what we know (through measured covariates) and what we don’t (through spatial patterns), all while accounting for imperfect detection. The result is a model that makes better use of the data, gives more realistic uncertainty, and is especially helpful when making predictions across a broader landscape—even in places we didn’t sample directly.</p>
+<p>The problem is that fitting this kind of model can get computationally expensive, especially when we have lots of survey locations. In such cases, to make it faster and more scalable, <code>spOccupancy</code> allows using a method called a <em>Nearest Neighbour Gaussian Process</em>. Instead of using every other location to estimate the spatial effect at a given point, it uses just a few of the closest sites, say, the 15 nearest neighbours. This simplifies the maths without losing much accuracy.</p>
+<p>Different options are available for how this spatial relationship is modelled, like assuming it fades gradually with distance (exponential), has a specific shape (spherical), or includes more complex flexibility (Matérn). These choices control how quickly the spatial correlation drops off with distance, and the method can be adapted depending on the species, the landscape, and the data.</p>
+<p>This approach allows us to model both what we know (through measured covariates) and what we don’t (through spatial patterns), all while accounting for imperfect detection. The result is a model that makes better use of the data, gives more realistic uncertainty, and is especially helpful when making predictions across a broader landscape, even in places we didn’t sample directly.</p>
+</section>
+<section id="choosing-the-right-kernel" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-the-right-kernel">Choosing the right kernel</h2>
+<p>When including a spatial random effect, we need to choose the right model (or “kernel”) for them. Should we fit a straight line? A sigmoid? Should the relationship do a backflip? Well as mentioned above, in <code>soOccupancy</code>, we’re limited to the four classic options; Exponential, Spherical, Gaussian or Matérn.</p>
+<p>Here’s what they look like:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>exp_corr <span class="ot">&lt;-</span> <span class="cf">function</span>(d, range) <span class="fu">exp</span>(<span class="sc">-</span><span class="fu">log</span>(<span class="dv">20</span>) <span class="sc">*</span> d <span class="sc">/</span> range)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>gau_corr <span class="ot">&lt;-</span> <span class="cf">function</span>(d, range) <span class="fu">exp</span>(<span class="sc">-</span>(<span class="fu">sqrt</span>(<span class="fu">log</span>(<span class="dv">20</span>)) <span class="sc">*</span> d <span class="sc">/</span> range)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>sph_corr <span class="ot">&lt;-</span> <span class="cf">function</span>(d, range) { r <span class="ot">&lt;-</span> d <span class="sc">/</span> range; out <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fl">1.5</span><span class="sc">*</span>r <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>r<span class="sc">^</span><span class="dv">3</span>; out[d <span class="sc">&gt;</span> range] <span class="ot">&lt;-</span> <span class="dv">0</span>; out }</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>matern_corr <span class="ot">&lt;-</span> <span class="cf">function</span>(d, range, <span class="at">nu =</span> <span class="fl">1.5</span>) {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  core <span class="ot">&lt;-</span> <span class="cf">function</span>(h, nu) { out <span class="ot">&lt;-</span> (<span class="dv">2</span><span class="sc">^</span>(<span class="dv">1</span> <span class="sc">-</span> nu) <span class="sc">/</span> <span class="fu">gamma</span>(nu)) <span class="sc">*</span> (h<span class="sc">^</span>nu) <span class="sc">*</span> <span class="fu">besselK</span>(h, nu); out[h <span class="sc">==</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="dv">1</span>; out }</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  rho <span class="ot">&lt;-</span> <span class="fu">uniroot</span>(<span class="cf">function</span>(r) <span class="fu">core</span>(range <span class="sc">/</span> r, nu) <span class="sc">-</span> <span class="fl">0.05</span>, <span class="fu">c</span>(<span class="fl">1e-6</span>, <span class="fl">1e6</span>))<span class="sc">$</span>root</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">core</span>(d <span class="sc">/</span> rho, nu)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>range_eff <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, range_eff <span class="sc">*</span> <span class="fl">1.5</span>, <span class="at">length.out =</span> <span class="dv">400</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">distance =</span> d, <span class="at">correlation =</span> <span class="fu">exp_corr</span>(d, range_eff), <span class="at">kernel =</span> <span class="st">"Exponential"</span>),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">distance =</span> d, <span class="at">correlation =</span> <span class="fu">sph_corr</span>(d, range_eff), <span class="at">kernel =</span> <span class="st">"Spherical"</span>),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">distance =</span> d, <span class="at">correlation =</span> <span class="fu">gau_corr</span>(d, range_eff), <span class="at">kernel =</span> <span class="st">"Gaussian"</span>),</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">distance =</span> d, <span class="at">correlation =</span> <span class="fu">matern_corr</span>(d, range_eff, <span class="at">nu =</span> <span class="fl">1.5</span>), <span class="at">kernel =</span> <span class="st">"Matérn (ν = 1.5)"</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(distance, correlation, <span class="at">color =</span> kernel)) <span class="sc">+</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Pairwise distance"</span>, <span class="at">y =</span> <span class="st">"Correlation"</span>, <span class="at">color =</span> <span class="st">"Kernel"</span>) <span class="sc">+</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dark_site</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="SpatialAutocorrelation_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Notice how they’re subtly different to each other? I mean, they’re not crazily different but those small differences can matter. So which should you choose?</p>
+<p>Well in practice, you generally start with the Matérn. The Matérn has a bit more flexibility than the other kernels, so can generally adjust a bit better to match the data. If you had loads of time, you might then fit the other options and check which seems to fit best with the data (generally by comparing how well they predict the data you used to fit the model).</p>
+<p>For you guys, I’d say just fit it with Matérn. If every seems sensible, then move on with your life. If the model seems really bad (for any number of reasons) try switching to one of the other options.</p>
+</section>
+<section id="summary-so-far" class="level2">
+<h2 class="anchored" data-anchor-id="summary-so-far">Summary so far</h2>
+<ol type="1">
+<li><p>Spatial data usually exhibit spatial autocorrelation, so observations are not independent (remember the assumption of independence?).</p></li>
+<li><p><code>spOccupancy</code> handles this with a spatial random effect which is included in the <em>state</em> model (i.e.&nbsp;are species present or not?).</p></li>
+<li><p>We start by choosing a kernel (e.g.&nbsp;Matérn) that describes how pairwise correlation relates to pairwise distance.</p></li>
+<li><p>Pairwise distance between all sites is calculated <span class="math inline">\(d_{ij}\)</span> and stored in a matrix <span class="math inline">\(\mathbf{D}\)</span></p></li>
+</ol>
+<p><span class="math display">\[
+\mathbf{D} =
+\left[
+\begin{array}{c|cccc}
+&amp; \text{S1} &amp; \text{S2} &amp; \cdots &amp; \text{S}_J \\
+\hline
+\text{S1}  &amp; 0    &amp; 15.2 &amp; \cdots &amp; 2.6 \\
+\text{S2}  &amp;      &amp; 0    &amp; \cdots &amp; 8.1 \\
+\vdots     &amp;      &amp;      &amp; \ddots &amp; \vdots \\
+\text{S}_J &amp;      &amp;      &amp;        &amp; 0 \\
+\end{array}
+\right]
+\]</span></p>
+<ol start="5" type="1">
+<li>The kernel then uses <span class="math inline">\(\mathbf{D}\)</span> to get pairwise correlations (<span class="math inline">\(\theta_{ij}\)</span>), and stores this in a correlation matrix <span class="math inline">\(\mathbf{C}\theta\)</span></li>
+</ol>
+<p><span class="math display">\[
+\mathbf{C}\theta =
+\left[
+\begin{array}{c|cccc}
+&amp; \text{S1} &amp; \text{S2} &amp; \cdots &amp; \text{S}_J \\
+\hline
+\text{S1}  &amp; 1    &amp; 0.42 &amp; \cdots &amp; 0.12 \\
+\text{S2}  &amp;      &amp; 1    &amp; \cdots &amp; 0.58 \\
+\vdots     &amp;      &amp;      &amp; \ddots &amp; \vdots \\
+\text{S}_J &amp;      &amp;      &amp;        &amp; 1 \\
+\end{array}
+\right]
+\]</span></p>
+<ol start="6" type="1">
+<li><p>We put a <em>Gaussian process</em> prior on <span class="math inline">\(w\)</span> in the model, <span class="math inline">\(w \sim MVN(0, \Sigma \theta)\)</span>. Here <span class="math inline">\(\Sigma\theta\)</span> is equal to <span class="math inline">\(\sigma^2 \times \mathbf{C}\theta\)</span> where <span class="math inline">\(\sigma\)</span> is standard deviation (just like in the “normal” <span class="math inline">\(\text{Normal}\)</span> distribution)</p></li>
+<li><p>The <em>Gaussian process</em> prior allows each site to be a little different than we might expect, based on it’s distance to other sites, but we assume there is some sort of global average (the zero in <span class="math inline">\(MVN(0, \Sigma \theta)\)</span>) that all sites are “pulled” towards that global average (the <span class="math inline">\(\Sigma\)</span> in <span class="math inline">\(MVN(0, \Sigma \theta)\)</span>).</p></li>
+</ol>
+<p>All we have to do is fit an occupancy model with an appropriate spatial random effect.</p>
+</section>
+<section id="fitting-a-spatial-occupancy-model" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-a-spatial-occupancy-model">Fitting a spatial occupancy model</h2>
+<p>We’ll return to the elephants in Etosha to show how to fit an occupancy model with a spatial random effect. As a reminder, temperature and trees determined if elephants were present or not, while rain determined if we saw elephants or not. We still have 64 sites.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spOccupancy)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1988</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">simOcc</span>(<span class="at">J.x =</span> <span class="dv">8</span>, <span class="at">J.y =</span> <span class="dv">8</span>, <span class="at">n.rep =</span> <span class="fu">rep</span>(<span class="dv">3</span>, <span class="dv">64</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="fl">0.2</span>, <span class="fl">0.3</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="fl">0.5</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">sp =</span> <span class="cn">TRUE</span>, <span class="at">cov.model =</span> <span class="st">"matern"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">sigma.sq =</span> <span class="fl">1.0</span>, <span class="at">phi =</span> <span class="dv">3</span> <span class="sc">/</span> <span class="fl">0.5</span>, <span class="at">nu =</span> <span class="fl">1.5</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> dat<span class="sc">$</span>y</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>temp <span class="ot">&lt;-</span> dat<span class="sc">$</span>X[, <span class="dv">3</span>]</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>tree <span class="ot">&lt;-</span> dat<span class="sc">$</span>X[, <span class="dv">2</span>]</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>det_cov <span class="ot">&lt;-</span> dat<span class="sc">$</span>X.p[, , <span class="dv">2</span>]</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>det.covs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">rain =</span> det_cov)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>occ.covs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">tree =</span> tree, <span class="at">temp =</span> temp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>We fit the model in almost the same way. The only difference this time is that space is incorporated into the model.</p>
+<p>To do so, we need to include the coordinate of each site in the <code>etosha</code> list. In this simulated data, the coordinates are a bit weird in that they range from zero to one. This is not like yours, which will need to be in UTM (Universe Transverse Mercator), where each unit corresponds to one meter. However, most likely, you’ll have latitude and longitude, which you’ll need to convert into UTM. It’s a bit fiddly but thankfully there are lots of resources online to walk you through the process, so do a quick search (e.g.&nbsp;see <a href="https://stackoverflow.com/questions/18639967/converting-latitude-and-longitude-points-to-utm">here</a>).</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>coords</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>        [,1]      [,2]
+1  0.0000000 0.0000000
+2  0.1428571 0.0000000
+3  0.2857143 0.0000000
+4  0.4285714 0.0000000
+5  0.5714286 0.0000000
+6  0.7142857 0.0000000
+7  0.8571429 0.0000000
+8  1.0000000 0.0000000
+9  0.0000000 0.1428571
+10 0.1428571 0.1428571
+11 0.2857143 0.1428571
+12 0.4285714 0.1428571
+13 0.5714286 0.1428571
+14 0.7142857 0.1428571
+15 0.8571429 0.1428571
+16 1.0000000 0.1428571
+17 0.0000000 0.2857143
+18 0.1428571 0.2857143
+19 0.2857143 0.2857143
+20 0.4285714 0.2857143
+21 0.5714286 0.2857143
+22 0.7142857 0.2857143
+23 0.8571429 0.2857143
+24 1.0000000 0.2857143
+25 0.0000000 0.4285714
+26 0.1428571 0.4285714
+27 0.2857143 0.4285714
+28 0.4285714 0.4285714
+29 0.5714286 0.4285714
+30 0.7142857 0.4285714
+31 0.8571429 0.4285714
+32 1.0000000 0.4285714
+33 0.0000000 0.5714286
+34 0.1428571 0.5714286
+35 0.2857143 0.5714286
+36 0.4285714 0.5714286
+37 0.5714286 0.5714286
+38 0.7142857 0.5714286
+39 0.8571429 0.5714286
+40 1.0000000 0.5714286
+41 0.0000000 0.7142857
+42 0.1428571 0.7142857
+43 0.2857143 0.7142857
+44 0.4285714 0.7142857
+45 0.5714286 0.7142857
+46 0.7142857 0.7142857
+47 0.8571429 0.7142857
+48 1.0000000 0.7142857
+49 0.0000000 0.8571429
+50 0.1428571 0.8571429
+51 0.2857143 0.8571429
+52 0.4285714 0.8571429
+53 0.5714286 0.8571429
+54 0.7142857 0.8571429
+55 0.8571429 0.8571429
+56 1.0000000 0.8571429
+57 0.0000000 1.0000000
+58 0.1428571 1.0000000
+59 0.2857143 1.0000000
+60 0.4285714 1.0000000
+61 0.5714286 1.0000000
+62 0.7142857 1.0000000
+63 0.8571429 1.0000000
+64 1.0000000 1.0000000</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>etosha <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y =</span> dat<span class="sc">$</span>y, <span class="at">det.covs =</span> det.covs, <span class="at">occ.covs =</span> occ.covs, <span class="at">coords =</span> dat<span class="sc">$</span>coords)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Once you’ve got your coordinates projected into UTM, and your data organised, we’re almost ready to begin. The last thing we need to do before the model changes is add a prior for the kernel. In the model below I use a Matérn kernel, which requires a prior for <span class="math inline">\(\nu\)</span> (or <em>nu</em>), which controls the smoothness. When <span class="math inline">\(\nu = 0.5\)</span>, then it becomes the equivalent of a rough exponential kernel but as <span class="math inline">\(\nu\)</span> increases the kernel becomes smoother and smoother; As <span class="math inline">\(\nu\)</span> approaches infinity it basically becomes the Gaussian kernel (hence, why Matérn is a very flexible kernel to use). The prior for <span class="math inline">\(\nu\)</span> is drawn from a <span class="math inline">\(\text{Uniform}\)</span> distribution, with a minimum and maximum, so a reasonably seasonable range for it in the model below might be 0.5 to 2.5, though the maximum could arguably be larger to allow it to reach the Gaussian kernel if needed.</p>
+<p>We can then fit the model using the function <code>spPGOcc()</code>, which works in a very similar way as <code>PGOcc()</code> except that this version has space (hence the <code>sp</code>). There are two meaningful changes to the code:</p>
+<ol type="1">
+<li>We need to specify the kernel (or covariance model, or <code>cov.model</code>). As mentioned above, given this is for your projects, start with Matérn (or <code>"matern"</code>) and only change if you have good reason to.</li>
+<li>We need to tweak how we specify the number of iterations the MCMC is allowed to run. Previously we used <code>n.samples</code> but now we use two arguments, <code>n.batch</code> and <code>batch.length</code> instead. The reason for this is a bit too technical to concern ourselves with here, so imagine it as chopping up <code>n.samples</code> into smaller, more easy to handle batches. This means we need to say how many batches we want, and how long each batch is. You can multiply the two together to give yourself an idea of how many iterations you are running the model for.</li>
+</ol>
+<p>In the model below, I use <code>cov.model = "matern",</code> <code>n.batch = 200</code> and <code>batch.length = 50</code> (giving 5,000 iterations per chain).</p>
+<p>Otherwise, it works just like before:</p>
+<div class="cell" data-hash="SpatialAutocorrelation_cache/html/unnamed-chunk-6_80781d172d69799f441b24f9175cd507">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha.normal =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">var =</span> <span class="fl">2.72</span>),  <span class="co"># Detection priors</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">beta.normal =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">var =</span> <span class="fl">2.72</span>),   <span class="co"># Occupancy priors</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">nu.unif =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">2.5</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">spPGOcc</span>(</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">occ.formula =</span> <span class="sc">~</span> tree <span class="sc">+</span> temp, </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">det.formula =</span> <span class="sc">~</span> rain, </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">priors =</span> priors,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">cov.model =</span> <span class="st">"matern"</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> etosha,</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.chains =</span> <span class="dv">4</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.batch =</span> <span class="dv">200</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">batch.length =</span> <span class="dv">50</span>, <span class="co"># 100 batches * 50 length = 5,000 iterations per chain</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>We can pull the fit of the model, just as before, except this time note that you have the parameters estimated for the Matérn kernel. We don’t need to do anything with that explicitly, but we can confirm that there are no issues with how these were estimated.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+spPGOcc(occ.formula = ~tree + temp, det.formula = ~rain, data = etosha, 
+    priors = priors, cov.model = "matern", n.batch = 200, batch.length = 50, 
+    verbose = FALSE, n.burn = 200, n.chains = 4)
+
+Samples per Chain: 10000
+Burn-in: 200
+Thinning Rate: 1
+Number of Chains: 4
+Total Posterior Samples: 39200
+Run Time (min): 4.2797
+
+Occurrence (logit scale): 
+               Mean     SD    2.5%     50%  97.5%   Rhat  ESS
+(Intercept)  0.5668 1.1498 -1.2183  0.3886 3.2267 1.0132  891
+tree        -0.1664 0.8296 -1.8660 -0.1672 1.6270 1.0025 1706
+temp         0.8059 0.8282 -0.6365  0.7152 2.6767 1.0007 3110
+
+Detection (logit scale): 
+               Mean     SD    2.5%     50%   97.5%   Rhat   ESS
+(Intercept) -1.5063 0.4614 -2.3281 -1.5319 -0.5444 1.0127  1271
+rain         0.5228 0.2662  0.0264  0.5146  1.0666 1.0001 14614
+
+Spatial Covariance: 
+            Mean     SD   2.5%     50%   97.5%   Rhat ESS
+sigma.sq  1.1876 2.0376 0.1942  0.6687  5.2841 1.0440 591
+phi      12.2406 5.1125 3.1240 12.2419 20.6381 1.0608 382
+nu        1.4551 0.5729 0.5418  1.4324  2.4439 1.0121 682</code></pre>
+</div>
+</div>
+</section>
+<section id="plotting-maps" class="level2">
+<h2 class="anchored" data-anchor-id="plotting-maps">Plotting maps</h2>
+<p>A nice thing we can do, given the model above, is to plot the predicted occupancy out over space. Here’s how you can do it, but keep in mind that in the example below (and the simulation) we have data for each coordinate. You probably won’t have this in your data (unless you are extremely lucky) so your figure will look more patchy.</p>
+<p>However, if you were able to get occupancy covariates for each coordinate from a grid, you could make this figure with your own data. If you are interested in doing this, then just get in touch.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>X<span class="fl">.0</span> <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> tree <span class="sc">+</span> temp, <span class="at">data =</span> etosha<span class="sc">$</span>occ.covs)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">X.0 =</span> X<span class="fl">.0</span>, <span class="at">coords.0 =</span> etosha<span class="sc">$</span>coords, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>psi_mean <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(pred<span class="sc">$</span>psi.<span class="fl">0.</span>samples) <span class="co"># Posterior mean for occupancy</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> etosha<span class="sc">$</span>coords[, <span class="dv">1</span>],</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> etosha<span class="sc">$</span>coords[, <span class="dv">2</span>],</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">psi =</span> psi_mean</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_df, <span class="fu">aes</span>(x, y, <span class="at">fill =</span> psi)) <span class="sc">+</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_equal</span>() <span class="sc">+</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"X coordinate"</span>, <span class="at">y =</span> <span class="st">"Y coordinate"</span>, <span class="at">fill =</span> <span class="st">"Predicted</span><span class="sc">\n</span><span class="st">Occupancy"</span>,</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"Note that in the simulation X and Y coordinates go from 0 to 1"</span>) <span class="sc">+</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dark_site</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="SpatialAutocorrelation_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>I won’t do it here, but you can also make the exact same figures as in the previous pages. Just follow the same steps.</p>
+</section>
+<section id="the-end" class="level1">
+<h1>The end</h1>
+<p>And that’s it. You now need to figure out what this evidence tells you about your system. Are elephants more likely to occupy sites with lots of trees? If so, what does that tell you about their biology? What does it tell you about their conservation?</p>
+<p>Think carefully about what your results actually mean. Take a step back from the modelling and think what you’ve learnt about biology. What changes in the world now that you’ve learnt this? Should we add more trees to Etosha? Should we direct anti-poaching efforts in grasslands? Just keep it grounded in your evidence. And definitely don’t go on tangents (e.g.&nbsp;if you never included tourist numbers in your model, don’t start talking about any potential tourist impacts on elephants). Keep the discussion of your results <em>grounded</em>! You don’t need to over- or undersell the importance of your result.</p>
 
 
 </section>

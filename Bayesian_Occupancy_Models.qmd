@@ -2,15 +2,33 @@
 title: "Bayesian Occupancy Models"
 author: "Deon Roos"
 date: "`r Sys.Date()`"
-format:
-  html:
-    theme: flatly
-    highlight-style: monochrome
-    code-fold: true
-    toc: true
-    toc-depth: 2
-    toc-location: right
+format: html
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+theme_dark_site <- function(...) {
+  ggplot2::theme_minimal(...) +
+  ggplot2::theme(
+    plot.background   = ggplot2::element_rect(fill = "#202123", colour = NA),
+    panel.background  = ggplot2::element_rect(fill = "#202123", colour = NA),
+    panel.grid.major  = ggplot2::element_line(colour = "#333333"),
+    panel.grid.minor  = ggplot2::element_line(colour = "#2d2e30"),
+    text              = ggplot2::element_text(colour = "#cccccc"),
+    axis.text         = ggplot2::element_text(colour = "#999999"),
+    plot.title        = ggplot2::element_text(colour = "#ffffff", face = "bold"),
+    plot.subtitle     = ggplot2::element_text(colour = "#999999"),
+    plot.caption      = ggplot2::element_text(colour = "#666666"),
+    legend.background = ggplot2::element_rect(fill = "#202123", colour = NA),
+    legend.key        = ggplot2::element_rect(fill = "#202123", colour = NA),
+    legend.text       = ggplot2::element_text(colour = "#cccccc"),
+    legend.title      = ggplot2::element_text(colour = "#cccccc"),
+    strip.background  = ggplot2::element_rect(fill = "#2d2e30", colour = NA),
+    strip.text        = ggplot2::element_text(colour = "#cccccc")
+  )
+}
+```
 
 In the previous page, we went through the underlying theory of Bayesian statistics; how our prior knowledge is updated using real data through Bayes’ Theorem. Now, we're going to move into the practical application of these ideas using the `spOccupancy` package. My goal here is to help you understand how Bayesian occupancy models are fit, how to monitor convergence, and how to interpret uncertainty through credible intervals.
 
@@ -103,7 +121,7 @@ ggplot(samples, aes(x = x, y = y)) +
     x = bquote(beta[0]),
     y = bquote(beta[1])
   ) +
-  theme_bw()
+  theme_dark_site()
 ```
 
 <div style="text-align: center;">
@@ -144,7 +162,7 @@ ggplot(samples_long_cumulative, aes(x = value)) +
   transition_manual(frame) +
   labs(title = "Cumulative Posterior up to Iteration {current_frame}",
        x = "Parameter Value", y = "Frequency") +
-  theme_bw()
+  theme_dark_site()
 ```
 
 <div style="text-align: center;">
@@ -179,7 +197,7 @@ ggplot(samples_long_cumulative_trace, aes(x = iteration, y = value)) +
   transition_manual(frame) +
   labs(title = "Traceplot up to Iteration {current_frame}",
        x = "Iteration", y = "Parameter Value") +
-  theme_bw()
+  theme_dark_site()
 
 ```
 
@@ -238,7 +256,7 @@ anim <- ggplot(chains_list, aes(x = x, y = y, group = chain, color = as.factor(c
   labs(title = "MCMC Chains Step: {round(frame_along, digits = 0)}",
     x = bquote(beta[0]),
     y = bquote(beta[1])) +
-  theme_bw()
+  theme_dark_site()
 animate(anim, fps = 25, duration = 20, width = 800, height = 600, renderer = gifski_renderer(), device = "png")
 ```
 
@@ -278,7 +296,7 @@ anim <- ggplot(samples_long_cumulative, aes(x = value, fill = as.factor(chain)))
   scale_fill_brewer(palette = "Set1", name = "Chain") +
   labs(title = "Cumulative Posterior up to Iteration {current_frame}",
        x = "Parameter Value", y = "Frequency") +
-  theme_minimal()
+  theme_dark_site()
 animate(anim, fps = 25, duration = 20, width = 800, height = 600, renderer = gifski_renderer())
 
 
@@ -290,7 +308,7 @@ anim <- ggplot(samples_long_cumulative, aes(x = iteration, y = value, color = as
   scale_color_brewer(palette = "Set1", name = "Chain") +
   labs(title = "Traceplot up to Iteration {current_frame}",
        x = "Iteration", y = "Parameter Value") +
-  theme_minimal()
+  theme_dark_site()
 animate(anim, fps = 25, duration = 20, width = 800, height = 600, renderer = gifski_renderer())
 
 ```
@@ -360,7 +378,7 @@ ggplot(bad_mcmc, aes(x = iteration, y = value, color = chain)) +
   geom_line(linewidth = 0.7) +
   facet_wrap(~issue, scales = "free_y", ncol = 1) +
   labs(x = "Iteration", y = "Parameter Value") +
-  theme_minimal() +
+  theme_dark_site() +
   theme(legend.position = "bottom") +
   scale_color_brewer(palette = "Set1")
 ```
@@ -477,7 +495,7 @@ ggplot(beta_0_df, aes(x = beta_0)) +
     x = expression(paste(beta[0], " or '(Intercept)'")),
     y = "Frequency"
   ) +
-  theme_minimal()
+  theme_dark_site()
 ```
 
 From our summary table, the mean for the $\beta_0$ or `(Intercept)` posterior was estimated as 2.0536, the median (called `50%` in the summary table) was 1.9727, and the 95% credible intervals were 0.1991 and 4.2706, just like we see in the figure.
@@ -641,7 +659,7 @@ prior_simulations <- map2_dfr(
 )
 ggplot(prior_simulations, aes(x = x, y = p, group = draw)) +
   geom_line(alpha = 0.2, color = "#FF5733") +
-  theme_minimal() +
+  theme_dark_site() +
   labs(
     x = "Covariate (x)",
     y = "Probability (p)"

@@ -2,15 +2,33 @@
 title: "The Fundamentals of the Bayesian Framework"
 author: "Deon Roos"
 date: "`r Sys.Date()`"
-format:
-  html:
-    theme: flatly
-    highlight-style: monochrome
-    code-fold: true
-    toc: true
-    toc-depth: 2
-    toc-location: right
+format: html
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+theme_dark_site <- function(...) {
+  ggplot2::theme_minimal(...) +
+  ggplot2::theme(
+    plot.background   = ggplot2::element_rect(fill = "#202123", colour = NA),
+    panel.background  = ggplot2::element_rect(fill = "#202123", colour = NA),
+    panel.grid.major  = ggplot2::element_line(colour = "#333333"),
+    panel.grid.minor  = ggplot2::element_line(colour = "#2d2e30"),
+    text              = ggplot2::element_text(colour = "#cccccc"),
+    axis.text         = ggplot2::element_text(colour = "#999999"),
+    plot.title        = ggplot2::element_text(colour = "#ffffff", face = "bold"),
+    plot.subtitle     = ggplot2::element_text(colour = "#999999"),
+    plot.caption      = ggplot2::element_text(colour = "#666666"),
+    legend.background = ggplot2::element_rect(fill = "#202123", colour = NA),
+    legend.key        = ggplot2::element_rect(fill = "#202123", colour = NA),
+    legend.text       = ggplot2::element_text(colour = "#cccccc"),
+    legend.title      = ggplot2::element_text(colour = "#cccccc"),
+    strip.background  = ggplot2::element_rect(fill = "#2d2e30", colour = NA),
+    strip.text        = ggplot2::element_text(colour = "#cccccc")
+  )
+}
+```
 
 # Statistical frameworks
 
@@ -62,7 +80,7 @@ ggplot(posterior_df, aes(x = value)) +
     x = "Average Human Height",
     y = "Density"
   ) +
-  theme_minimal()
+  theme_dark_site()
 
 
 ```
@@ -127,7 +145,7 @@ data.frame(theta, prior) |>
   geom_line(color = "steelblue", size = 1.2) +
   scale_x_continuous(labels = scales::percent) +
   labs(x = "Chance of Passing", y = "Belief Density") +
-  theme_minimal()
+  theme_dark_site()
 ```
 
 ## The Likelihood
@@ -145,7 +163,7 @@ data.frame(theta, likelihood) |>
   geom_line(color = "darkgreen", size = 1.2) +
   scale_x_continuous(labels = scales::percent) +
   labs(x = "Chance of Passing", y = "Likelihood (scaled)") +
-  theme_minimal()
+  theme_dark_site()
 ```
 
 In Bayesian terms, this evidence updates your belief.
@@ -168,7 +186,7 @@ posterior_df |>
   geom_line(size = 1.2) +
   labs(x = "Chance of Passing", y = "Belief / Likelihood (scaled)", colour = "") +
   scale_x_continuous(labels = scales::percent) +
-  theme_minimal() +
+  theme_dark_site() +
   scale_color_manual(values = c("darkgreen", "firebrick", "steelblue"))
 ```
 
@@ -212,7 +230,7 @@ data.frame(theta, prior) |>
   geom_line(color = "steelblue", size = 1.2) +
   scale_x_continuous(labels = scales::percent) +
   labs(x = "Chance of Passing", y = "Belief Density") +
-  theme_minimal()
+  theme_dark_site()
 ```
 
 This was done using a distribution. Specifically, we used a $Beta$ distribution with the "technical details" set such that it looked like the above, but we can change the distribution and values to anything we want.
@@ -267,7 +285,7 @@ ggplot(df, aes(x = x, y = density)) +
     x = expression("Possible values of " * beta[0]),
     y = NULL
   ) +
-  theme_bw(base_size = 14) +
+  theme_dark_site(base_size = 14) +
   theme(
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
@@ -364,7 +382,7 @@ data.frame(theta, prior) |>
   ggplot(aes(x = theta, y = prior)) +
   geom_line(color = "steelblue", size = 1.2) +
   labs(x = "Baby height", y = "Density") +
-  theme_minimal()
+  theme_dark_site()
 ```
 
 And we have a prior for baby height that seems pretty reasonable given my conditions. Here our intercept prior is $Gamma(22,0.5)$.
@@ -388,7 +406,7 @@ data.frame(theta, prior) |>
   ggplot(aes(x = theta, y = prior)) +
   geom_line(color = "steelblue", size = 1.2) +
   labs(x = "Baby growth rate", y = "Density") +
-  theme_minimal()
+  theme_dark_site()
 ```
 
 Here our slope (i.e. growth rate) prior uses a log-Normal distribution, specifically: $LN(2,0.3)$.
@@ -414,7 +432,7 @@ data.frame(theta, prior) |>
   ggplot(aes(x = theta, y = prior)) +
   geom_line(color = "steelblue", size = 1.2) +
   labs(x = "Baby growth rate", y = "Density") +
-  theme_minimal()
+  theme_dark_site()
 ```
 
 Which basically says, I don't know what baby growth rate is, but it's probably between -100 and 100 cm per year. You can always change the values to e.g. $Uniform(-1, 1)$ or $Uniform(0,1)$. The important part is that the $Uniform$ distribution does not have a peak, a region where you think some values are more likely than others. In the above figure, I'm saying that baby growth rate could be anywhere from -100 to 100 with equal probability.

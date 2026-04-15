@@ -14,8 +14,15 @@ website:
         href: Bayesian_Statistics.qmd
       - text: "Fitting Bayesian Models"
         href: Bayesian_Occupancy_Models.qmd
+      - text: "Spatial Occupancy Models"
+        href: SpatialAutocorrelation.qmd
 
 format:
   html:
-    theme: cosmo
+    theme: default
+    css: styles.css
+    highlight-style: atom-one-dark
+    code-fold: true
     toc: true
+    toc-depth: 2
+    toc-location: right

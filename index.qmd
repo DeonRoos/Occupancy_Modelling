@@ -3,7 +3,7 @@ title: "Welcome to your site"
 format: html
 ---
 
-# Hey Zitong and Joe!
+# Hey Stuart and Morgan!
 
 This site was made for you both and introduces the fundamentals and advanced topics in occupancy modelling that you'll need to do your honours project. I've tried to write the material to be accessible for you both, in terms of your honours projects, but also to help boost your skillset for when you finish you undergraduate.
 
@@ -25,12 +25,7 @@ To get the most out of this material, I recommend the following order:
 4.  [**Fitting Bayesian Models**](Bayesian_Occupancy_Models.qmd)  
     Combine occupancy models with the Bayesian framework to fit models using the `spOccupancy` package.
 
-5.  **To be added – Spatial autocorrelation**  
-    Learn the basic theory behind spatial autocorrelation.
-
-6.  **To be added – Occupancy models with spatial autocorrelation**  
-    Combine occupancy models, the Bayesian framework, and spatial autocorrelation to fit more advanced models that account for spatial structure.
-
-Be aware that this site is very much an on going work in progress. Let me know if you spot anything that needs some work.
+5.  [**Spatial Occupancy Models**](SpatialAutocorrelation.qmd)
+    Learn about spatial autocorrelation and how to incorporate it in `spOccupancy`.
 
 Enjoy!
