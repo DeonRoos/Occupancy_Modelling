@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Deon Roos">
-<meta name="dcterms.date" content="2025-05-03">
+<meta name="dcterms.date" content="2026-04-12">
 
 <title>Occupancy Modelling - Introduction to Occupancy Models</title>
 <style>
@@ -101,6 +101,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="nav-fixed">
@@ -135,6 +136,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="./Bayesian_Occupancy_Models.html" rel="" target="">
  <span class="menu-text">Fitting Bayesian Models</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./SpatialAutocorrelation.html" rel="" target="">
+ <span class="menu-text">Spatial Occupancy Models</span></a>
   </li>  
 </ul>
             <div class="quarto-navbar-tools ms-auto">
@@ -192,7 +197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 3, 2025</p>
+      <p class="date">April 12, 2026</p>
     </div>
   </div>
   
@@ -206,12 +211,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Where are species present and why are they present?</h1>
 <p>A fundamental question in ecology is; Where are species present, and why are they present <em>there</em>?</p>
 <blockquote class="blockquote">
-<p><strong>Zitong</strong>, in your case this may be; Why are roe deer present at site A but not site B? Is it because site A is closer to roads? If a site is close to a road what’s the probability roe deer are present? Is that very different to sites that are far away from a road?</p>
-<p>What about features of the habitat? Are roe deer more likely if a site is forested versus agricultural?</p>
+<p><strong>Morgan</strong>, in your case this may be; Why are red foxes present at site A but not site B? Is it because site A is closer to urban areas or human settlements? If a site is in a more urbanised landscape, what’s the probability red foxes are present? Is that very different from rural sites?</p>
+<p>What about features of the habitat? Are red foxes more likely to occupy sites with more woodland edge, or areas with higher prey availability?</p>
 </blockquote>
 <blockquote class="blockquote">
-<p><strong>Joe</strong>, in your case this may be; Why are pheasants present at site A but not site B? Is it related to how far away the nearest <em>known</em> release pen is? What does the relationship look like? If there is no relationship, what would that mean for policy?</p>
-<p>What about the habitat makes pheasants more likely to occupy that site?</p>
+<p><strong>Stuart</strong>, in your case this may be; Why are bats present at site A but not site B? Is it related to distance to water bodies or riparian habitat? What does the relationship between woodland cover and bat occupancy look like?</p>
+<p>What about other features of the landscape? Are bats more likely to occupy sites away from artificial light at night, or where there is more continuous hedgerow connectivity?</p>
 </blockquote>
 <p>To act as motivation for this intro to occupancy models, let’s say we’re interested in understanding why are elephants present in the north of <a href="https://www.etoshanationalpark.org/">Etosha</a> nature reserve in Namibia, but not in the south of the reserve? (As a side note, I’d recommend going there on holiday if you ever get the chance). Are elephants present in some parts of Etosha due to water availability? Is it related to food? Could predators play a role?</p>
 <p>To find out, we need stats. As useful as gut feelings and intuition are, it’s not enough. Remember, <em>statistics is how we get the <strong>evidence</strong></em> <em>to answer our research question using data</em>.</p>
@@ -275,7 +280,7 @@ logit(p_i) = \beta_0
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Logit value that</span><span class="sc">\n</span><span class="st">elephants are present"</span>,</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Probability that</span><span class="sc">\n</span><span class="st">elephants are present"</span>) <span class="sc">+</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dark_site</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="Occupancy_Models_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
@@ -549,8 +554,8 @@ logit(p_{i,j}) = \alpha_0
 <h1>The assumption of closure</h1>
 <p>This is known as the <em>assumption of closure</em> (or <em>closure assumption</em>). It’s often misunderstood as meaning the site is physically “closed” off by something like a fence to prevent animals from entering and leaving. That’s not what it means. In occupancy models, closure means the population is demographically closed during the survey period. If a species is present at the first survey, it remains present for all subsequent surveys.</p>
 <blockquote class="blockquote">
-<p><strong>Zitong</strong> and <strong>Joe</strong>, this has two important implications for your fieldwork:</p>
-<p>You need to survey each site on multiple occasions, i.e.&nbsp;you need <span class="math inline">\(J\)</span> surveys. If you’re using camera traps, this means leaving the camera in situ for more than one sampling period.</p>
+<p><strong>Stuart</strong> and <strong>Morgan</strong>, this has two important implications for your fieldwork:</p>
+<p>You need to survey each site on multiple occasions, i.e.&nbsp;you need <span class="math inline">\(J\)</span> surveys. If you’re using camera traps (Morgan) or acoustic detectors (Stuart), this means leaving the device in situ for more than one sampling period.</p>
 <p>You’re completely free to define the sampling period (hour/day/week), but it must be short enough that if your species is present at the first survey, it’s still present at the last.</p>
 </blockquote>
 <p>And, critically, the full survey period should not be so long that the species could realistically disappear from the site (e.g.&nbsp;due to death, migration, or disturbance) or recolonise it.</p>
