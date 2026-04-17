@@ -4,7 +4,7 @@
 /* === Global === */
 body {
   background-color: #202123 !important;
-  color: white;
+  color: #e2e2e2;
 }
 
 h1,
@@ -14,7 +14,26 @@ h4,
 h5,
 h6,
 p {
-  color: white;
+  color: #e2e2e2;
+}
+
+/* === Blockquotes / Callouts === */
+blockquote {
+  background-color: rgba(0, 166, 138, 0.07);
+  border-left: 3px solid #00a68a;
+  border-radius: 0 6px 6px 0;
+  padding: 0.75em 1.2em;
+  margin: 1.5em 0;
+  color: #a8c5c0 !important;
+}
+
+blockquote p {
+  color: #a8c5c0 !important;
+}
+
+blockquote strong,
+blockquote b {
+  color: #c5dbd8 !important;
 }
 
 h1,

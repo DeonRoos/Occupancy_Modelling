@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Deon Roos">
-<meta name="dcterms.date" content="2026-04-15">
+<meta name="dcterms.date" content="2026-04-17">
 
 <title>Occupancy Modelling - Introduction to Occupancy Models</title>
 <style>
@@ -197,7 +197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 15, 2026</p>
+      <p class="date">April 17, 2026</p>
     </div>
   </div>
   
@@ -276,7 +276,7 @@ logit(p_i) = \beta_0
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(p, logit)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat) <span class="sc">+</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> logit, <span class="at">y =</span> p)) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> logit, <span class="at">y =</span> p), <span class="at">color =</span> <span class="st">"#00a68a"</span>) <span class="sc">+</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Logit value that</span><span class="sc">\n</span><span class="st">elephants are present"</span>,</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Probability that</span><span class="sc">\n</span><span class="st">elephants are present"</span>) <span class="sc">+</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
@@ -448,8 +448,8 @@ logit(p_{i,j}) = \alpha_0
 <span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>highlight_ones <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(x <span class="sc">==</span> <span class="dv">1</span>,</span>
 <span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>         <span class="fu">cell_spec</span>(x,</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>                   <span class="at">color =</span> <span class="st">"white"</span>,</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>                   <span class="at">background =</span> <span class="st">"darkred"</span>,</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>                   <span class="at">color =</span> <span class="st">"#202123"</span>,</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>                   <span class="at">background =</span> <span class="st">"#00a68a"</span>,</span>
 <span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>                   <span class="at">bold =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>         x)</span>
 <span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -473,7 +473,7 @@ logit(p_{i,j}) = \alpha_0
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;"><span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: darkred !important;">1</span></td>
+<td style="text-align: left;"><span style=" font-weight: bold;    color: rgba(32, 33, 35, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 166, 138, 255) !important;">1</span></td>
 <td style="text-align: left;">0</td>
 <td style="text-align: left;">0</td>
 </tr>
@@ -517,12 +517,12 @@ logit(p_{i,j}) = \alpha_0
 <td style="text-align: right;">8</td>
 <td style="text-align: left;">0</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;"><span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: darkred !important;">1</span></td>
+<td style="text-align: left;"><span style=" font-weight: bold;    color: rgba(32, 33, 35, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 166, 138, 255) !important;">1</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;"><span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: darkred !important;">1</span></td>
+<td style="text-align: left;"><span style=" font-weight: bold;    color: rgba(32, 33, 35, 255) !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 166, 138, 255) !important;">1</span></td>
 <td style="text-align: left;">0</td>
 </tr>
 <tr class="even">
@@ -705,7 +705,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0027
+Run Time (min): 0.0025
 
 Occurrence (logit scale): 
               Mean     SD    2.5%    50%  97.5%   Rhat  ESS
