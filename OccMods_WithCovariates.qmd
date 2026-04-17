@@ -6,7 +6,8 @@ format: html
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      dev.args = list(bg = "#202123"))
 
 theme_dark_site <- function(...) {
   ggplot2::theme_minimal(...) +
@@ -99,15 +100,16 @@ df <- data.frame(
 )
 
 p1 <- ggplot(df) +
-  geom_boxplot(aes(x = factor(survey), y = cov)) +
+  geom_boxplot(aes(x = factor(survey), y = cov),
+               fill = "#2d2e30", color = "#cccccc") +
   geom_jitter(aes(x = factor(survey), y = cov),
-              width = 0.2, height = 0) +
+              width = 0.2, height = 0, color = "#cccccc", alpha = 0.7) +
   labs(x = "Survey", y = "Rainfall") +
   theme_dark_site()
 
 p2 <- ggplot(df) +
   geom_jitter(aes(y = factor(y), x = cov),
-              alpha = 0.4, width = 0, height = 0.1) +
+              alpha = 0.5, width = 0, height = 0.1, color = "#cccccc") +
   labs(x = "Rainfall", y = "Elephant detection") +
   theme_dark_site()
 
@@ -126,7 +128,7 @@ obs_long$Detection <- factor(obs_long$Detection, levels = c(1, 0), labels = c("D
 
  p3 <- ggplot(obs_long, aes(x = Site, y = Survey, fill = Detection)) +
   geom_tile(color = "white") +
-  scale_fill_manual(values = c("Detection" = "darkgreen", "No detection" = "lightgrey")) +
+  scale_fill_manual(values = c("Detection" = "#00a68a", "No detection" = "#2d2e30")) +
   labs(x = "Site", y = "Survey") +
   theme_dark_site() +
   theme(legend.position = "bottom")
@@ -397,35 +399,35 @@ df <- data.frame(
 )
 
 p1 <- ggplot(df) +
-  geom_histogram(aes(x = temp)) +
+  geom_histogram(aes(x = temp), fill = "#00a68a", color = "#202123") +
   labs(y = "Count", x = "Temperature") +
   theme_dark_site()
 
 p2 <- ggplot(df) +
   geom_jitter(aes(y = factor(y), x = temp),
-              alpha = 0.4, width = 0, height = 0.1) +
+              alpha = 0.5, width = 0, height = 0.1, color = "#cccccc") +
   labs(x = "Temperature", y = "Elephant\ndetection") +
   theme_dark_site()
 
 p3 <- ggplot(df) +
-  geom_histogram(aes(x = tree)) +
+  geom_histogram(aes(x = tree), fill = "#00a68a", color = "#202123") +
   labs(x = "Tree height", y = "Count") +
   theme_dark_site()
 
 p4 <- ggplot(df) +
   geom_jitter(aes(y = factor(y), x = tree),
-              alpha = 0.4, width = 0, height = 0.1) +
+              alpha = 0.5, width = 0, height = 0.1, color = "#cccccc") +
   labs(x = "Tree", y = "Elephant\ndetection") +
   theme_dark_site()
 
 p5 <- ggplot(df) +
-  geom_histogram(aes(x = cov)) +
+  geom_histogram(aes(x = cov), fill = "#00a68a", color = "#202123") +
   labs(x = "Rain", y = "Count") +
   theme_dark_site()
 
 p6 <- ggplot(df) +
   geom_jitter(aes(y = factor(y), x = tree),
-              alpha = 0.4, width = 0, height = 0.1) +
+              alpha = 0.5, width = 0, height = 0.1, color = "#cccccc") +
   labs(x = "Rain", y = "Elephant\ndetection") +
   theme_dark_site()
 
@@ -443,7 +445,7 @@ obs_long$Detection <- factor(obs_long$Detection, levels = c(1, 0), labels = c("D
 
  p7 <- ggplot(obs_long, aes(x = Site, y = Survey, fill = Detection)) +
   geom_tile(color = "white") +
-  scale_fill_manual(values = c("Detection" = "darkgreen", "No detection" = "lightgrey")) +
+  scale_fill_manual(values = c("Detection" = "#00a68a", "No detection" = "#2d2e30")) +
   labs(x = "Site", y = "Survey") +
   theme_dark_site() +
   theme(legend.position = "bottom")

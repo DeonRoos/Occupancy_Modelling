@@ -6,7 +6,8 @@ format: html
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      dev.args = list(bg = "#202123"))
 
 theme_dark_site <- function(...) {
   ggplot2::theme_minimal(...) +

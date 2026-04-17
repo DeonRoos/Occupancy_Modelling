@@ -6,7 +6,8 @@ format: html
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      dev.args = list(bg = "#202123"))
 
 theme_dark_site <- function(...) {
   ggplot2::theme_minimal(...) +
@@ -58,7 +59,8 @@ cams <- data.frame(x = cams_x, y = cams_y)
 
 ggplot(df, aes(x = x, y = y, fill = value)) +
   geom_raster() +
-  geom_point(data = cams, aes(x = cams_x, y = cams_y), inherit.aes = FALSE) +
+  geom_point(data = cams, aes(x = cams_x, y = cams_y),
+             inherit.aes = FALSE, color = "white", size = 2) +
   scale_fill_viridis_c() +
   coord_fixed() +
   labs(
