@@ -142,7 +142,7 @@ prior <- dbeta(theta, 20, 20)
 
 data.frame(theta, prior) |>
   ggplot(aes(x = theta, y = prior)) +
-  geom_line(color = "steelblue", size = 1.2) +
+  geom_line(color = "#00a68a", size = 1.2) +
   scale_x_continuous(labels = scales::percent) +
   labs(x = "Chance of Passing", y = "Belief Density") +
   theme_dark_site()
@@ -160,7 +160,7 @@ likelihood <- likelihood / max(likelihood)
 
 data.frame(theta, likelihood) |>
   ggplot(aes(x = theta, y = likelihood)) +
-  geom_line(color = "darkgreen", size = 1.2) +
+  geom_line(color = "#33bb88", size = 1.2) +
   scale_x_continuous(labels = scales::percent) +
   labs(x = "Chance of Passing", y = "Likelihood (scaled)") +
   theme_dark_site()
@@ -187,7 +187,7 @@ posterior_df |>
   labs(x = "Chance of Passing", y = "Belief / Likelihood (scaled)", colour = "") +
   scale_x_continuous(labels = scales::percent) +
   theme_dark_site() +
-  scale_color_manual(values = c("darkgreen", "firebrick", "steelblue"))
+  scale_color_manual(values = c("#33bb88", "#e05555", "#5599cc"))
 ```
 
 Your posterior is more-or-less the multiplication of your prior belief with the likelihood ($P(Data | Parameters)\times P(Parameters)$). In this case, giving you a happy middle ground of ca. 85% chance to pass.
@@ -227,7 +227,7 @@ prior <- dbeta(theta, 20, 20)
 
 data.frame(theta, prior) |>
   ggplot(aes(x = theta, y = prior)) +
-  geom_line(color = "steelblue", size = 1.2) +
+  geom_line(color = "#00a68a", size = 1.2) +
   scale_x_continuous(labels = scales::percent) +
   labs(x = "Chance of Passing", y = "Belief Density") +
   theme_dark_site()
@@ -279,7 +279,7 @@ gamma_df <- bind_rows(
 df <- bind_rows(beta_df, normal_df, gamma_df)
 
 ggplot(df, aes(x = x, y = density)) +
-  geom_line(size = 1.1) +
+  geom_line(size = 1.1, color = "#00a68a") +
   facet_grid(cols = vars(Distribution), rows = vars(Variant), scales = "free_x") +
   labs(
     x = expression("Possible values of " * beta[0]),
@@ -380,7 +380,7 @@ prior <- dgamma(theta, 22, 0.5)
 
 data.frame(theta, prior) |>
   ggplot(aes(x = theta, y = prior)) +
-  geom_line(color = "steelblue", size = 1.2) +
+  geom_line(color = "#00a68a", size = 1.2) +
   labs(x = "Baby height", y = "Density") +
   theme_dark_site()
 ```
@@ -404,7 +404,7 @@ prior <- dlnorm(theta, 2, 0.3)
 
 data.frame(theta, prior) |>
   ggplot(aes(x = theta, y = prior)) +
-  geom_line(color = "steelblue", size = 1.2) +
+  geom_line(color = "#00a68a", size = 1.2) +
   labs(x = "Baby growth rate", y = "Density") +
   theme_dark_site()
 ```
@@ -430,7 +430,7 @@ prior <- dunif(theta, -100, 100)
 
 data.frame(theta, prior) |>
   ggplot(aes(x = theta, y = prior)) +
-  geom_line(color = "steelblue", size = 1.2) +
+  geom_line(color = "#00a68a", size = 1.2) +
   labs(x = "Baby growth rate", y = "Density") +
   theme_dark_site()
 ```

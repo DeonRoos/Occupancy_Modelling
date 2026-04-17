@@ -137,7 +137,11 @@ AB
 CC
 "
 
-p1 + p2 + p3 + plot_annotation(tag_levels = "A", tag_suffix = ")") + plot_layout(design = design)
+(p1 + p2 + p3 + plot_annotation(tag_levels = "A", tag_suffix = ")",
+    theme = theme(plot.background = element_rect(fill = "#202123", colour = NA))) +
+  plot_layout(design = design)) &
+  theme(plot.background = element_rect(fill = "#202123", colour = NA),
+        panel.background = element_rect(fill = "#202123", colour = NA))
 ```
 
 **A)** shows the amount of rainfall across each survey. Each point represents a site in a given survey. **B)** shows rainfall plotted against whether or not an elephant was detected. **C)** shows the detection history, with detections coloured green and non-detections in grey.
@@ -299,7 +303,7 @@ We can also tidy up the plot to make it more visually effective, by doing relati
 
 ```{r}
 ggplot(df) +
-  geom_line(aes(x = rain, y = pred)) +
+  geom_line(aes(x = rain, y = pred), color = "#00a68a") +
   scale_y_continuous(labels = scales::percent,
                      limits = c(0,1)) +
   theme_dark_site() +
@@ -355,9 +359,9 @@ Once we’ve calculated the lower and upper bounds, we can visualise the uncerta
 
 ```{r}
 ggplot(df) +
-  geom_line(aes(x = rain, y = pred)) +
   geom_ribbon(aes(x = rain, ymin = low, ymax = upp),
-              alpha = 0.3) +
+              fill = "#00a68a", alpha = 0.2) +
+  geom_line(aes(x = rain, y = pred), color = "#00a68a") +
   scale_y_continuous(labels = scales::percent,
                      limits = c(0,1)) +
   theme_dark_site() +
@@ -455,9 +459,12 @@ obs_long$Detection <- factor(obs_long$Detection, levels = c(1, 0), labels = c("D
  GG
  "
  
-p1 + p2 + p3 + p4 + p5 + p6 + p7 +
-   plot_annotation(tag_levels = "A", tag_suffix = ")") + 
-   plot_layout(design = design)
+(p1 + p2 + p3 + p4 + p5 + p6 + p7 +
+   plot_annotation(tag_levels = "A", tag_suffix = ")",
+     theme = theme(plot.background = element_rect(fill = "#202123", colour = NA))) +
+   plot_layout(design = design)) &
+  theme(plot.background = element_rect(fill = "#202123", colour = NA),
+        panel.background = element_rect(fill = "#202123", colour = NA))
 ```
 
 ### What do the figures show?
@@ -699,8 +706,8 @@ fake <- data.frame(
 
 # Step 7: Plot
 p1 <- ggplot(fake, aes(x = tree, y = mean.psi)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#00a68a", alpha = 0.2) +
+  geom_line(color = "#00a68a") +
   labs(x = "Tree height", y = "Occupancy probability (ψ)") +
   scale_y_continuous(labels = scales::percent) +
   theme_dark_site()
@@ -740,8 +747,8 @@ fake <- data.frame(
 
 # Step 5: Plot
 p2 <- ggplot(fake, aes(x = temp, y = mean.psi)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#00a68a", alpha = 0.2) +
+  geom_line(color = "#00a68a") +
   labs(x = "Temperature", y = "Occupancy probability (ψ)") +
   scale_y_continuous(labels = scales::percent) +
   theme_dark_site()
@@ -780,8 +787,8 @@ fake <- data.frame(
 
 # Step 5: Plot
 p3 <- ggplot(fake, aes(x = rain, y = mean.p)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#00a68a", alpha = 0.2) +
+  geom_line(color = "#00a68a") +
   labs(x = "Rainfall", y = "Detection probability (p)") +
   scale_y_continuous(labels = scales::percent) +
   theme_dark_site()
@@ -791,7 +798,9 @@ AB
 CC
 "
 
-p1 + p2 + p3 + plot_layout(design = design)
+(p1 + p2 + p3 + plot_layout(design = design)) &
+  theme(plot.background = element_rect(fill = "#202123", colour = NA),
+        panel.background = element_rect(fill = "#202123", colour = NA))
 ```
 
 # How should I store my data?

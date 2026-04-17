@@ -467,24 +467,24 @@ ggplot(beta_0_df, aes(x = beta_0)) +
   geom_histogram(fill = "#00A68A", colour = "white", alpha = 0.5, bins = 50) +
   
   # Vertical lines
-  geom_vline(xintercept = summary_stats$mean, linetype = "solid", color = "black", linewidth = 1) +
-  geom_vline(xintercept = summary_stats$median, linetype = "dashed", color = "black", linewidth = 1) +
-  geom_vline(xintercept = summary_stats$lower, linetype = "dotted", color = "black", linewidth = 1) +
-  geom_vline(xintercept = summary_stats$upper, linetype = "dotted", color = "black", linewidth = 1) +
+  geom_vline(xintercept = summary_stats$mean, linetype = "solid", color = "#e2e2e2", linewidth = 1) +
+  geom_vline(xintercept = summary_stats$median, linetype = "dashed", color = "#e2e2e2", linewidth = 1) +
+  geom_vline(xintercept = summary_stats$lower, linetype = "dotted", color = "#e2e2e2", linewidth = 1) +
+  geom_vline(xintercept = summary_stats$upper, linetype = "dotted", color = "#e2e2e2", linewidth = 1) +
 
   # curved arrows
-  geom_curve(aes(x = summary_stats$mean + 0.5, y = 400, 
-                 xend = summary_stats$mean, yend = 350), 
-             arrow = arrow(length = unit(0.02, "npc")), curvature = 0.3, color = "black") +
-  geom_curve(aes(x = summary_stats$median - 0.5, y = 300, 
-                 xend = summary_stats$median, yend = 250), 
-             arrow = arrow(length = unit(0.02, "npc")), curvature = -0.3, color = "black") +
-  geom_curve(aes(x = summary_stats$lower - 0.5, y = 100, 
-                 xend = summary_stats$lower, yend = 75), 
-             arrow = arrow(length = unit(0.02, "npc")), curvature = -0.3, color = "black") +
-  geom_curve(aes(x = summary_stats$upper + 0.5, y = 100, 
-                 xend = summary_stats$upper, yend = 75), 
-             arrow = arrow(length = unit(0.02, "npc")), curvature = 0.3, color = "black") +
+  geom_curve(aes(x = summary_stats$mean + 0.5, y = 400,
+                 xend = summary_stats$mean, yend = 350),
+             arrow = arrow(length = unit(0.02, "npc")), curvature = 0.3, color = "#e2e2e2") +
+  geom_curve(aes(x = summary_stats$median - 0.5, y = 300,
+                 xend = summary_stats$median, yend = 250),
+             arrow = arrow(length = unit(0.02, "npc")), curvature = -0.3, color = "#e2e2e2") +
+  geom_curve(aes(x = summary_stats$lower - 0.5, y = 100,
+                 xend = summary_stats$lower, yend = 75),
+             arrow = arrow(length = unit(0.02, "npc")), curvature = -0.3, color = "#e2e2e2") +
+  geom_curve(aes(x = summary_stats$upper + 0.5, y = 100,
+                 xend = summary_stats$upper, yend = 75),
+             arrow = arrow(length = unit(0.02, "npc")), curvature = 0.3, color = "#e2e2e2") +
 
   annotate("text", x = summary_stats$mean + 0.5, y = 400, label = "Mean", hjust = 0, size = 5) +
   annotate("text", x = summary_stats$median - 0.5, y = 300, label = "Median", hjust = 1, size = 5) +

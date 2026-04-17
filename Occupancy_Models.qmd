@@ -103,7 +103,7 @@ logit <- log(p/(1-p))
 dat <- data.frame(p, logit)
 library(ggplot2)
 ggplot(dat) +
-  geom_line(aes(x = logit, y = p)) +
+  geom_line(aes(x = logit, y = p), color = "#00a68a") +
   labs(x = "Logit value that\nelephants are present",
        y = "Probability that\nelephants are present") +
   scale_y_continuous(labels = scales::percent) +
@@ -273,8 +273,8 @@ library(kableExtra)
 highlight_ones <- function(x) {
   ifelse(x == 1,
          cell_spec(x,
-                   color = "white",
-                   background = "darkred",
+                   color = "#202123",
+                   background = "#00a68a",
                    bold = TRUE),
          x)
 }
