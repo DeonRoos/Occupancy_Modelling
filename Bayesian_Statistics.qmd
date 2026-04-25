@@ -267,7 +267,7 @@ beta_df <- bind_rows(
 
 normal_df <- bind_rows(
   tibble(x = x_normal, density = normalize(dnorm(x_normal, -2, 1)), Distribution = "Normal", Variant = "A"),
-  tibble(x = x_normal, density = normalize(dnorm(x_normal, 0, 1)), Distribution = "Normal", Variant = "B"),
+  tibble(x = x_normal, density = normalize(dnorm(x_normal, 0, 2.5)), Distribution = "Normal", Variant = "B"),
   tibble(x = x_normal, density = normalize(dnorm(x_normal, 2, 1)), Distribution = "Normal", Variant = "C")
 )
 
@@ -296,17 +296,15 @@ ggplot(df, aes(x = x, y = density)) +
 
 ```
 
-Going back to our model, let's say I think the value for $\beta_0$ is likely:
+Going back to our model, since $\beta_0$ is on the logit scale it can take any value from $-\infty$ to $+\infty$. A sensible prior should reflect that:
 
-1.  probably less than one
+1.  it could be negative or positive (log-odds of presence can go either way)
 
-2.  can't go below zero
+2.  extreme values are unlikely (a very large or very small logit would imply near-certain presence or absence across all sites, which is rarely realistic before seeing the data)
 
-3.  a value close to zero is most likely.
+3.  zero is a reasonable central guess (a logit of 0 corresponds to a 50% probability of presence)
 
-In that case, from the above figure of distributions, I might want to use the top Gamma distribution given that matches my requirements most closely. 
-
->The unimportant technical details of that specific Gamma distribution is that it uses a value of 1 for "shape" and 1 for "rate", or $Gamma(1,1)$.
+These criteria point naturally towards a $Normal$ distribution centred at zero. Following Gelman's recommendation for weakly informative priors on logit-scale parameters, a standard deviation of 2.5 is a sensible default. From the figure above, this corresponds to the middle Normal distribution (Variant B).
 
 If I used this as my prior for $\beta_0$, then my equation would be:
 
@@ -319,10 +317,10 @@ logit(p_i) = \beta_0
 $$
 
 $$
-\beta_0 \sim Gamma(1,1)
+\beta_0 \sim Normal(0, 2.5)
 $$
 
-Which is to say that my guess is that $\beta_0$ will be *probably* be somewhere in the distribution of values specified by $Gamma(1,1)$.
+Which is to say that my guess is that $\beta_0$ will *probably* be somewhere in the distribution of values specified by $Normal(0, 2.5)$.
 
 And that's it. We now have a Bayesian model, with a prior specified for the only parameter in the model, $\beta_0$. As a consequence of adding that one little prior, our entire statistical and scientific philosophy has changed.
 
@@ -422,12 +420,12 @@ $$\beta_0 \sim Gamma(22,0.5)$$
 
 $$\beta_1 \sim LN(2,0.3)$$
 
-However, if you're ever really stuck and don't have *any* idea of what a sensible prior would be, you can use something called an "uninformative prior". Often, some version of $Uniform(min, max)$, which could look like:
+However, if you're ever really stuck and don't have *any* idea of what a sensible prior would be, you can fall back on $Normal(0, 2.5)$ as a weakly informative default. This is again Gelman's recommendation, and it works reasonably well for most real-valued parameters. It looks like this:
 
 ```{r}
-theta <- seq(-110, 110, length.out = 1000)
+theta <- seq(-10, 10, length.out = 1000)
 
-prior <- dunif(theta, -100, 100)
+prior <- dnorm(theta, 0, 2.5)
 
 data.frame(theta, prior) |>
   ggplot(aes(x = theta, y = prior)) +
@@ -436,7 +434,7 @@ data.frame(theta, prior) |>
   theme_dark_site()
 ```
 
-Which basically says, I don't know what baby growth rate is, but it's probably between -100 and 100 cm per year. You can always change the values to e.g. $Uniform(-1, 1)$ or $Uniform(0,1)$. The important part is that the $Uniform$ distribution does not have a peak, a region where you think some values are more likely than others. In the above figure, I'm saying that baby growth rate could be anywhere from -100 to 100 with equal probability.
+Which says: I think baby growth rate is probably somewhere near zero, but I'm open to values several units in either direction. It's not completely flat, but it's wide enough not to strongly influence the posterior unless your data are very sparse.
 
 # What's next?
 

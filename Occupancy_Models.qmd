@@ -411,7 +411,9 @@ $$logit(p_{i,j}) = \alpha_0$$
 
 This version of the model only has two average probabilities. One for the average probability that elephants occupy a site ($\beta_0$, which is fit on the *logit* link function), and another for the average probability of detecting elephants *if* they are present ($\alpha_0$, also fit on the *logit* link function).
 
-The model is not fit using the so-called *frequentist framework*. Instead, it uses the *Bayesian* framework. I'll gloss over what frequentist and Bayesian mean (and how they differ) for now, except to note that maybe 95% ($\leftarrow$ lousy stats joke) of scientists use the frequentist framework. Not by coincidence, it's also the framework most commonly taught to students (which is partly why it's so widely used). 
+The model is not fit using the so-called *frequentist framework*. Instead, it uses the *Bayesian* framework. I'll gloss over what frequentist and Bayesian mean (and how they differ) for now, except to note that maybe 95% ($\leftarrow$ lousy stats joke) of scientists use the frequentist framework. Not by coincidence, it's also the framework most commonly taught to students (which is partly why it's so widely used).
+
+One practical advantage of the Bayesian approach here is that uncertainty about $z$ flows automatically into uncertainty about $\psi$. If the model is unsure whether a site is truly occupied, that doubt is reflected directly in the width of the credible interval for occupancy probability, without any extra calculation on your part.
 
 For your future, keep in mind that many employers, rightly or wrongly, see Bayesian statistics as fancier and more sophisticated. It's something worth including in your CV if you apply for quantitative jobs or PhDs.
 
@@ -500,6 +502,133 @@ $$
 That is not a huge chance, but it is not trivial either. In other words, even when elephants are present, there is a meaningful chance we might not see them at all in the data.
 
 The key takeaway is this: detection probability is not 100%. That single fact makes the Bernoulli GLM we started with right at the start of this page inappropriate. Because it ignores imperfect detection, it produces unreliable estimates. The occupancy model, by contrast, accounts for detection error and gives us a more trustworthy result.
+
+## Explore: detection bias visualiser
+
+Use the sliders to explore how detection probability and true occupancy interact. Watch the **naive estimate** (the proportion of sites with at least one detection, what a simple GLM would use) diverge from true occupancy as *p* drops. Set *p* = 1.0 to confirm the two converge; then pull it toward 0 and watch the gap open.
+
+```{ojs}
+//| echo: false
+function mkRng(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+    return ((t ^ (t >>> 14)) >>> 0) / 2**32;
+  };
+}
+```
+
+```{ojs}
+//| echo: false
+viewof controls = Inputs.form(
+  {
+    psi: Inputs.range([0, 1], {value: 0.7, step: 0.01, label: "True occupancy (ψ)"}),
+    p:   Inputs.range([0, 1], {value: 0.4, step: 0.01, label: "Detection probability (p)"})
+  },
+  {
+    template: inputs => html`<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 24px">
+      ${inputs.psi}${inputs.p}
+    </div>`
+  }
+)
+```
+
+```{ojs}
+//| echo: false
+sim = {
+  const rand = mkRng(1988);
+  const z = Array.from({length: 30}, () => rand() < controls.psi ? 1 : 0);
+  const y = z.map(zi =>
+    Array.from({length: 3}, () => rand() < (zi * controls.p) ? 1 : 0)
+  );
+  const trueOcc  = z.filter(v => v === 1).length / 30;
+  const naiveOcc = y.filter(row => row.some(v => v === 1)).length / 30;
+  return {z, y, trueOcc, naiveOcc};
+}
+```
+
+```{ojs}
+//| echo: false
+{
+  const {psi} = controls;
+  const J = 3;
+  const N = 30;
+
+  const barData = [
+    {label: "Naive observed", value: sim.naiveOcc, color: "#cc6677"},
+    {label: "Truly occupied", value: sim.trueOcc,  color: "#4db8a4"},
+    {label: "ψ (slider)",     value: psi,          color: "#00a68a"}
+  ];
+
+  const bar = Plot.plot({
+    height: 110,
+    marginLeft: 130,
+    marginRight: 46,
+    style: {background: "transparent", color: "#cccccc", fontSize: "12px"},
+    x: {
+      domain: [0, 1],
+      tickFormat: d => `${(d * 100).toFixed(0)}%`,
+      grid: true,
+      label: "Probability"
+    },
+    y: {label: null, domain: ["Naive observed", "Truly occupied", "ψ (slider)"]},
+    marks: [
+      Plot.barX(barData, {x: "value", y: "label", fill: d => d.color, tip: true}),
+      Plot.text(barData, {
+        x: "value", y: "label",
+        text: d => ` ${(d.value * 100).toFixed(0)}%`,
+        textAnchor: "start", fill: "#cccccc", dx: 4
+      }),
+      Plot.ruleX([0], {stroke: "#444"})
+    ]
+  });
+
+  const colLabels = ["True z", ...Array.from({length: J}, (_, j) => `Survey ${j + 1}`)];
+  const mData     = sim.z.flatMap((zi, i) => [
+    {site: i + 1, col: 0,     val: zi,         type: "state"},
+    ...sim.y[i].map((yij, j) => ({site: i + 1, col: j + 1, val: yij, type: "det"}))
+  ]);
+
+  const matrix = Plot.plot({
+    marginLeft: 42,
+    marginTop: 32,
+    marginBottom: 36,
+    height: N * 10 + 42,
+    caption: null,
+    style: {background: "transparent", color: "#cccccc", fontSize: "11px"},
+    x: {
+      domain: Array.from({length: J + 1}, (_, i) => i),
+      tickFormat: i => colLabels[i],
+      label: "Survey"
+    },
+    y: {
+      domain: d3.range(1, N + 1),
+      label: "Site",
+      ticks: 8
+    },
+    color: {
+      legend: true,
+      domain: ["Absent", "Detected", "Present (z)"],
+      range:  ["#2d2e30", "#4db8a4", "#c9a84c"],
+      style:  {background: "transparent", color: "#ccc"}
+    },
+    marks: [
+      Plot.cell(mData, {
+        x: "col", y: "site",
+        fill: d => d.val === 0 ? "Absent" : d.type === "state" ? "Present (z)" : "Detected",
+        stroke: "#1a1b1e", strokeWidth: 1, tip: true
+      })
+    ]
+  });
+
+  return html`<div>
+    <div style="margin-bottom:16px">${bar}</div>
+    <div>${matrix}</div>
+  </div>`;
+}
+```
 
 # What next?
 

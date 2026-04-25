@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Deon Roos">
-<meta name="dcterms.date" content="2026-04-17">
+<meta name="dcterms.date" content="2026-04-25">
 
 <title>Occupancy Modelling - Bayesian Occupancy Models</title>
 <style>
@@ -156,6 +156,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#how-do-we-estimate-a-posterior" id="toc-how-do-we-estimate-a-posterior" class="nav-link active" data-scroll-target="#how-do-we-estimate-a-posterior">How do we estimate a posterior?</a></li>
   <li><a href="#what-does-mcmc-look-like" id="toc-what-does-mcmc-look-like" class="nav-link" data-scroll-target="#what-does-mcmc-look-like">What does MCMC look like?</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself">Try it yourself</a></li>
   <li><a href="#improving-our-mcmc" id="toc-improving-our-mcmc" class="nav-link" data-scroll-target="#improving-our-mcmc">Improving our MCMC</a></li>
   <li><a href="#a-bad-fit" id="toc-a-bad-fit" class="nav-link" data-scroll-target="#a-bad-fit">A bad fit</a></li>
   <li><a href="#fitting-the-occupancy-model-using-mcmc" id="toc-fitting-the-occupancy-model-using-mcmc" class="nav-link" data-scroll-target="#fitting-the-occupancy-model-using-mcmc">Fitting the occupancy model using MCMC</a></li>
@@ -188,7 +189,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 17, 2026</p>
+      <p class="date">April 25, 2026</p>
     </div>
   </div>
   
@@ -346,9 +347,333 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="images/trace_mcmc_animation.gif" class="img-fluid" width="800"></p>
 </div>
 </section>
+<section id="try-it-yourself" class="level1">
+<h1>Try it yourself</h1>
+<p>The animations above show what MCMC looks like when it works well. Now try it yourself. Click anywhere on the parameter space below to place a sample. After your first click, each new click will tell you whether you moved to a higher likelihood (hotter) or lower likelihood (colder). Your samples accumulate in the histograms and trace plots below. The likelihood surface is hidden until you run out of iterations.</p>
+<div id="mw-wrap" style="background:#202123;padding:20px;border-radius:6px;margin:20px 0;font-family:sans-serif;">
+
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+    <span style="color:#999;font-size:12px;">Iterations:</span>
+    <button id="mw-i25" style="background:none;border:1px solid #555;color:#999;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">25</button>
+    <button id="mw-i50" style="background:none;border:1px solid #555;color:#999;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">50</button>
+    <button id="mw-i100" style="background:none;border:1px solid #555;color:#999;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">100</button>
+  </div>
+
+  <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;">
+
+    <div style="flex-shrink:0;">
+      <canvas id="mw-canvas" width="380" height="380" style="border:1px solid #444;cursor:crosshair;display:block;border-radius:4px;"></canvas>
+    </div>
+
+    <div style="flex:1;min-width:180px;color:#cccccc;">
+      <div id="mw-iter" style="font-size:13px;color:#999;height:20px;margin-bottom:10px;"></div>
+      <div style="height:62px;border:1px solid #2d2d2f;border-radius:4px;padding:10px 12px;margin-bottom:14px;box-sizing:border-box;overflow:hidden;">
+        <div id="mw-feedback" style="font-size:16px;font-weight:bold;height:22px;overflow:hidden;"></div>
+        <div id="mw-like" style="font-size:12px;color:#999;margin-top:4px;height:16px;overflow:hidden;"></div>
+      </div>
+      <button id="mw-reset" style="background:none;border:1px solid #555;color:#999;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:12px;">Reset</button>
+      <div id="mw-result" style="display:none;border:1px solid #00a68a;border-radius:4px;padding:12px;font-size:13px;margin-top:12px;"></div>
+    </div>
+
+  </div>
+
+  <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:180px;">
+      <div style="color:#999;font-size:12px;margin-bottom:3px;">Samples of β₀</div>
+      <canvas id="mw-hb0" width="320" height="80" style="border:1px solid #444;display:block;width:100%;border-radius:4px;"></canvas>
+      <div style="color:#999;font-size:12px;margin-top:8px;margin-bottom:3px;">Trace of β₀</div>
+      <canvas id="mw-tb0" width="320" height="60" style="border:1px solid #444;display:block;width:100%;border-radius:4px;"></canvas>
+    </div>
+    <div style="flex:1;min-width:180px;">
+      <div style="color:#999;font-size:12px;margin-bottom:3px;">Samples of β₁</div>
+      <canvas id="mw-hb1" width="320" height="80" style="border:1px solid #444;display:block;width:100%;border-radius:4px;"></canvas>
+      <div style="color:#999;font-size:12px;margin-top:8px;margin-bottom:3px;">Trace of β₁</div>
+      <canvas id="mw-tb1" width="320" height="60" style="border:1px solid #444;display:block;width:100%;border-radius:4px;"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var B0MIN = -2, B0MAX = 6, B1MIN = -3, B1MAX = 1;
+  var MAXITER = 25;
+  var BG = "#202123", TEAL = "#00a68a", ORANGE = "#FF5733";
+  var LM_B0 = -0.5, LM_B1 = -1.5;
+
+  var TB0, TB1;
+  var samples = [], done = false;
+
+  var cv    = document.getElementById("mw-canvas");
+  var ctx   = cv.getContext("2d");
+  var cx0   = document.getElementById("mw-hb0").getContext("2d");
+  var cx1   = document.getElementById("mw-hb1").getContext("2d");
+  var tx0   = document.getElementById("mw-tb0").getContext("2d");
+  var tx1   = document.getElementById("mw-tb1").getContext("2d");
+  var elIt  = document.getElementById("mw-iter");
+  var elFb  = document.getElementById("mw-feedback");
+  var elLk  = document.getElementById("mw-like");
+  var elRs  = document.getElementById("mw-result");
+  var elBtn = document.getElementById("mw-reset");
+  var elI25  = document.getElementById("mw-i25");
+  var elI50  = document.getElementById("mw-i50");
+  var elI100 = document.getElementById("mw-i100");
+
+  function randTrue() {
+    do {
+      TB0 = Math.round((-1   + Math.random() * 6) * 10) / 10;
+      TB1 = Math.round((-2.5 + Math.random() * 3) * 10) / 10;
+    } while (Math.sqrt(Math.pow(TB0 - LM_B0, 2) + Math.pow(TB1 - LM_B1, 2)) < 2.5);
+  }
+
+  function lhood(b0, b1) {
+    var main  = Math.exp(-0.5 * (Math.pow(b0 - TB0,  2) / 1.0  + Math.pow(b1 - TB1,  2) / 0.25));
+    var local = 0.45 * Math.exp(-0.5 * (Math.pow(b0 - LM_B0, 2) / 0.6 + Math.pow(b1 - LM_B1, 2) / 0.15));
+    return main + local;
+  }
+
+  function toParam(px, py) {
+    return { b0: B0MIN + (px / cv.width)  * (B0MAX - B0MIN),
+             b1: B1MAX - (py / cv.height) * (B1MAX - B1MIN) };
+  }
+
+  function toXY(b0, b1) {
+    return { x: (b0 - B0MIN) / (B0MAX - B0MIN) * cv.width,
+             y: (B1MAX - b1) / (B1MAX - B1MIN) * cv.height };
+  }
+
+  function drawSurface() {
+    var id = ctx.createImageData(cv.width, cv.height);
+    for (var px = 0; px < cv.width; px++) {
+      for (var py = 0; py < cv.height; py++) {
+        var p = toParam(px, py), l = lhood(p.b0, p.b1);
+        var i = (py * cv.width + px) * 4;
+        id.data[i]   = Math.round(l * 42);
+        id.data[i+1] = Math.round(35 + l * 133);
+        id.data[i+2] = Math.round(40 + l * 98);
+        id.data[i+3] = Math.round(55 + l * 160);
+      }
+    }
+    ctx.putImageData(id, 0, 0);
+  }
+
+  function drawGrid() {
+    var o = toXY(0, 0);
+    ctx.strokeStyle = "#2d2d2f"; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(o.x, 0);   ctx.lineTo(o.x, cv.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, o.y);   ctx.lineTo(cv.width, o.y);  ctx.stroke();
+    ctx.fillStyle = "#555"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("β₀", cv.width / 2, cv.height - 4);
+    ctx.save(); ctx.translate(10, cv.height / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText("β₁", 0, 0); ctx.restore();
+    ctx.font = "9px sans-serif"; ctx.fillStyle = "#555";
+    ctx.textAlign = "left";  ctx.fillText(B0MIN, 14, cv.height - 4);
+    ctx.textAlign = "right"; ctx.fillText(B0MAX, cv.width - 2, cv.height - 4);
+    ctx.textAlign = "right"; ctx.fillText(B1MAX, cv.width - 2, 10);
+    ctx.textAlign = "right"; ctx.fillText(B1MIN, cv.width - 2, cv.height - 14);
+  }
+
+  function drawTrueMark() {
+    var p = toXY(TB0, TB1), r = 7;
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(p.x-r, p.y-r); ctx.lineTo(p.x+r, p.y+r); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(p.x+r, p.y-r); ctx.lineTo(p.x-r, p.y+r); ctx.stroke();
+    ctx.fillStyle = "#ffffff"; ctx.font = "11px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("True value", p.x + r + 4, p.y + 4);
+  }
+
+  function drawSamples() {
+    if (samples.length > 1) {
+      ctx.strokeStyle = ORANGE; ctx.lineWidth = 1.2; ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      var s0 = toXY(samples[0].b0, samples[0].b1); ctx.moveTo(s0.x, s0.y);
+      for (var i = 1; i < samples.length; i++) {
+        var si = toXY(samples[i].b0, samples[i].b1); ctx.lineTo(si.x, si.y);
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    for (var j = 0; j < samples.length; j++) {
+      var last = j === samples.length - 1;
+      var p = toXY(samples[j].b0, samples[j].b1);
+      ctx.beginPath(); ctx.arc(p.x, p.y, last ? 5 : 3, 0, Math.PI * 2);
+      ctx.fillStyle = last ? TEAL : ORANGE; ctx.fill();
+    }
+  }
+
+  function redraw(reveal) {
+    ctx.fillStyle = BG; ctx.fillRect(0, 0, cv.width, cv.height);
+    if (reveal) drawSurface();
+    drawGrid(); drawSamples();
+    if (reveal) drawTrueMark();
+  }
+
+  function drawHist(hctx, vals, xmin, xmax) {
+    var w = hctx.canvas.width, h = hctx.canvas.height, N = 20, pad = 14;
+    var bins = new Array(N).fill(0);
+    vals.forEach(function(v) {
+      bins[Math.max(0, Math.min(N-1, Math.floor((v - xmin) / (xmax - xmin) * N)))]++;
+    });
+    var maxB = Math.max.apply(null, bins.concat([1]));
+    hctx.fillStyle = BG; hctx.fillRect(0, 0, w, h);
+    var bw = w / N; hctx.fillStyle = TEAL;
+    for (var i = 0; i < N; i++) {
+      var bh = (bins[i] / maxB) * (h - pad);
+      hctx.fillRect(i * bw + 1, h - pad - bh, bw - 2, bh);
+    }
+    if (vals.length > 0) {
+      var mean = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
+      var mx = (mean - xmin) / (xmax - xmin) * w;
+      hctx.strokeStyle = "#ffffff"; hctx.lineWidth = 1.5; hctx.setLineDash([3, 3]);
+      hctx.beginPath(); hctx.moveTo(mx, 0); hctx.lineTo(mx, h - pad);
+      hctx.stroke(); hctx.setLineDash([]);
+    }
+    hctx.fillStyle = "#555"; hctx.font = "9px sans-serif";
+    hctx.textAlign = "left";  hctx.fillText(xmin, 2, h - 2);
+    hctx.textAlign = "right"; hctx.fillText(xmax, w - 2, h - 2);
+  }
+
+  function drawTrace(hctx, vals, ymin, ymax) {
+    var w = hctx.canvas.width, h = hctx.canvas.height, pad = 14;
+    hctx.fillStyle = BG; hctx.fillRect(0, 0, w, h);
+    hctx.fillStyle = "#555"; hctx.font = "9px sans-serif";
+    hctx.textAlign = "left";  hctx.fillText(ymin, 2, h - 2);
+    hctx.textAlign = "right"; hctx.fillText(ymax, w - 2, h - 2);
+    if (vals.length < 2) return;
+    hctx.strokeStyle = TEAL; hctx.lineWidth = 1.2; hctx.setLineDash([]);
+    hctx.beginPath();
+    for (var i = 0; i < vals.length; i++) {
+      var x = (i / (MAXITER - 1)) * w;
+      var y = (h - pad) - Math.max(0, Math.min(1, (vals[i] - ymin) / (ymax - ymin))) * (h - pad);
+      if (i === 0) hctx.moveTo(x, y); else hctx.lineTo(x, y);
+    }
+    hctx.stroke();
+  }
+
+  function quantile(arr, q) {
+    var sorted = arr.slice().sort(function(a, b) { return a - b; });
+    var pos = (sorted.length - 1) * q, base = Math.floor(pos), rest = pos - base;
+    return sorted[base + 1] !== undefined
+      ? sorted[base] + rest * (sorted[base + 1] - sorted[base])
+      : sorted[base];
+  }
+
+  function lockIter(locked) {
+    [elI25, elI50, elI100].forEach(function(b) {
+      b.disabled = locked;
+      b.style.opacity = locked ? "0.4" : "1";
+      b.style.cursor  = locked ? "not-allowed" : "pointer";
+    });
+  }
+
+  function setIter(n) {
+    MAXITER = n;
+    [elI25, elI50, elI100].forEach(function(b, i) {
+      var v = [25, 50, 100][i];
+      b.style.borderColor = (v === n) ? TEAL : "#555";
+      b.style.color       = (v === n) ? TEAL : "#999";
+    });
+    reset();
+  }
+
+  cv.addEventListener("click", function(e) {
+    if (done) return;
+    var rect = cv.getBoundingClientRect();
+    var sx = cv.width / rect.width, sy = cv.height / rect.height;
+    var p = toParam((e.clientX - rect.left) * sx, (e.clientY - rect.top) * sy);
+    var l = lhood(p.b0, p.b1);
+    var n = samples.length;
+    samples.push({ b0: p.b0, b1: p.b1, l: l });
+
+    if (n === 0) {
+      lockIter(true);
+      elFb.style.color = "#999"; elFb.textContent = "First sample placed.";
+    } else {
+      var prev = samples[n - 1];
+      if      (l > prev.l) { elFb.style.color = TEAL;      elFb.textContent = "Hotter"; }
+      else if (l < prev.l) { elFb.style.color = "#e05555"; elFb.textContent = "Colder"; }
+      else                 { elFb.style.color = "#999";    elFb.textContent = "Same likelihood"; }
+    }
+    elLk.textContent = "Likelihood: " + l.toFixed(5);
+
+    var b0vals = samples.map(function(s) { return s.b0; });
+    var b1vals = samples.map(function(s) { return s.b1; });
+    redraw(false);
+    drawHist(cx0, b0vals, B0MIN, B0MAX); drawHist(cx1, b1vals, B1MIN, B1MAX);
+    drawTrace(tx0, b0vals, B0MIN, B0MAX); drawTrace(tx1, b1vals, B1MIN, B1MAX);
+
+    var rem = MAXITER - samples.length;
+    elIt.textContent = rem > 0 ? rem + " iteration" + (rem === 1 ? "" : "s") + " remaining" : "";
+
+    if (samples.length >= MAXITER) {
+      done = true; cv.style.cursor = "default"; lockIter(false);
+      redraw(true);
+
+      var mb0 = b0vals.reduce(function(a, b) { return a + b; }, 0) / MAXITER;
+      var mb1 = b1vals.reduce(function(a, b) { return a + b; }, 0) / MAXITER;
+      var b0lo = quantile(b0vals, 0.025), b0hi = quantile(b0vals, 0.975);
+      var b1lo = quantile(b1vals, 0.025), b1hi = quantile(b1vals, 0.975);
+      var b0captured = TB0 >= b0lo && TB0 <= b0hi;
+      var b1captured = TB1 >= b1lo && TB1 <= b1hi;
+      var distTrue  = Math.sqrt(Math.pow(mb0 - TB0,  2) + Math.pow(mb1 - TB1,  2));
+      var distLocal = Math.sqrt(Math.pow(mb0 - LM_B0, 2) + Math.pow(mb1 - LM_B1, 2));
+      var stuck = distLocal < distTrue;
+
+      var tick  = "<span style='color:" + TEAL    + ";'>&#10003;</span>";
+      var cross = "<span style='color:#e05555;'>&#10007;</span>";
+      var summary = "";
+      if (stuck) {
+        summary = "<div style='margin-top:10px;padding:8px;background:#2d1f1f;border-radius:4px;color:#e05555;font-size:12px;'>" +
+          "Your posterior mean is near the local minimum at (β₀ = " + LM_B0 + ", β₁ = " + LM_B1 + "). " +
+          "The hot/cold feedback led you toward a plausible but wrong region. " +
+          "This is exactly why real MCMC occasionally accepts worse moves: to escape traps like this." +
+          "</div>";
+      } else if (b0captured && b1captured) {
+        summary = "<div style='margin-top:10px;padding:8px;background:#1a2d26;border-radius:4px;color:" + TEAL + ";font-size:12px;'>" +
+          "Your credible intervals captured both true values. Good exploration." + "</div>";
+      } else {
+        summary = "<div style='margin-top:10px;padding:8px;background:#2a2a1f;border-radius:4px;color:#ccaa44;font-size:12px;'>" +
+          "You found the right region but your intervals missed one or both true values. " +
+          "More iterations and more systematic exploration would help." + "</div>";
+      }
+
+      elRs.style.display = "block";
+      elRs.innerHTML =
+        "<div style='color:#cccccc;font-weight:bold;margin-bottom:8px;'>Your posterior means</div>" +
+        "<div style='color:" + TEAL + ";'>β₀ = " + mb0.toFixed(2) +
+          " &nbsp; 95% CI: [" + b0lo.toFixed(2) + ", " + b0hi.toFixed(2) + "] &nbsp;" + (b0captured ? tick : cross) + "</div>" +
+        "<div style='color:" + TEAL + ";margin-bottom:6px;'>β₁ = " + mb1.toFixed(2) +
+          " &nbsp; 95% CI: [" + b1lo.toFixed(2) + ", " + b1hi.toFixed(2) + "] &nbsp;" + (b1captured ? tick : cross) + "</div>" +
+        "<div style='color:#666;font-size:11px;'>True values: β₀ = " + TB0 + ", β₁ = " + TB1 + "</div>" +
+        summary;
+
+      elFb.style.color = "#cccccc"; elFb.textContent = "Done. Surface revealed.";
+      elLk.textContent = "";
+    }
+  });
+
+  function reset() {
+    randTrue(); samples = []; done = false;
+    cv.style.cursor = "crosshair"; lockIter(false);
+    elFb.textContent = ""; elLk.textContent = "";
+    elRs.style.display = "none"; elRs.innerHTML = "";
+    redraw(false);
+    drawHist(cx0, [], B0MIN, B0MAX); drawHist(cx1, [], B1MIN, B1MAX);
+    drawTrace(tx0, [], B0MIN, B0MAX); drawTrace(tx1, [], B1MIN, B1MAX);
+    elIt.textContent = MAXITER + " iterations available. Click to place your first sample.";
+  }
+
+  elBtn.addEventListener("click", reset);
+  elI25.addEventListener("click",  function() { setIter(25);  });
+  elI50.addEventListener("click",  function() { setIter(50);  });
+  elI100.addEventListener("click", function() { setIter(100); });
+
+  setIter(25);
+})();
+</script>
+</section>
 <section id="improving-our-mcmc" class="level1">
 <h1>Improving our MCMC</h1>
-<p>We’ve made a good start but we can improve this quite a bit. Firstly, limiting the algorithm to 100 iterations doesn’t give it many opportunities to find the true value. In general, you often give MCMC thousands of iterations, rather than only 100. So first improvement is to increase the number of iterations (you may remember we did this when we were going through the occupancy theory pages - now you know why!).</p>
+<p>We’ve made a good start but we can improve this quite a bit. Firstly, limiting the algorithm to 25 or even 100 iterations doesn’t give it many opportunities to find the true value. In general, you often give MCMC thousands of iterations, rather than only 100. So first improvement is to increase the number of iterations (you may remember we did this when we were going through the occupancy theory pages - now you know why!).</p>
 <p>Secondly, we’re using one MCMC chain. Why not more? Afterall, if we have say four chains, then if all four agree that they’re close to the true value that would give us more comfort. If they find different “True values”, well, then it seems likely that we haven’t actually found it.</p>
 <p>Let’s implement our improvement and see what our plots now look like:</p>
 <div class="cell">
@@ -539,7 +864,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><span class="math display">\[y_{i,j} \sim Bernoulli(p_{i,j} \times z_i)\\\]</span></p>
 <p><span class="math display">\[logit(p_{i,j}) = \alpha_0 + \alpha_1 \times Rain_{i,j}\]</span></p>
 <p>Which we can translate into the following code. But pay attention to the <code>n.chains</code>, <code>n.samples</code> and <code>n.burn</code> arguments. This is where we specify how many chains we want (<code>n.chains</code>), how many iterations we want (<code>n.samples</code>, note an iteration can also be called a sample), and how many of the first iterations we want to ignore (<code>n.burn</code>).</p>
-<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-9_ce735f30aafd30673bcb58d36d829aed">
+<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-9_0415ac0638d2388893daa10335a0b901">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
@@ -551,18 +876,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.samples =</span> <span class="dv">2000</span>, <span class="co"># 2000 iterations for each chain</span></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">n.burn =</span> <span class="dv">200</span>,     <span class="co"># We ignore the first 200 iterations to give MCMC a chance to get its feet</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>   <span class="co"># This just says don't spit out details while fitting </span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>   <span class="co"># This just says don't spit out details while fitting</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (normally I would leave verbose = TRUE so I can keep track of the model while it's fitting)</span></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<blockquote class="blockquote">
+<p>A small note. In truth, <code>spOccupancy</code> does not use MCMC as I explained it earlier. It uses a slightly more specialised approach that itself uses some statistical tricks to bypass some of the issues with MCMC. The upshot is that the approach it uses (Pólya-Gamma - hence the PG in <code>PGOcc</code>) is much faster. Conceptually though, most Bayesian models are fit with MCMC or variations of it, and the way you interact with the outputs from <code>PGOcc</code> are exactly the same.</p>
+</blockquote>
 <p>We can now check how our model worked. The code is pretty simple. The only tricky thing is to specify if you want <code>beta</code> or <code>alpha</code>. Importantly, <code>beta</code> here refers to the occupancy parameters, and <code>alpha</code> refers to the detection parameters.</p>
 <p>So here are the traceplots and posteriors for <span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> in:</p>
 <p><span class="math display">\[logit(\psi_i) = \beta_0 + \beta_1 \times Tree_i + \beta_2 \times Temp_i\\\]</span></p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#cccccc"</span>, <span class="at">col.axis =</span> <span class="st">"#cccccc"</span>, <span class="at">col.lab =</span> <span class="st">"#cccccc"</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#ffffff"</span>, <span class="at">col.sub =</span> <span class="st">"#999999"</span>, <span class="at">bg =</span> <span class="st">"#202123"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
@@ -573,7 +903,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#cccccc"</span>, <span class="at">col.axis =</span> <span class="st">"#cccccc"</span>, <span class="at">col.lab =</span> <span class="st">"#cccccc"</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#ffffff"</span>, <span class="at">col.sub =</span> <span class="st">"#999999"</span>, <span class="at">bg =</span> <span class="st">"#202123"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
@@ -596,7 +928,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.017
+Run Time (min): 0.0188
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
@@ -727,7 +1059,7 @@ rain         0.1704 0.2175 -0.2473  0.1681  0.6090 1.0013 3195</code></pre>
 <p><span class="math display">\[\alpha_1 \sim Normal(0.2, 1)\]</span></p>
 <p>Now, to be very, very clear; I am choosing these priors completely at random just for demonstration. I have no reason, in this case, to think that a reasonable prior for <span class="math inline">\(\beta_1\)</span> is <span class="math inline">\(Normal(0.5, 1)\)</span>.</p>
 <p>But we can always fit this model to see what happens:</p>
-<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-16_ff4feb506e4e8e5283dab8c98978c6b4">
+<div class="cell" data-hash="Bayesian_Occupancy_Models_cache/html/unnamed-chunk-16_061d30d4c3c5b5405749e444b0a33ac8">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fit_priors <span class="ot">&lt;-</span> <span class="fu">PGOcc</span>(</span>
@@ -746,14 +1078,18 @@ rain         0.1704 0.2175 -0.2473  0.1681  0.6090 1.0013 3195</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#cccccc"</span>, <span class="at">col.axis =</span> <span class="st">"#cccccc"</span>, <span class="at">col.lab =</span> <span class="st">"#cccccc"</span>,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#ffffff"</span>, <span class="at">col.sub =</span> <span class="st">"#999999"</span>, <span class="at">bg =</span> <span class="st">"#202123"</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
 </div>
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#cccccc"</span>, <span class="at">col.axis =</span> <span class="st">"#cccccc"</span>, <span class="at">col.lab =</span> <span class="st">"#cccccc"</span>,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#ffffff"</span>, <span class="at">col.sub =</span> <span class="st">"#999999"</span>, <span class="at">bg =</span> <span class="st">"#202123"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="Bayesian_Occupancy_Models_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="672"></p>
@@ -777,7 +1113,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0165
+Run Time (min): 0.017
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
@@ -808,7 +1144,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.017
+Run Time (min): 0.0188
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS

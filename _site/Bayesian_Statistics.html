@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Deon Roos">
-<meta name="dcterms.date" content="2026-04-17">
+<meta name="dcterms.date" content="2026-04-23">
 
 <title>Occupancy Modelling - The Fundamentals of the Bayesian Framework</title>
 <style>
@@ -192,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 17, 2026</p>
+      <p class="date">April 23, 2026</p>
     </div>
   </div>
   
@@ -425,7 +425,7 @@ logit(p_i) = \beta_0
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>normal_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">x =</span> x_normal, <span class="at">density =</span> <span class="fu">normalize</span>(<span class="fu">dnorm</span>(x_normal, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">1</span>)), <span class="at">Distribution =</span> <span class="st">"Normal"</span>, <span class="at">Variant =</span> <span class="st">"A"</span>),</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">x =</span> x_normal, <span class="at">density =</span> <span class="fu">normalize</span>(<span class="fu">dnorm</span>(x_normal, <span class="dv">0</span>, <span class="dv">1</span>)), <span class="at">Distribution =</span> <span class="st">"Normal"</span>, <span class="at">Variant =</span> <span class="st">"B"</span>),</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">x =</span> x_normal, <span class="at">density =</span> <span class="fu">normalize</span>(<span class="fu">dnorm</span>(x_normal, <span class="dv">0</span>, <span class="fl">2.5</span>)), <span class="at">Distribution =</span> <span class="st">"Normal"</span>, <span class="at">Variant =</span> <span class="st">"B"</span>),</span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">x =</span> x_normal, <span class="at">density =</span> <span class="fu">normalize</span>(<span class="fu">dnorm</span>(x_normal, <span class="dv">2</span>, <span class="dv">1</span>)), <span class="at">Distribution =</span> <span class="st">"Normal"</span>, <span class="at">Variant =</span> <span class="st">"C"</span>)</span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
@@ -455,16 +455,13 @@ logit(p_i) = \beta_0
 <p><img src="Bayesian_Statistics_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Going back to our model, let’s say I think the value for <span class="math inline">\(\beta_0\)</span> is likely:</p>
+<p>Going back to our model, since <span class="math inline">\(\beta_0\)</span> is on the logit scale it can take any value from <span class="math inline">\(-\infty\)</span> to <span class="math inline">\(+\infty\)</span>. A sensible prior should reflect that:</p>
 <ol type="1">
-<li><p>probably less than one</p></li>
-<li><p>can’t go below zero</p></li>
-<li><p>a value close to zero is most likely.</p></li>
+<li><p>it could be negative or positive (log-odds of presence can go either way)</p></li>
+<li><p>extreme values are unlikely (a very large or very small logit would imply near-certain presence or absence across all sites, which is rarely realistic before seeing the data)</p></li>
+<li><p>zero is a reasonable central guess (a logit of 0 corresponds to a 50% probability of presence)</p></li>
 </ol>
-<p>In that case, from the above figure of distributions, I might want to use the top Gamma distribution given that matches my requirements most closely.</p>
-<blockquote class="blockquote">
-<p>The unimportant technical details of that specific Gamma distribution is that it uses a value of 1 for “shape” and 1 for “rate”, or <span class="math inline">\(Gamma(1,1)\)</span>.</p>
-</blockquote>
+<p>These criteria point naturally towards a <span class="math inline">\(Normal\)</span> distribution centred at zero. Following Gelman’s recommendation for weakly informative priors on logit-scale parameters, a standard deviation of 2.5 is a sensible default. From the figure above, this corresponds to the middle Normal distribution (Variant B).</p>
 <p>If I used this as my prior for <span class="math inline">\(\beta_0\)</span>, then my equation would be:</p>
 <p><span class="math display">\[
 y_i \sim Bernoulli(p_i) \\
@@ -473,9 +470,9 @@ y_i \sim Bernoulli(p_i) \\
 logit(p_i) = \beta_0
 \]</span></p>
 <p><span class="math display">\[
-\beta_0 \sim Gamma(1,1)
+\beta_0 \sim Normal(0, 2.5)
 \]</span></p>
-<p>Which is to say that my guess is that <span class="math inline">\(\beta_0\)</span> will be <em>probably</em> be somewhere in the distribution of values specified by <span class="math inline">\(Gamma(1,1)\)</span>.</p>
+<p>Which is to say that my guess is that <span class="math inline">\(\beta_0\)</span> will <em>probably</em> be somewhere in the distribution of values specified by <span class="math inline">\(Normal(0, 2.5)\)</span>.</p>
 <p>And that’s it. We now have a Bayesian model, with a prior specified for the only parameter in the model, <span class="math inline">\(\beta_0\)</span>. As a consequence of adding that one little prior, our entire statistical and scientific philosophy has changed.</p>
 <p>So the only real <em>Bayesian</em> thing we need to do when running Bayesian analysis is to specify a prior that captures our prior belief. There are also technical changes, but those are changes to the machinery not statistical philosophy.</p>
 <p>The challenge, however, is that you will (very likely) only know a handful of distributions and won’t know their intricate details. That’s why I created a website called, creatively, <a href="https://deonroos.shinyapps.io/Distributions/">Distributions</a>. If you go to this site, you can play around with different distributions to, hopefully, find the right one that captures your <strong>prior</strong> belief, without getting bogged down in details.</p>
@@ -559,13 +556,13 @@ logit(p_i) = \beta_0
 <p><span class="math display">\[ \mu_i = \beta_0 + \beta_1 \times Age_i \]</span></p>
 <p><span class="math display">\[\beta_0 \sim Gamma(22,0.5)\]</span></p>
 <p><span class="math display">\[\beta_1 \sim LN(2,0.3)\]</span></p>
-<p>However, if you’re ever really stuck and don’t have <em>any</em> idea of what a sensible prior would be, you can use something called an “uninformative prior”. Often, some version of <span class="math inline">\(Uniform(min, max)\)</span>, which could look like:</p>
+<p>However, if you’re ever really stuck and don’t have <em>any</em> idea of what a sensible prior would be, you can fall back on <span class="math inline">\(Normal(0, 2.5)\)</span> as a weakly informative default. This is again Gelman’s recommendation, and it works reasonably well for most real-valued parameters. It looks like this:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">110</span>, <span class="dv">110</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">dunif</span>(theta, <span class="sc">-</span><span class="dv">100</span>, <span class="dv">100</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>prior <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(theta, <span class="dv">0</span>, <span class="fl">2.5</span>)</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(theta, prior) <span class="sc">|&gt;</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> theta, <span class="at">y =</span> prior)) <span class="sc">+</span></span>
@@ -577,7 +574,7 @@ logit(p_i) = \beta_0
 <p><img src="Bayesian_Statistics_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Which basically says, I don’t know what baby growth rate is, but it’s probably between -100 and 100 cm per year. You can always change the values to e.g.&nbsp;<span class="math inline">\(Uniform(-1, 1)\)</span> or <span class="math inline">\(Uniform(0,1)\)</span>. The important part is that the <span class="math inline">\(Uniform\)</span> distribution does not have a peak, a region where you think some values are more likely than others. In the above figure, I’m saying that baby growth rate could be anywhere from -100 to 100 with equal probability.</p>
+<p>Which says: I think baby growth rate is probably somewhere near zero, but I’m open to values several units in either direction. It’s not completely flat, but it’s wide enough not to strongly influence the posterior unless your data are very sparse.</p>
 </section>
 <section id="whats-next" class="level1">
 <h1>What’s next?</h1>
