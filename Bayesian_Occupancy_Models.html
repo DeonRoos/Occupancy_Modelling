@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Deon Roos">
-<meta name="dcterms.date" content="2026-06-06">
+<meta name="dcterms.date" content="2026-07-21">
 
 <title>Bayesian Occupancy Models – Occupancy Modelling</title>
 <style>
@@ -229,7 +229,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 6, 2026</p>
+      <p class="date">July 21, 2026</p>
     </div>
   </div>
   
@@ -296,9 +296,9 @@ window.Quarto = {
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_path</span>(<span class="at">color =</span> <span class="st">"#FF5733"</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y), <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> true_param[<span class="dv">1</span>], <span class="at">y =</span> true_param[<span class="dv">2</span>]), </span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">4</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"#a9761a"</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">shape =</span> <span class="dv">4</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> true_param[<span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.1</span>, <span class="at">y =</span> true_param[<span class="dv">2</span>],</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"True value"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"True value"</span>, <span class="at">color =</span> <span class="st">"#a9761a"</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_reveal</span>(iteration) <span class="sc">+</span></span>
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
@@ -342,7 +342,7 @@ window.Quarto = {
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> value)) <span class="sc">+</span></span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.4</span>, <span class="at">fill =</span> <span class="st">"#FF5733"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">boundary =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#a9761a"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">labeller =</span> label_parsed) <span class="sc">+</span></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Cumulative Posterior up to Iteration {current_frame}"</span>,</span>
@@ -377,7 +377,7 @@ window.Quarto = {
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(samples_long_cumulative_trace, <span class="fu">aes</span>(<span class="at">x =</span> iteration, <span class="at">y =</span> value)) <span class="sc">+</span></span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#FF5733"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#a9761a"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">labeller =</span> label_parsed) <span class="sc">+</span></span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Traceplot up to Iteration {current_frame}"</span>,</span>
@@ -392,45 +392,45 @@ window.Quarto = {
 <section id="try-it-yourself" class="level1">
 <h1>Try it yourself</h1>
 <p>The animations above show what MCMC looks like when it works well. Now try it yourself. Click anywhere on the parameter space below to place a sample. After your first click, each new click will tell you whether you moved to a higher likelihood (hotter) or lower likelihood (colder). Your samples accumulate in the histograms and trace plots below. The likelihood surface is hidden until you run out of iterations.</p>
-<div id="mw-wrap" style="background:#202123;padding:20px;border-radius:6px;margin:20px 0;font-family:sans-serif;">
+<div id="mw-wrap" style="background:#f2ecdc;border:1px solid #cabf9f;padding:20px;border-radius:6px;margin:20px 0;font-family:sans-serif;">
 
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-    <span style="color:#999;font-size:12px;">Iterations:</span>
-    <button id="mw-i25" style="background:none;border:1px solid #555;color:#999;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">25</button>
-    <button id="mw-i50" style="background:none;border:1px solid #555;color:#999;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">50</button>
-    <button id="mw-i100" style="background:none;border:1px solid #555;color:#999;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">100</button>
+    <span style="color:#5f5d3e;font-size:12px;">Iterations:</span>
+    <button id="mw-i25" style="background:none;border:1px solid #8a8567;color:#5f5d3e;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">25</button>
+    <button id="mw-i50" style="background:none;border:1px solid #8a8567;color:#5f5d3e;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">50</button>
+    <button id="mw-i100" style="background:none;border:1px solid #8a8567;color:#5f5d3e;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">100</button>
   </div>
 
   <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;">
 
     <div style="flex-shrink:0;">
-      <canvas id="mw-canvas" width="380" height="380" style="border:1px solid #444;cursor:crosshair;display:block;border-radius:4px;"></canvas>
+      <canvas id="mw-canvas" width="380" height="380" style="border:1px solid #cabf9f;cursor:crosshair;display:block;border-radius:4px;"></canvas>
     </div>
 
-    <div style="flex:1;min-width:180px;color:#cccccc;">
-      <div id="mw-iter" style="font-size:13px;color:#999;height:20px;margin-bottom:10px;"></div>
-      <div style="height:62px;border:1px solid #2d2d2f;border-radius:4px;padding:10px 12px;margin-bottom:14px;box-sizing:border-box;overflow:hidden;">
+    <div style="flex:1;min-width:180px;color:#3a3826;">
+      <div id="mw-iter" style="font-size:13px;color:#5f5d3e;height:20px;margin-bottom:10px;"></div>
+      <div style="height:62px;border:1px solid #cabf9f;border-radius:4px;padding:10px 12px;margin-bottom:14px;box-sizing:border-box;overflow:hidden;">
         <div id="mw-feedback" style="font-size:16px;font-weight:bold;height:22px;overflow:hidden;"></div>
-        <div id="mw-like" style="font-size:12px;color:#999;margin-top:4px;height:16px;overflow:hidden;"></div>
+        <div id="mw-like" style="font-size:12px;color:#5f5d3e;margin-top:4px;height:16px;overflow:hidden;"></div>
       </div>
-      <button id="mw-reset" style="background:none;border:1px solid #555;color:#999;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:12px;">Reset</button>
-      <div id="mw-result" style="display:none;border:1px solid #00a68a;border-radius:4px;padding:12px;font-size:13px;margin-top:12px;"></div>
+      <button id="mw-reset" style="background:none;border:1px solid #8a8567;color:#5f5d3e;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:12px;">Reset</button>
+      <div id="mw-result" style="display:none;border:1px solid #a9761a;border-radius:4px;padding:12px;font-size:13px;margin-top:12px;"></div>
     </div>
 
   </div>
 
   <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;">
     <div style="flex:1;min-width:180px;">
-      <div style="color:#999;font-size:12px;margin-bottom:3px;">Samples of β₀</div>
-      <canvas id="mw-hb0" width="320" height="80" style="border:1px solid #444;display:block;width:100%;border-radius:4px;"></canvas>
-      <div style="color:#999;font-size:12px;margin-top:8px;margin-bottom:3px;">Trace of β₀</div>
-      <canvas id="mw-tb0" width="320" height="60" style="border:1px solid #444;display:block;width:100%;border-radius:4px;"></canvas>
+      <div style="color:#5f5d3e;font-size:12px;margin-bottom:3px;">Samples of β₀</div>
+      <canvas id="mw-hb0" width="320" height="80" style="border:1px solid #cabf9f;display:block;width:100%;border-radius:4px;"></canvas>
+      <div style="color:#5f5d3e;font-size:12px;margin-top:8px;margin-bottom:3px;">Trace of β₀</div>
+      <canvas id="mw-tb0" width="320" height="60" style="border:1px solid #cabf9f;display:block;width:100%;border-radius:4px;"></canvas>
     </div>
     <div style="flex:1;min-width:180px;">
-      <div style="color:#999;font-size:12px;margin-bottom:3px;">Samples of β₁</div>
-      <canvas id="mw-hb1" width="320" height="80" style="border:1px solid #444;display:block;width:100%;border-radius:4px;"></canvas>
-      <div style="color:#999;font-size:12px;margin-top:8px;margin-bottom:3px;">Trace of β₁</div>
-      <canvas id="mw-tb1" width="320" height="60" style="border:1px solid #444;display:block;width:100%;border-radius:4px;"></canvas>
+      <div style="color:#5f5d3e;font-size:12px;margin-bottom:3px;">Samples of β₁</div>
+      <canvas id="mw-hb1" width="320" height="80" style="border:1px solid #cabf9f;display:block;width:100%;border-radius:4px;"></canvas>
+      <div style="color:#5f5d3e;font-size:12px;margin-top:8px;margin-bottom:3px;">Trace of β₁</div>
+      <canvas id="mw-tb1" width="320" height="60" style="border:1px solid #cabf9f;display:block;width:100%;border-radius:4px;"></canvas>
     </div>
   </div>
 
@@ -440,7 +440,7 @@ window.Quarto = {
 (function () {
   var B0MIN = -2, B0MAX = 6, B1MIN = -3, B1MAX = 1;
   var MAXITER = 25;
-  var BG = "#202123", TEAL = "#00a68a", ORANGE = "#FF5733";
+  var BG = "#f2ecdc", TEAL = "#a9761a", ORANGE = "#FF5733";
   var LM_B0 = -0.5, LM_B1 = -1.5;
 
   var TB0, TB1;
@@ -490,10 +490,10 @@ window.Quarto = {
       for (var py = 0; py < cv.height; py++) {
         var p = toParam(px, py), l = lhood(p.b0, p.b1);
         var i = (py * cv.width + px) * 4;
-        id.data[i]   = Math.round(l * 42);
-        id.data[i+1] = Math.round(35 + l * 133);
-        id.data[i+2] = Math.round(40 + l * 98);
-        id.data[i+3] = Math.round(55 + l * 160);
+        id.data[i]   = 169;
+        id.data[i+1] = 118;
+        id.data[i+2] = 26;
+        id.data[i+3] = Math.round(Math.min(235, l * 165));
       }
     }
     ctx.putImageData(id, 0, 0);
@@ -501,14 +501,14 @@ window.Quarto = {
 
   function drawGrid() {
     var o = toXY(0, 0);
-    ctx.strokeStyle = "#2d2d2f"; ctx.lineWidth = 0.5;
+    ctx.strokeStyle = "#cabf9f"; ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(o.x, 0);   ctx.lineTo(o.x, cv.height); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, o.y);   ctx.lineTo(cv.width, o.y);  ctx.stroke();
-    ctx.fillStyle = "#555"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
+    ctx.fillStyle = "#8a8567"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
     ctx.fillText("β₀", cv.width / 2, cv.height - 4);
     ctx.save(); ctx.translate(10, cv.height / 2); ctx.rotate(-Math.PI / 2);
     ctx.fillText("β₁", 0, 0); ctx.restore();
-    ctx.font = "9px sans-serif"; ctx.fillStyle = "#555";
+    ctx.font = "9px sans-serif"; ctx.fillStyle = "#8a8567";
     ctx.textAlign = "left";  ctx.fillText(B0MIN, 14, cv.height - 4);
     ctx.textAlign = "right"; ctx.fillText(B0MAX, cv.width - 2, cv.height - 4);
     ctx.textAlign = "right"; ctx.fillText(B1MAX, cv.width - 2, 10);
@@ -517,10 +517,10 @@ window.Quarto = {
 
   function drawTrueMark() {
     var p = toXY(TB0, TB1), r = 7;
-    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
+    ctx.strokeStyle = "#1b1b14"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(p.x-r, p.y-r); ctx.lineTo(p.x+r, p.y+r); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(p.x+r, p.y-r); ctx.lineTo(p.x-r, p.y+r); ctx.stroke();
-    ctx.fillStyle = "#ffffff"; ctx.font = "11px sans-serif"; ctx.textAlign = "left";
+    ctx.fillStyle = "#1b1b14"; ctx.font = "11px sans-serif"; ctx.textAlign = "left";
     ctx.fillText("True value", p.x + r + 4, p.y + 4);
   }
 
@@ -565,11 +565,11 @@ window.Quarto = {
     if (vals.length > 0) {
       var mean = vals.reduce(function(a, b) { return a + b; }, 0) / vals.length;
       var mx = (mean - xmin) / (xmax - xmin) * w;
-      hctx.strokeStyle = "#ffffff"; hctx.lineWidth = 1.5; hctx.setLineDash([3, 3]);
+      hctx.strokeStyle = "#1b1b14"; hctx.lineWidth = 1.5; hctx.setLineDash([3, 3]);
       hctx.beginPath(); hctx.moveTo(mx, 0); hctx.lineTo(mx, h - pad);
       hctx.stroke(); hctx.setLineDash([]);
     }
-    hctx.fillStyle = "#555"; hctx.font = "9px sans-serif";
+    hctx.fillStyle = "#8a8567"; hctx.font = "9px sans-serif";
     hctx.textAlign = "left";  hctx.fillText(xmin, 2, h - 2);
     hctx.textAlign = "right"; hctx.fillText(xmax, w - 2, h - 2);
   }
@@ -577,7 +577,7 @@ window.Quarto = {
   function drawTrace(hctx, vals, ymin, ymax) {
     var w = hctx.canvas.width, h = hctx.canvas.height, pad = 14;
     hctx.fillStyle = BG; hctx.fillRect(0, 0, w, h);
-    hctx.fillStyle = "#555"; hctx.font = "9px sans-serif";
+    hctx.fillStyle = "#8a8567"; hctx.font = "9px sans-serif";
     hctx.textAlign = "left";  hctx.fillText(ymin, 2, h - 2);
     hctx.textAlign = "right"; hctx.fillText(ymax, w - 2, h - 2);
     if (vals.length < 2) return;
@@ -611,8 +611,8 @@ window.Quarto = {
     MAXITER = n;
     [elI25, elI50, elI100].forEach(function(b, i) {
       var v = [25, 50, 100][i];
-      b.style.borderColor = (v === n) ? TEAL : "#555";
-      b.style.color       = (v === n) ? TEAL : "#999";
+      b.style.borderColor = (v === n) ? TEAL : "#8a8567";
+      b.style.color       = (v === n) ? TEAL : "#5f5d3e";
     });
     reset();
   }
@@ -628,12 +628,12 @@ window.Quarto = {
 
     if (n === 0) {
       lockIter(true);
-      elFb.style.color = "#999"; elFb.textContent = "First sample placed.";
+      elFb.style.color = "#5f5d3e"; elFb.textContent = "First sample placed.";
     } else {
       var prev = samples[n - 1];
       if      (l > prev.l) { elFb.style.color = TEAL;      elFb.textContent = "Hotter"; }
-      else if (l < prev.l) { elFb.style.color = "#e05555"; elFb.textContent = "Colder"; }
-      else                 { elFb.style.color = "#999";    elFb.textContent = "Same likelihood"; }
+      else if (l < prev.l) { elFb.style.color = "#c0392b"; elFb.textContent = "Colder"; }
+      else                 { elFb.style.color = "#5f5d3e";    elFb.textContent = "Same likelihood"; }
     }
     elLk.textContent = "Likelihood: " + l.toFixed(5);
 
@@ -661,34 +661,34 @@ window.Quarto = {
       var stuck = distLocal < distTrue;
 
       var tick  = "<span style='color:" + TEAL    + ";'>&#10003;</span>";
-      var cross = "<span style='color:#e05555;'>&#10007;</span>";
+      var cross = "<span style='color:#c0392b;'>&#10007;</span>";
       var summary = "";
       if (stuck) {
-        summary = "<div style='margin-top:10px;padding:8px;background:#2d1f1f;border-radius:4px;color:#e05555;font-size:12px;'>" +
+        summary = "<div style='margin-top:10px;padding:8px;background:#f2e2dc;border-radius:4px;color:#c0392b;font-size:12px;'>" +
           "Your posterior mean is near the local minimum at (β₀ = " + LM_B0 + ", β₁ = " + LM_B1 + "). " +
           "The hot/cold feedback led you toward a plausible but wrong region. " +
           "This is exactly why real MCMC occasionally accepts worse moves: to escape traps like this." +
           "</div>";
       } else if (b0captured && b1captured) {
-        summary = "<div style='margin-top:10px;padding:8px;background:#1a2d26;border-radius:4px;color:" + TEAL + ";font-size:12px;'>" +
+        summary = "<div style='margin-top:10px;padding:8px;background:#e6ecd6;border-radius:4px;color:" + TEAL + ";font-size:12px;'>" +
           "Your credible intervals captured both true values. Good exploration." + "</div>";
       } else {
-        summary = "<div style='margin-top:10px;padding:8px;background:#2a2a1f;border-radius:4px;color:#ccaa44;font-size:12px;'>" +
+        summary = "<div style='margin-top:10px;padding:8px;background:#efe8d0;border-radius:4px;color:#8a6d1a;font-size:12px;'>" +
           "You found the right region but your intervals missed one or both true values. " +
           "More iterations and more systematic exploration would help." + "</div>";
       }
 
       elRs.style.display = "block";
       elRs.innerHTML =
-        "<div style='color:#cccccc;font-weight:bold;margin-bottom:8px;'>Your posterior means</div>" +
+        "<div style='color:#3a3826;font-weight:bold;margin-bottom:8px;'>Your posterior means</div>" +
         "<div style='color:" + TEAL + ";'>β₀ = " + mb0.toFixed(2) +
           " &nbsp; 95% CI: [" + b0lo.toFixed(2) + ", " + b0hi.toFixed(2) + "] &nbsp;" + (b0captured ? tick : cross) + "</div>" +
         "<div style='color:" + TEAL + ";margin-bottom:6px;'>β₁ = " + mb1.toFixed(2) +
           " &nbsp; 95% CI: [" + b1lo.toFixed(2) + ", " + b1hi.toFixed(2) + "] &nbsp;" + (b1captured ? tick : cross) + "</div>" +
-        "<div style='color:#666;font-size:11px;'>True values: β₀ = " + TB0 + ", β₁ = " + TB1 + "</div>" +
+        "<div style='color:#8a8567;font-size:11px;'>True values: β₀ = " + TB0 + ", β₁ = " + TB1 + "</div>" +
         summary;
 
-      elFb.style.color = "#cccccc"; elFb.textContent = "Done. Surface revealed.";
+      elFb.style.color = "#3a3826"; elFb.textContent = "Done. Surface revealed.";
       elLk.textContent = "";
     }
   });
@@ -798,7 +798,7 @@ window.Quarto = {
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>anim <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">fill =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.4</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">boundary =</span> <span class="dv">0</span>, </span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>                 <span class="at">position =</span> <span class="fu">position_dodge</span>(), <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#a9761a"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">labeller =</span> label_parsed, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
 <span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>, <span class="at">name =</span> <span class="st">"Chain"</span>) <span class="sc">+</span></span>
@@ -810,7 +810,7 @@ window.Quarto = {
 <span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>anim <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(samples_long_cumulative, <span class="fu">aes</span>(<span class="at">x =</span> iteration, <span class="at">y =</span> value, <span class="at">color =</span> <span class="fu">as.factor</span>(chain))) <span class="sc">+</span></span>
 <span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#00A68A"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> true_value), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#a9761a"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>parameter_label, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">labeller =</span> label_parsed, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_manual</span>(frame) <span class="sc">+</span></span>
 <span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>, <span class="at">name =</span> <span class="st">"Chain"</span>) <span class="sc">+</span></span>
@@ -936,8 +936,8 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#cccccc"</span>, <span class="at">col.axis =</span> <span class="st">"#cccccc"</span>, <span class="at">col.lab =</span> <span class="st">"#cccccc"</span>,</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#ffffff"</span>, <span class="at">col.sub =</span> <span class="st">"#999999"</span>, <span class="at">bg =</span> <span class="st">"#202123"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#3a3826"</span>, <span class="at">col.axis =</span> <span class="st">"#3a3826"</span>, <span class="at">col.lab =</span> <span class="st">"#3a3826"</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#24241a"</span>, <span class="at">col.sub =</span> <span class="st">"#5f5d3e"</span>, <span class="at">bg =</span> <span class="st">"#e9e0cc"</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
@@ -953,8 +953,8 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#cccccc"</span>, <span class="at">col.axis =</span> <span class="st">"#cccccc"</span>, <span class="at">col.lab =</span> <span class="st">"#cccccc"</span>,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#ffffff"</span>, <span class="at">col.sub =</span> <span class="st">"#999999"</span>, <span class="at">bg =</span> <span class="st">"#202123"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#3a3826"</span>, <span class="at">col.axis =</span> <span class="st">"#3a3826"</span>, <span class="at">col.lab =</span> <span class="st">"#3a3826"</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#24241a"</span>, <span class="at">col.sub =</span> <span class="st">"#5f5d3e"</span>, <span class="at">bg =</span> <span class="st">"#e9e0cc"</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
@@ -982,7 +982,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0193
+Run Time (min): 0.021
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
@@ -1016,27 +1016,27 @@ rain         0.1704 0.2175 -0.2473  0.1681  0.6090 1.0013 3195</code></pre>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(beta_0_df, <span class="fu">aes</span>(<span class="at">x =</span> beta_0)) <span class="sc">+</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"#00A68A"</span>, <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"#a9761a"</span>, <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Vertical lines</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>mean, <span class="at">linetype =</span> <span class="st">"solid"</span>, <span class="at">color =</span> <span class="st">"#e2e2e2"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>median, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#e2e2e2"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>lower, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"#e2e2e2"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>upper, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"#e2e2e2"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>mean, <span class="at">linetype =</span> <span class="st">"solid"</span>, <span class="at">color =</span> <span class="st">"#24241a"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>median, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#24241a"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>lower, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"#24241a"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> summary_stats<span class="sc">$</span>upper, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"#24241a"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># curved arrows</span></span>
 <span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>mean <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">400</span>,</span>
 <span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>mean, <span class="at">yend =</span> <span class="dv">350</span>),</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#e2e2e2"</span>) <span class="sc">+</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#24241a"</span>) <span class="sc">+</span></span>
 <span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>median <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">300</span>,</span>
 <span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>median, <span class="at">yend =</span> <span class="dv">250</span>),</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#e2e2e2"</span>) <span class="sc">+</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#24241a"</span>) <span class="sc">+</span></span>
 <span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>lower <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>,</span>
 <span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>lower, <span class="at">yend =</span> <span class="dv">75</span>),</span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#e2e2e2"</span>) <span class="sc">+</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#24241a"</span>) <span class="sc">+</span></span>
 <span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="fu">aes</span>(<span class="at">x =</span> summary_stats<span class="sc">$</span>upper <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">100</span>,</span>
 <span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>                 <span class="at">xend =</span> summary_stats<span class="sc">$</span>upper, <span class="at">yend =</span> <span class="dv">75</span>),</span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#e2e2e2"</span>) <span class="sc">+</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.02</span>, <span class="st">"npc"</span>)), <span class="at">curvature =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#24241a"</span>) <span class="sc">+</span></span>
 <span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>mean <span class="sc">+</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">400</span>, <span class="at">label =</span> <span class="st">"Mean"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
 <span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> summary_stats<span class="sc">$</span>median <span class="sc">-</span> <span class="fl">0.5</span>, <span class="at">y =</span> <span class="dv">300</span>, <span class="at">label =</span> <span class="st">"Median"</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
@@ -1136,8 +1136,8 @@ rain         0.1704 0.2175 -0.2473  0.1681  0.6090 1.0013 3195</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#cccccc"</span>, <span class="at">col.axis =</span> <span class="st">"#cccccc"</span>, <span class="at">col.lab =</span> <span class="st">"#cccccc"</span>,</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#ffffff"</span>, <span class="at">col.sub =</span> <span class="st">"#999999"</span>, <span class="at">bg =</span> <span class="st">"#202123"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#3a3826"</span>, <span class="at">col.axis =</span> <span class="st">"#3a3826"</span>, <span class="at">col.lab =</span> <span class="st">"#3a3826"</span>,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#24241a"</span>, <span class="at">col.sub =</span> <span class="st">"#5f5d3e"</span>, <span class="at">bg =</span> <span class="st">"#e9e0cc"</span>)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'beta'</span>) <span class="co"># Occupancy parameters.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
@@ -1149,8 +1149,8 @@ rain         0.1704 0.2175 -0.2473  0.1681  0.6090 1.0013 3195</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#cccccc"</span>, <span class="at">col.axis =</span> <span class="st">"#cccccc"</span>, <span class="at">col.lab =</span> <span class="st">"#cccccc"</span>,</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#ffffff"</span>, <span class="at">col.sub =</span> <span class="st">"#999999"</span>, <span class="at">bg =</span> <span class="st">"#202123"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">fg =</span> <span class="st">"#3a3826"</span>, <span class="at">col.axis =</span> <span class="st">"#3a3826"</span>, <span class="at">col.lab =</span> <span class="st">"#3a3826"</span>,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.main =</span> <span class="st">"#24241a"</span>, <span class="at">col.sub =</span> <span class="st">"#5f5d3e"</span>, <span class="at">bg =</span> <span class="st">"#e9e0cc"</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_priors, <span class="st">'alpha'</span>) <span class="co"># Detection parameters.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
@@ -1179,7 +1179,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0167
+Run Time (min): 0.0162
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS
@@ -1210,7 +1210,7 @@ Burn-in: 200
 Thinning Rate: 1
 Number of Chains: 4
 Total Posterior Samples: 7200
-Run Time (min): 0.0193
+Run Time (min): 0.021
 
 Occurrence (logit scale): 
                Mean     SD    2.5%     50%  97.5%   Rhat ESS

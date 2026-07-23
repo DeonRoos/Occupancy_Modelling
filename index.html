@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Welcome to your site – Occupancy Modelling</title>
+<title>Occupancy Modelling</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -120,66 +120,133 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul class="collapse">
-  <li><a href="#hey-stuart-and-morgan" id="toc-hey-stuart-and-morgan" class="nav-link active" data-scroll-target="#hey-stuart-and-morgan">Hey Stuart and Morgan!</a>
-  <ul class="collapse">
-  <li><a href="#suggested-order" id="toc-suggested-order" class="nav-link" data-scroll-target="#suggested-order">Suggested Order</a></li>
-  </ul></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Welcome to your site</h1>
+
+
+
+<style>
+/* ---- Landing page: dark "ink" poster (scoped to index) ---- */
+body { background:#1b1b14 !important; }
+.quarto-title-block, #title-block-header { display:none !important; }
+#quarto-content > * { background:#1b1b14; }
+main.content, #quarto-document-content { max-width:none !important; }
+
+.pp-landing { max-width:1180px; margin:0 auto; padding:clamp(40px,7vw,88px) clamp(20px,5vw,72px) 0;
+  font-family:'Public Sans',system-ui,sans-serif; }
+
+.pp-kick { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.22em;
+  text-transform:uppercase; color:#d19527; }
+.pp-kick .dim { color:#7a745e; }
+
+.pp-landing .pp-title { font-family:'Anton',sans-serif !important; font-weight:400;
+  font-size:clamp(52px,11vw,140px); line-height:.82; letter-spacing:-.01em;
+  text-transform:uppercase; color:#ece3cc !important; margin:22px 0 0 !important;
+  border:none !important; padding:0 !important; }
+.pp-landing .pp-title .g { color:#d19527 !important; }
+
+.pp-herofoot { display:flex; flex-wrap:wrap; justify-content:space-between;
+  align-items:flex-end; gap:24px; margin-top:32px;
+  border-bottom:1px solid #38382a; padding-bottom:34px; }
+.pp-greet { font-family:'Public Sans',sans-serif; font-weight:700; font-size:14px;
+  letter-spacing:.14em; text-transform:uppercase; color:#d19527; margin:0 0 12px; }
+.pp-lede { font-family:'Newsreader',serif; font-style:italic;
+  font-size:clamp(17px,2.2vw,23px); line-height:1.45; color:#c9c0a6;
+  max-width:52ch; margin:0; }
+.pp-math { font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d19527;
+  text-align:right; line-height:1.9; white-space:nowrap; }
+
+.pp-note { font-family:'Newsreader',serif; font-style:italic;
+  font-size:clamp(15px,1.8vw,19px); line-height:1.5; color:#9a927b;
+  max-width:64ch; margin:30px 0 0; }
+.pp-note em { color:#c9c0a6; font-style:italic; }
+
+.pp-orderlabel { font-family:'IBM Plex Mono',monospace; font-size:11px;
+  letter-spacing:.2em; text-transform:uppercase; color:#7a745e; margin:52px 0 4px; }
+
+.pp-row { display:grid; grid-template-columns:64px 1fr auto; gap:20px; align-items:center;
+  padding:22px 0; border-top:1px solid #2c2c20; text-decoration:none;
+  transition:background .15s ease, padding .15s ease; }
+.pp-row:last-of-type { border-bottom:1px solid #2c2c20; }
+.pp-row:hover { background:#211f16; padding-left:12px; text-decoration:none; }
+.pp-num { font-family:'Anton',sans-serif; font-size:38px; color:#d19527; line-height:1; }
+.pp-rt { font-family:'Public Sans',sans-serif; font-weight:700;
+  font-size:clamp(16px,2vw,22px); color:#ece3cc; display:block; }
+.pp-rd { font-family:'Public Sans',sans-serif; font-size:14px; color:#9a927b;
+  display:block; margin-top:3px; }
+.pp-rd code { font-family:'IBM Plex Mono',monospace; color:#d19527; background:none;
+  padding:0; font-size:.92em; }
+.pp-arrow { font-family:'IBM Plex Mono',monospace; font-size:15px; color:#7a745e; }
+.pp-row:hover .pp-arrow { color:#d19527; }
+
+.pp-enjoy { font-family:'Anton',sans-serif; text-transform:uppercase;
+  font-size:clamp(30px,5vw,54px); color:#ece3cc; margin:56px 0 80px; }
+.pp-enjoy .g { color:#d19527; }
+
+@media (max-width:560px){
+  .pp-row { grid-template-columns:48px 1fr; }
+  .pp-arrow { display:none; }
+}
+</style>
+
+<div class="pp-landing">
+
+  <div class="pp-kick">
+    <span>Explainer series · Occupancy Modelling</span>
+    <span class="dim">Deon Roos · Aberdeen</span>
+  </div>
+
+  <h1 class="pp-title">Occupancy<br><span class="g">Modelling</span></h1>
+
+  <div class="pp-herofoot">
+    <div>
+      <p class="pp-greet">Hey Stuart and Morgan!</p>
+      <p class="pp-lede">This site was made for you both and introduces the fundamentals and advanced topics in occupancy modelling that you’ll need to do your honours project. I’ve tried to write the material to be accessible for you both, in terms of your honours projects, but also to help boost your skillset for when you finish you undergraduate.</p>
+    </div>
+    <div class="pp-math">zᵢ ~ Bernoulli(ψᵢ)<br>yᵢⱼ ~ Bernoulli(zᵢ·p)</div>
+  </div>
+
+  <p class="pp-note">As always, if there is anything in the site that is either wrong or confusing, just let me know. If it helps, I would be amazed if you understood everything that’s covered, so it’s my <em>prior</em> belief that parts will need to be explained in person.</p>
+
+  <div class="pp-orderlabel">Suggested order · to get the most out of this material</div>
+
+  <a class="pp-row" href="Occupancy_Models.html">
+    <span class="pp-num">01</span>
+    <span><span class="pp-rt">Occupancy Models: The basics</span><span class="pp-rd">Learn the basic theory of occupancy models and how they help us infer species presence or absence from imperfect detection.</span></span>
+    <span class="pp-arrow">↗</span>
+  </a>
+  <a class="pp-row" href="OccMods_WithCovariates.html">
+    <span class="pp-num">02</span>
+    <span><span class="pp-rt">Occupancy Models: Covariates</span><span class="pp-rd">Learn how site and survey covariates can improve our biological understanding and enhance the accuracy of our inferences.</span></span>
+    <span class="pp-arrow">↗</span>
+  </a>
+  <a class="pp-row" href="Bayesian_Statistics.html">
+    <span class="pp-num">03</span>
+    <span><span class="pp-rt">Bayesian models: The concept</span><span class="pp-rd">Learn the basic theory of the Bayesian statistical framework: what’s a prior, and what’s a posterior?</span></span>
+    <span class="pp-arrow">↗</span>
+  </a>
+  <a class="pp-row" href="Bayesian_Occupancy_Models.html">
+    <span class="pp-num">04</span>
+    <span><span class="pp-rt">Fitting Bayesian Models</span><span class="pp-rd">Combine occupancy models with the Bayesian framework to fit models using the <code>spOccupancy</code> package.</span></span>
+    <span class="pp-arrow">↗</span>
+  </a>
+  <a class="pp-row" href="SpatialAutocorrelation.html">
+    <span class="pp-num">05</span>
+    <span><span class="pp-rt">Spatial Occupancy Models</span><span class="pp-rd">Learn about spatial autocorrelation and how to incorporate it in <code>spOccupancy</code>.</span></span>
+    <span class="pp-arrow">↗</span>
+  </a>
+
+  <div class="pp-enjoy">Enjoy<span class="g">.</span></div>
+
 </div>
 
 
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<section id="hey-stuart-and-morgan" class="level1">
-<h1>Hey Stuart and Morgan!</h1>
-<p>This site was made for you both and introduces the fundamentals and advanced topics in occupancy modelling that you’ll need to do your honours project. I’ve tried to write the material to be accessible for you both, in terms of your honours projects, but also to help boost your skillset for when you finish you undergraduate.</p>
-<p>As always, if there is anything in the site that is either wrong or confusing, just let me know. If it helps, I would be amazed if you understood everything that’s covered, so it’s my <em>prior</em> belief that parts will need to be explained in person.</p>
-<section id="suggested-order" class="level2">
-<h2 class="anchored" data-anchor-id="suggested-order">Suggested Order</h2>
-<p>To get the most out of this material, I recommend the following order:</p>
-<ol type="1">
-<li><p><a href="./Occupancy_Models.html"><strong>Occupancy Models: The basics</strong></a><br>
-Learn the basic theory of occupancy models and how they help us infer species presence or absence from imperfect detection.</p></li>
-<li><p><a href="./OccMods_WithCovariates.html"><strong>Occupancy Models: Covariates</strong></a><br>
-Learn how site and survey covariates can improve our biological understanding and enhance the accuracy of our inferences.</p></li>
-<li><p><a href="./Bayesian_Statistics.html"><strong>Bayesian models: The concept</strong></a><br>
-Learn the basic theory of the Bayesian statistical framework: what’s a prior, and what’s a posterior?</p></li>
-<li><p><a href="./Bayesian_Occupancy_Models.html"><strong>Fitting Bayesian Models</strong></a><br>
-Combine occupancy models with the Bayesian framework to fit models using the <code>spOccupancy</code> package.</p></li>
-<li><p><a href="./SpatialAutocorrelation.html"><strong>Spatial Occupancy Models</strong></a> Learn about spatial autocorrelation and how to incorporate it in <code>spOccupancy</code>.</p></li>
-</ol>
-<p>Enjoy!</p>
-
-
-</section>
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
